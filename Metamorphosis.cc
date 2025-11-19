@@ -364,6 +364,11 @@ int main(int argc, char *argv[])
     Plastic plastic;
     MUSIC music;
 
+    /////////// Define Variables for Plastic Cuts ///////////
+    float dT[NFPLANES];
+    float logQ[NFPLANES];
+
+    // loop over focal planes
     for (unsigned short f = 0; f < NFPLANES; f++)
     {
       fp[f]->Clear();
@@ -492,8 +497,7 @@ int main(int argc, char *argv[])
         }
       }
 
-      // Plastic Cuts to be put into a leaf
-
+      // MUSIC info
       music.Clear();
       tic = iccalib->FindIC(Form("F%dIC", fpID[f]));
       if (tic)
@@ -502,9 +506,30 @@ int main(int argc, char *argv[])
         music.SetEnergy(tic->GetEnergyAvSum(), tic->GetEnergySqSum());
       }
 
+      // fill the Focal Plane class
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);
       fp[f]->SetMUSIC(music);
+
+      ////////// Plastic Cuts to be put into a leaf //////////
+      if (tpla)
+      {
+        // protect dT calculation against non-positive times
+        float ftimeL = tpla->GetTimeL();
+        float ftimeR = tpla->GetTimeR();
+        if (ftimeL > 0.0 && ftimeR > 0.0)
+          dT[f] = ftimeL - ftimeR;
+        else
+          dT[f] = NAN; // mark invalid
+
+        // protect log calculation against non-positive charges
+        float qL = tpla->GetQLRaw();
+        float qR = tpla->GetQRRaw();
+        if (0.0 < qL && qL < 10000 && 0.0 < qR && qR < 10000) // < 10000 to protect against unphysical large charges
+          logQ[f] = log(qL / qR);
+        else
+          logQ[f] = NAN; // mark invalid
+      }
     }
 
     // Reconstructiong the PID
