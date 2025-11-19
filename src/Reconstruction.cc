@@ -180,7 +180,8 @@ bool Reconstruction::Addback(DALIHit* hit0, DALIHit* hit1){
     return false;
 
   if(fset->AddbackType()==1){
-    if(hit0->GetPos().DeltaR(hit1->GetPos())<fset->AddbackDistance())
+    TVector3 dist = hit0->GetPos() - hit1->GetPos();
+    if(dist.Mag()<fset->AddbackDistance())
       return true;
   }
   else if(fset->AddbackType()==2){

@@ -1,0 +1,28 @@
+VerboseLevel:		0
+DALI.File:		/u/ddas/exp/users/ddas/db/DALI.xml
+
+BigRIPS.PPAC.File:	/u/ddas/exp/users/ddas/db/PPAC/BigRIPSPPAC.xml
+BigRIPS.Plastic.File:	/u/ddas/exp/users/ddas/db/BigRIPSPlastic.xml
+BigRIPS.IC.File:	/u/ddas/exp/users/ddas/db/IC/BigRIPSIC.xml
+BigRIPS.Focal.File:	/u/ddas/exp/users/ddas/db/FocalPlane.xml
+Matrix.35.File:		/u/ddas/exp/users/ddas/matrix/mat1.mat
+Matrix.57.File:		/u/ddas/exp/users/ddas/matrix/mat2.mat
+Matrix.89.File:		/u/ddas/exp/users/ddas/matrix/F8F9_LargeAccAchr.mat
+Matrix.911.File:	/u/ddas/exp/users/ddas/matrix/F9F11_LargeAccAchr.mat
+
+
+TOF.Offset.0:		302.0
+TOF.Offset.1:		322.0
+TOF.Offset.2:		313.9
+TOF.Offset.3:		-120.2	
+TOF.Offset.4:		-120.2
+TOF.Offset.5:		-120.2
+
+InteractionPoints:	/u/ddas/software/Salvador/dali_coordinates.dat
+AverageBeta:		0.5207
+
+Timing.Gate.Low:	-40
+Timing.Gate.High:	40
+
+Addback.Threshold:	350
+Addback.Distance:	15

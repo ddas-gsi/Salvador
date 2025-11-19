@@ -4,11 +4,6 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-COMMON_DIR = $(HOME)/common/
-####TARTSYS=/usr/local/anaroot5
-TARTSYS=$(HOME)/progs/anaroot
-EURICAINC=$(HOME)/progs/bathtubopera/inc
-GO4INC=$(HOME)/ribf140/Go4EURICA
 
 
 ROOTCFLAGS   := $(shell root-config --cflags)
@@ -17,27 +12,34 @@ ROOTGLIBS    := $(shell root-config --glibs)
 ROOTINC      := -I$(shell root-config --incdir)
 
 CPP             = g++
-CFLAGS		= -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -std=c++11
+CFLAGS		= -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -MMD
 
-INCLUDES        = -I./inc -I$(COMMON_DIR) -I$(TARTSYS)/include -I$(EURICAINC) -I$(GO4INC)
-BASELIBS 	= -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib -lSpectrum -lPhysics -lMatrix -lXMLParser
-ALLIBS  	=  $(BASELIBS) -lCommandLineInterface -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lanadali -lSalvador -lEURICA -lGo4EURICA
-LIBS 		= $(ALLIBS)
+INCLUDES        = -I./inc -I$(TARTSYS)/include 
+BASELIBS 	= -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib -lXMLParser
+LIBS  	=  $(BASELIBS) -lCommandLineInterface -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lanadali -lSalvador
+
 LFLAGS		= -g -fPIC -shared
 CFLAGS += -Wl,--no-as-needed
 LFLAGS += -Wl,--no-as-needed 
 CFLAGS += -Wno-unused-variable -Wno-write-strings
 
-LIB_O_FILES = build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o build/PPAC.o build/PPACDictionary.o build/DALI.o build/DALIDictionary.o build/WASABI.o build/WASABIDictionary.o 
+CLICFLAGS   = -g2 -O2 -fPIC
+CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed
+
+LIB_O_FILES = build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o build/PPAC.o build/PPACDictionary.o build/DALI.o build/DALIDictionary.o 
 
 O_FILES = build/Reconstruction.o build/Settings.o
 
-W_FILES = build/Calibration.o build/BuildEvents.o build/WASABISettings.o
+USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
+ifeq ($(USING_ROOT_6),1)
+	EXTRAS =  PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm DALIDictionary_rdict.pcm
+endif
 
-all: Metamorphosis FriedBacon BurningGiraffe Disintegration Persistence $(LIB_DIR)/libSalvador.so
+all: $(LIB_DIR)/libCommandLineInterface.so Metamorphosis FriedBacon BurningGiraffe Disintegration Persistence $(LIB_DIR)/libSalvador.so $(EXTRAS) 
 
 Metamorphosis: Metamorphosis.cc $(LIB_DIR)/libSalvador.so build/Settings.o
 	@echo "Compiling $@"
+#	#$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) build/Settings.o -o $@ 
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) build/Settings.o -o $(BIN_DIR)/$@ 
 
 FriedBacon: FriedBacon.cc $(LIB_DIR)/libSalvador.so build/Settings.o
@@ -64,17 +66,13 @@ Temptation: Temptation.cc $(LIB_DIR)/libSalvador.so $(O_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
 
-Flames: Flames.cc $(LIB_DIR)/libSalvador.so $(W_FILES)
-	@echo "Compiling $@"
-	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(W_FILES) -o $(BIN_DIR)/$@ 
-
-Galatea: Galatea.cc $(LIB_DIR)/libSalvador.so $(LIB_DIR)/libEURICA.so $(W_FILES)
-	@echo "Compiling $@"
-	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(W_FILES) -o $(BIN_DIR)/$@ 
-
 Swans: Swans.cc $(LIB_DIR)/libSalvador.so
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) -o $(BIN_DIR)/$@ 
+
+$(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o  
+	@echo "Making $@"
+	@$(CPP) $(CLILFLAGS) -o $@ $^ -lc
 
 $(LIB_DIR)/libSalvador.so: $(LIB_O_FILES) 
 	@echo "Making $@"
@@ -108,7 +106,20 @@ build/%Dictionary.o: build/%Dictionary.cc
 build/%Dictionary.cc: inc/%.hh inc/%LinkDef.h
 	@echo "Building $@"
 	@mkdir -p build
-	@rootcint -f $@ -c $(INCLUDES) $(ROOTCFLAGS) $(notdir $^)
+	@rootcint -f $@ -c $(INCLUDES) $(notdir $^)
+
+build/%Dictionary_rdict.pcm: build/%Dictionary.cc
+	@echo "Confirming $@"
+	@touch $@
+
+%Dictionary_rdict.pcm: build/%Dictionary_rdict.pcm 
+	@echo "Placing $@"
+	@cp build/$@ $(LIB_DIR)
+
+build/CommandLineInterface.o: src/CommandLineInterface.cc inc/CommandLineInterface.hh
+	@echo "Building $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CLICFLAGS) $(INCLUDES) -c $< -o $@
 
 doc:	doxyconf
 	doxygen doxyconf

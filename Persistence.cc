@@ -19,7 +19,7 @@
 #include "Reconstruction.hh"
 #include "Globaldefs.h"
 
-int DALIIDS = 300;
+int DALIIDS = 500;
 
 using namespace TMath;
 using namespace std;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
   char* TreeName = (char*)"tr";
   int writeTree = 1;
   double beta =0;
-  int minID = 79;
+  int minID = 0;
   int br = 2;
   int zd = 5;
   //Read in the command line arguments
@@ -123,14 +123,14 @@ int main(int argc, char* argv[]){
 
   //histograms
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
-  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,1.8,2.3,1000,20,40);hlist->Add(bigrips);
-  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,1.8,2.3,1000,20,40);hlist->Add(zerodeg);
+  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,2.2,2.8,1000,0,40);hlist->Add(bigrips);
+  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,2.2,2.8,1000,0,40);hlist->Add(zerodeg);
   TH2F* bigrips_tr[10];
   TH2F* zerodeg_tr[10];
   TH1F* f5X_tr[10];
   for(int i=0;i<10;i++){
-    bigrips_tr[i] = new TH2F(Form("bigrips_tr%d",i),Form("bigrips_tr%d",i),1000,1.8,2.3,1000,20,40);hlist->Add(bigrips_tr[i]);
-    zerodeg_tr[i] = new TH2F(Form("zerodeg_tr%d",i),Form("zerodeg_tr%d",i),1000,1.8,2.3,1000,20,40);hlist->Add(zerodeg_tr[i]);
+    bigrips_tr[i] = new TH2F(Form("bigrips_tr%d",i),Form("bigrips_tr%d",i),1000,2.2,2.8,1000,0,40);hlist->Add(bigrips_tr[i]);
+    zerodeg_tr[i] = new TH2F(Form("zerodeg_tr%d",i),Form("zerodeg_tr%d",i),1000,2.2,2.8,1000,0,40);hlist->Add(zerodeg_tr[i]);
     f5X_tr[i] = new TH1F(Form("f5X_tr%d",i),Form("f5X_tr%d",i),3000,-150,150);hlist->Add(f5X_tr[i]);
   }
 
@@ -194,9 +194,9 @@ int main(int argc, char* argv[]){
   
   
   TH1F* tdiff = new TH1F("tdiff","tdiff",2000,-1000,1000);hlist->Add(tdiff);
-  TH1F* rdiff = new TH1F("rdiff","rdiff",2000,0,10);hlist->Add(rdiff);
+  TH1F* rdiff = new TH1F("rdiff","rdiff",2000,0,200);hlist->Add(rdiff);
   TH1F* adiff = new TH1F("adiff","adiff",2000,0,4);hlist->Add(adiff);
-  TH2F* radiff = new TH2F("radiff","radiff",200,0,4,200,0,10);hlist->Add(radiff);
+  TH2F* radiff = new TH2F("radiff","radiff",200,0,4,2000,0,200);hlist->Add(radiff);
 
   // TH1F* tdiff_coinc = new TH1F("tdiff_coinc","tdiff_coinc",2000,-1000,1000);hlist->Add(tdiff_coinc);
   // TH1F* rdiff_coinc = new TH1F("rdiff_coinc","rdiff_coinc",2000,0,10);hlist->Add(rdiff_coinc);
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]){
   int bins = 8000;
   
   TH2F* triggertgam = new TH2F("triggertgam","triggertgam",1000,-500,500,10,0,10);hlist->Add(triggertgam);
-  TH2F* ID_theta  = new TH2F("ID_theta","ID_theta",250,0,250,180,0,180);hlist->Add(ID_theta);
+  TH2F* ID_theta  = new TH2F("ID_theta","ID_theta",DALIIDS,0,DALIIDS,180,0,180);hlist->Add(ID_theta);
   TH1F* mult = new TH1F("mult","mult",50,0,50);hlist->Add(mult);
   TH2F* multtrig = new TH2F("multtrig","multtrig",20,0,20,50,0,50);hlist->Add(multtrig);
   TH1F* egam = new TH1F("egam","egam",bins,0,bins);hlist->Add(egam);
@@ -215,6 +215,7 @@ int main(int argc, char* argv[]){
   TH1F* egamdc_IDgate = new TH1F("egamdc_IDgate","egamdc_IDgate",bins,0,bins);hlist->Add(egamdc_IDgate);
   TH2F* egamtgam = new TH2F("egamtgam","egamtgam",1000,-500,500,1000,0,bins);hlist->Add(egamtgam);
   TH2F* egamdctgam = new TH2F("egamdctgam","egamdctgam",1000,-500,500,1000,0,bins);hlist->Add(egamdctgam);
+  TH2F* tgamID = new TH2F("tgamID","tgamID",DALIIDS,0,DALIIDS,1000,-500,500);hlist->Add(tgamID);
   TH2F* egammult = new TH2F("egammult","egammult",20,0,20,bins,0,bins);hlist->Add(egammult);
   TH2F* egamdcmult = new TH2F("egamdcmult","egamdcmult",20,0,20,bins,0,bins);hlist->Add(egamdcmult);
   TH2F* egammult_IDgate = new TH2F("egammult_IDgate","egammult_IDgate",20,0,20,bins,0,bins);hlist->Add(egammult_IDgate);
@@ -238,6 +239,9 @@ int main(int argc, char* argv[]){
   TH2F* egamABdcmult = new TH2F("egamABdcmult","egamABdcmult",20,0,20,bins,0,bins);hlist->Add(egamABdcmult);
   TH2F* egamABdcmultAB = new TH2F("egamABdcmultAB","egamABdcmultAB",20,0,20,bins,0,bins);hlist->Add(egamABdcmultAB);
   TH1F* egamAB_IDgate = new TH1F("egamAB_IDgate","egamAB_IDgate",bins,0,bins);hlist->Add(egamAB_IDgate);
+  TH2F* egamABtgam = new TH2F("egamABtgam","egamABtgam",1000,-500,500,1000,0,bins);hlist->Add(egamABtgam);
+  TH2F* egamABdctgam = new TH2F("egamABdctgam","egamABdctgam",1000,-500,500,1000,0,bins);hlist->Add(egamABdctgam);
+  TH2F* tgamABID = new TH2F("tgamABID","tgamABID",DALIIDS,0,DALIIDS,1000,-500,500);hlist->Add(tgamABID);
   TH1F* egamABdc_IDgate = new TH1F("egamABdc_IDgate","egamABdc_IDgate",bins,0,bins);hlist->Add(egamABdc_IDgate);
   TH2F* egamABmult_IDgate = new TH2F("egamABmult_IDgate","egamABmult_IDgate",20,0,20,bins,0,bins);hlist->Add(egamABmult_IDgate);
   TH2F* egamABmultAB_IDgate = new TH2F("egamABmultAB_IDgate","egamABmultAB_IDgate",20,0,20,bins,0,bins);hlist->Add(egamABmultAB_IDgate);
@@ -534,6 +538,7 @@ int main(int argc, char* argv[]){
       triggertgam->Fill(dali->GetHit(k)->GetTOffset(),trigbit);
       egamtgam->Fill(dali->GetHit(k)->GetTOffset(),dali->GetHit(k)->GetEnergy());
       egamdctgam->Fill(dali->GetHit(k)->GetTOffset(),dali->GetHit(k)->GetDCEnergy());    
+      tgamID->Fill(dali->GetHit(k)->GetID(),dali->GetHit(k)->GetTOffset());
       egamtrig->Fill(trigbit,dali->GetHit(k)->GetEnergy());
       //egamdctrig->Fill(trigbit,dali->GetHit(k)->GetDCEnergy());
       egammult->Fill(dali->GetMult(),dali->GetHit(k)->GetEnergy());
@@ -578,6 +583,9 @@ int main(int argc, char* argv[]){
       egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
       egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
       egamABtrig->Fill(trigbit,dali->GetHitAB(k)->GetEnergy());
+      egamABtgam->Fill(dali->GetHitAB(k)->GetTOffset(),dali->GetHitAB(k)->GetEnergy());
+      egamABdctgam->Fill(dali->GetHitAB(k)->GetTOffset(),dali->GetHitAB(k)->GetDCEnergy());    
+      tgamABID->Fill(dali->GetHitAB(k)->GetID(),dali->GetHitAB(k)->GetTOffset());
       //egamABdctrig->Fill(trigbit,dali->GetHitAB(k)->GetDCEnergy());
       egamABmult->Fill(dali->GetMult(),dali->GetHitAB(k)->GetEnergy());    
       egamABmultAB->Fill(dali->GetMultAB(),dali->GetHitAB(k)->GetEnergy());    
@@ -632,9 +640,10 @@ int main(int argc, char* argv[]){
       for(unsigned short k=0;k<dali->GetMult();k++){
 	for(unsigned short l=k+1;l<dali->GetMult();l++){
 	  tdiff->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
-	  rdiff->Fill(dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
+	  TVector3 dist = dali->GetHit(k)->GetPos() - dali->GetHit(l)->GetPos();
+	  rdiff->Fill(dist.Mag());
 	  adiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()));
-	  radiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()),dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
+	  radiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()),dist.Mag());
 	  // if(gc->IsInside(dali->GetHit(k)->GetEnergy(),dali->GetHit(l)->GetEnergy())){
 	  //   tdiff_coinc->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
 	  //   rdiff_coinc->Fill(dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));

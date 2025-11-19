@@ -1,0 +1,15 @@
+export TARTSYS=/u/ddas/software/anaroot/install                                 # Exporting the realpath
+export LD_LIBRARY_PATH=/u/ddas/software/anaroot/install/lib:$LD_LIBRARY_PATH             # Exporting the realpath
+export ROOT_INCLUDE_PATH=/u/ddas/software/anaroot/install/include:$ROOT_INCLUDE_PATH     # Exporting the realpath
+export PATH=/u/ddas/bin:$PATH                                                            # For the binaries like Metamorphosis, Persistence etc.
+export LD_LIBRARY_PATH=/u/ddas/lib:$LD_LIBRARY_PATH                                      # For the libraries like libCommandLineInterface.so
+
+
+
+
+
+#export TARTSYS=/u/ddas/software/anaroot/install:$TARTSYS
+
+#export TARTSYS=/u/ddas/exp/users/ddas/src:$TARTSYS
+#export LD_LIBRARY_PATH=$TARTSYS/lib:$LD_LIBRARY_PATH
+#export ROOT_INCLUDE_PATH=$TARTSYS/include:$ROOT_INCLUDE_PATH

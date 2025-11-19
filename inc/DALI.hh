@@ -42,8 +42,8 @@ public:
   }
   //! Set the detector ID
   void SetID(short id){
-    if(id>0 && id <MAXNCRYSTAL-1)//id is from 1
-      fID = id-1;
+    if(id <MAXNCRYSTAL)//id is from 0
+      fID = id;
     fhitsadded++;
   }
   //! Set the position by vector

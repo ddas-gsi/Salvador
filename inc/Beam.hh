@@ -11,179 +11,258 @@
 
 using namespace std;
 
-
 /*!
   Container for the full beam, tof, beta and pid information
 */
-class Beam : public TObject {
+class Beam : public TObject
+{
 public:
   //! default constructor
-  Beam(){
+  Beam()
+  {
     Clear();
   };
   //! Clear all information
-  void Clear(Option_t *option = ""){
-    for(unsigned short j=0;j<6;j++){
+  void Clear(Option_t *option = "")
+  {
+    for (unsigned short j = 0; j < 6; j++)
+    {
       faoq[j] = sqrt(-1.);
       faoqc[j] = sqrt(-1.);
       fzet[j] = sqrt(-1.);
       fzetc[j] = sqrt(-1.);
-    }    
-    for(unsigned short j=0;j<3;j++){
+      fripsbeta[j] = sqrt(-1);
+    }
+    for (unsigned short j = 0; j < 3; j++)
+    {
       ftof[j] = sqrt(-1.);
       fbeta[j] = sqrt(-1.);
     }
-    for(unsigned short j=0;j<4;j++){
+    for (unsigned short j = 0; j < 4; j++)
+    {
       fdelta[j] = sqrt(-1.);
     }
-    ftargetpos.SetXYZ(0,0,-99999);
-    fincdir.SetXYZ(0,0,-99999);
-    foutdir.SetXYZ(0,0,-99999);
-    fscadir.SetXYZ(0,0,-99999);
-    TVector3 X(1,0,0);
-    TVector3 Y(0,1,0);
-    TVector3 Z(0,0,1);
-    //fincrot.RotateAxes(X,Y,Z);
+    ftargetpos.SetXYZ(0, 0, -99999);
+    fincdir.SetXYZ(0, 0, -99999);
+    foutdir.SetXYZ(0, 0, -99999);
+    fscadir.SetXYZ(0, 0, -99999);
+    TVector3 X(1, 0, 0);
+    TVector3 Y(0, 1, 0);
+    TVector3 Z(0, 0, 1);
+    // fincrot.RotateAxes(X,Y,Z);
   }
   //! Set the A/Q ratio
-  void SetAQ(unsigned short j, double aoq){
-    if(j<0 || j>5) return;
+  void SetAQ(unsigned short j, double aoq)
+  {
+    if (j < 0 || j > 5)
+      return;
     faoq[j] = aoq;
   }
   //! Set the Z number
-  void SetZ(unsigned short j, double zet){    
-    if(j<0 || j>5) return;
+  void SetZ(unsigned short j, double zet)
+  {
+    if (j < 0 || j > 5)
+      return;
     fzet[j] = zet;
   }
   //! Set both A/Q and Z
-  void SetAQZ(unsigned short j, double aoq, double zet){
-    if(j<0 || j>5) return;
+  void SetAQZ(unsigned short j, double aoq, double zet)
+  {
+    if (j < 0 || j > 5)
+      return;
     faoq[j] = aoq;
     fzet[j] = zet;
   }
   //! Set the time-of-flight
-  void SetTOF(unsigned short j, double tof){    
-    if(j<0 || j>2) return;
+  void SetTOF(unsigned short j, double tof)
+  {
+    if (j < 0 || j > 2)
+      return;
     ftof[j] = tof;
   }
   //! Set the beta
-  void SetBeta(unsigned short j, double beta){    
-    if(j<0 || j>2) return;
+  void SetBeta(unsigned short j, double beta)
+  {
+    if (j < 0 || j > 2)
+      return;
     fbeta[j] = beta;
   }
   //! Set both time-of-flight and beta
-  void SetTOFBeta(unsigned short j, double tof, double beta){    
-    if(j<0 || j>2) return;
+  void SetTOFBeta(unsigned short j, double tof, double beta)
+  {
+    if (j < 0 || j > 2)
+      return;
     ftof[j] = tof;
     fbeta[j] = beta;
   }
+  //! Set RIPSBeta
+  void SetRIPSBeta(unsigned short j, double beta)
+  {
+    if (j < 0 || j > 5)
+      return;
+    fripsbeta[j] = beta;
+  }
   //! Set the delta
-  void SetDelta(unsigned short j, double delta){    
-    if(j<0 || j>3) return;
+  void SetDelta(unsigned short j, double delta)
+  {
+    if (j < 0 || j > 3)
+      return;
     fdelta[j] = delta;
   }
 
-  //! Set the target position 
-  void SetTargetPosition(TVector3 pos){
+  //! Set the target position
+  void SetTargetPosition(TVector3 pos)
+  {
     ftargetpos = pos;
   }
-  //! Set the target x position 
-  void SetTargetXPos(double xpos){
+  //! Set the target x position
+  void SetTargetXPos(double xpos)
+  {
     ftargetpos.SetX(xpos);
   }
-  //! Set the target y position 
-  void SetTargetYPos(double ypos){
+  //! Set the target y position
+  void SetTargetYPos(double ypos)
+  {
     ftargetpos.SetY(ypos);
   }
   //! Set the direction of the incoming beam
-  void SetIncomingDirection(TVector3 dir){
+  void SetIncomingDirection(TVector3 dir)
+  {
     fincdir = dir;
     fincrot.SetZAxis(fincdir.Unit());
     fincrot = fincrot.Inverse();
   }
   //! Set the direction of the scattered beam
-  void SetOutgoingDirection(TVector3 dir){
+  void SetOutgoingDirection(TVector3 dir)
+  {
     foutdir = dir;
-    if(fincdir.Z()>-99999){
+    if (fincdir.Z() > -99999)
+    {
       fscadir = dir;
       fscadir.Transform(fincrot);
     }
   }
 
   //! Correct the A/Q ratio based on position
-  void CorrectAQ(unsigned short j, double corr){
-    if(j<0 || j>5) return;
+  void CorrectAQ(unsigned short j, double corr)
+  {
+    if (j < 0 || j > 5)
+      return;
     faoqc[j] = faoq[j] + corr;
   }
   //! Scale and shift A/Q
-  void ScaleAQ(unsigned short j, double gain, double offs){
-    if(j<0 || j>5) return;
-    faoqc[j] = gain*faoqc[j] + offs;
+  void ScaleAQ(unsigned short j, double gain, double offs)
+  {
+    if (j < 0 || j > 5)
+      return;
+    faoqc[j] = gain * faoqc[j] + offs;
   }
+  //! Correct the Z based on Beta
+  void CorrectZ(unsigned short j, double corr)
+  {
+    if (j < 0 || j > 5)
+      return;
+    fzetc[j] = fzet[j] + corr;
+  }
+
   //! Get the A/Q ratio
-  double GetAQ(unsigned short j){
-    if(j<0 || j>5) return sqrt(-1.);
+  double GetAQ(unsigned short j)
+  {
+    if (j < 0 || j > 5)
+      return sqrt(-1.);
     return faoq[j];
   }
   //! Get the corrected A/Q ratio
-  double GetCorrAQ(unsigned short j){
-    if(j<0 || j>5) return sqrt(-1.);
+  double GetCorrAQ(unsigned short j)
+  {
+    if (j < 0 || j > 5)
+      return sqrt(-1.);
     return faoqc[j];
   }
   //! Get the Z number
-  double GetZ(unsigned short j){
-    if(j<0 || j>5) return sqrt(-1.);
+  double GetZ(unsigned short j)
+  {
+    if (j < 0 || j > 5)
+      return sqrt(-1.);
     return fzet[j];
   }
+  //! Get the corrected Z number
+  double GetCorrZ(unsigned short j)
+  {
+    if (j < 0 || j > 5)
+      return sqrt(-1.);
+    return fzetc[j];
+  }
   //! Get the time-of-flight
-  double GetTOF(unsigned short j){
-    if(j<0 || j>2) return sqrt(-1.);
+  double GetTOF(unsigned short j)
+  {
+    if (j < 0 || j > 2)
+      return sqrt(-1.);
     return ftof[j];
   }
   //! Get beta
-  double GetBeta(unsigned short j){
-    if(j<0 || j>2) return sqrt(-1.);
+  double GetBeta(unsigned short j)
+  {
+    if (j < 0 || j > 2)
+      return sqrt(-1.);
     return fbeta[j];
   }
+  //! Get RIPSBeta
+  double GetRIPSBeta(unsigned short j)
+  {
+    if (j < 0 || j > 5)
+      return sqrt(-1.);
+    return fripsbeta[j];
+  }
   //! Get Delta
-  double GetDelta(unsigned short j){
-    if(j<0 || j>3) return sqrt(-1.);
+  double GetDelta(unsigned short j)
+  {
+    if (j < 0 || j > 3)
+      return sqrt(-1.);
     return fdelta[j];
   }
   //! Get the direction of the incoming beam in lab system
-  TVector3 GetIncomingDirection(){
+  TVector3 GetIncomingDirection()
+  {
     return fincdir;
   }
   //! Get the direction of the outgoing beam in lab system
-  TVector3 GetOutgoingDirection(){
+  TVector3 GetOutgoingDirection()
+  {
     return foutdir;
   }
   //! Get the direction of the scattering (in beam coordinate system)
-  TVector3 GetScatteredDirection(){
+  TVector3 GetScatteredDirection()
+  {
     return fscadir;
   }
   //! Get the target position
-  TVector3 GetTargetPosition(){
+  TVector3 GetTargetPosition()
+  {
     return ftargetpos;
   }
   //! Get the target X position
-  double GetTargetPositionX(){
+  double GetTargetPositionX()
+  {
     return ftargetpos.X();
   }
   //! Get the target Y position
-  double GetTargetPositionY(){
+  double GetTargetPositionY()
+  {
     return ftargetpos.Y();
   }
 
   //! Get the scattering angle phi
-  double GetPhi(){
-    if(fscadir.Z()>-99999)
+  double GetPhi()
+  {
+    if (fscadir.Z() > -99999)
       return fscadir.Phi();
     return sqrt(-1.);
   }
   //! Get the scattering angle theta
-  double GetTheta(){
-    if(fscadir.Z()>-99999)
+  double GetTheta()
+  {
+    if (fscadir.Z() > -99999)
       return fscadir.Theta();
     return sqrt(-1.);
   }
@@ -193,7 +272,7 @@ protected:
   double faoq[6];
   //! corrected A/Q
   double faoqc[6];
-  //! Z for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11  
+  //! Z for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11
   double fzet[6];
   //! corrected Z
   double fzetc[6];
@@ -202,11 +281,13 @@ protected:
   double ftof[3];
   //! beta for 3-7, 8-11, 7-8
   double fbeta[3];
+  //! rips beta for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11
+  double fripsbeta[6];
 
   //! delta momentum 3-5, 5-7, 8-9, 9-11
   double fdelta[4];
 
-  //! target position 
+  //! target position
   TVector3 ftargetpos;
   //! incoming direction in lab system
   TVector3 fincdir;
@@ -218,9 +299,8 @@ protected:
   TVector3 fscadir;
 
   /// \cond CLASSIMP
-  ClassDef(Beam,1);
+  ClassDef(Beam, 1);
   /// \endcond
 };
-
 
 #endif

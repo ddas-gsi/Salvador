@@ -81,7 +81,6 @@ int main(int argc, char* argv[]){
   int toteventnumber = 0;
   tr->SetBranchAddress("toteventnumber",&toteventnumber);
 
-  cout<<"output file: "<<OutFile<< endl;
 
   vector<TCutG*> InPartCut;
   vector<vector<TCutG*> > OutPartCut;
@@ -120,6 +119,11 @@ int main(int argc, char* argv[]){
   }
 
   cFile->Close();
+
+  cout<<"output file: "<<OutFile<< endl;
+  TFile* ofile = new TFile(OutFile,"UPDATE");
+  ofile->cd();
+
   splittree.resize(InPartCut.size());
   for(UShort_t in=0;in<InPartCut.size();in++){ // loop over incoming cuts
     splittree[in].resize(1+OutPartCut[in].size());
@@ -173,12 +177,14 @@ int main(int argc, char* argv[]){
     //start analysis
     for(UShort_t in=0;in<InPartCut.size();in++){ // loop over incoming cuts
       if(InPartCut[in]->IsInside(beam->GetAQ(br),beam->GetZ(br))){
-	splittree[in][OutPartCut[in].size()]->Fill();
+	//splittree[in][OutPartCut[in].size()]->Fill();
 	for(UShort_t ou=0;ou<OutPartCut[in].size();ou++){ // loop over outgoing cuts
 	  if(OutPartCut[in][ou]->IsInside(beam->GetAQ(zd),beam->GetZ(zd))){
 	    splittree[in][ou]->Fill();
+	    break;
 	  }
 	}//outpartcuts
+	break;
       }//inpartcuts
     }
  
@@ -187,12 +193,18 @@ int main(int argc, char* argv[]){
       cout << setw(5) << setiosflags(ios::fixed) << setprecision(1) << (100.*i)/nentries <<
 	" % done\t" << (Float_t)i/(time_end - time_start) << " events/s " << 
 	(nentries-i)*(time_end - time_start)/(Float_t)i << "s to go \r" << flush;
+      // for(UShort_t in=0;in<InPartCut.size();in++){ // loop over incoming cuts
+      // 	splittree[in][OutPartCut[in].size()]->AutoSave();
+      // 	//splittree[in][OutPartCut[in].size()]->FlushBaskets();
+      // 	for(UShort_t ou=0;ou<OutPartCut[in].size();ou++){
+      // 	  splittree[in][ou]->AutoSave();
+      // 	  //splittree[in][ou]->FlushBaskets();
+      // 	}
+      // }
     }
   }
   cout << endl;
   cout << "creating outputfile " << endl;
-  TFile* ofile = new TFile(OutFile,"recreate");
-  ofile->cd();
   Long64_t filesize =0;
   for(UShort_t in=0;in<InPartCut.size();in++){ // loop over incoming cuts
     for(UShort_t ou=0;ou<OutPartCut[in].size()+1;ou++){ // loop over outgoing cuts
