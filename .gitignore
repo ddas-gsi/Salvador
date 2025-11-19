@@ -1,0 +1,71 @@
+# --- ROOT files ---
+*.root
+*.C
+*.pcm
+
+# --- Build & Compilation ---
+build/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+*.d
+*.o
+*.so
+*.a
+*.exe
+*.out
+*.dSYM/
+*.class
+
+# --- Salvador generated outputs ---
+run_*.log
+*.list
+*.csv
+*.txt
+*.bak
+*.backup
+output/
+logs/
+ridf/
+rootfiles/
+set.dat
+toffsets.dat
+toffsetsAu.dat
+tsumgate.C
+
+# --- Python cache ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Editor / system files ---
+*.swp
+*.swo
+*~
+*#
+.DS_Store
+.vscode/
+.idea/
+
+# --- Custom user scripts and backups ---
+backup_salvador/
+myscripts/
+scripts/
+submit.sh
+
+# --- Temporary test files ---
+test.root
+Metamorphosis
+BurningGiraffe_copy.cc
+Temptation_cc.d
+50Ca_out.cxx
+51Ca_in.cxx
+52Ca.cxx
+52CaZD.cxx
+somecuts_50Ca_C.root
+cuts*.root
+ScCacuts_53Ca_Be.root
+
+# --- Ignore everything under build or generated ---
+/build/*
+
