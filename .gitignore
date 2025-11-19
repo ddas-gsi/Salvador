@@ -52,6 +52,7 @@ backup_salvador/
 myscripts/
 scripts/
 submit.sh
+.rootrc
 
 # --- Temporary test files ---
 test.root
