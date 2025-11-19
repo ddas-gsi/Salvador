@@ -15,30 +15,34 @@ int firstPPAC(int id);
 /*!
   Container for the MUSIC information
 */
-class MUSIC : public TObject {
+class MUSIC : public TObject
+{
 public:
   //! default constructor
-  MUSIC(){
+  MUSIC()
+  {
     Clear();
   };
   //! Clear the music information
-  void Clear(Option_t *option = ""){
+  void Clear(Option_t *option = "")
+  {
     fnumhits = -1.;
     fenergy = sqrt(-1.);
     fsquaresum = sqrt(-1.);
   }
   //! Set the number of hits
-  void SetNHits(int nhits){fnumhits = nhits;}
+  void SetNHits(int nhits) { fnumhits = nhits; }
   //! Set the energy
-  void SetEnergy(double energy, double squaresum){
+  void SetEnergy(double energy, double squaresum)
+  {
     fenergy = energy;
     fsquaresum = squaresum;
   }
   //! Get the number of hits
-  double GetNHits(){return fnumhits;}
+  double GetNHits() { return fnumhits; }
   //! Get the charge
-  double GetEnergy(){return fenergy;}
-  
+  double GetEnergy() { return fenergy; }
+
 protected:
   //! the number of hits
   int fnumhits;
@@ -48,54 +52,81 @@ protected:
   double fsquaresum;
 
   /// \cond CLASSIMP
-  ClassDef(MUSIC,1);
+  ClassDef(MUSIC, 1);
   /// \endcond
 };
 
 /*!
   Container for the plastic information
 */
-class Plastic : public TObject {
+class Plastic : public TObject
+{
 public:
   //! default constructor
-  Plastic(){
+  Plastic()
+  {
     Clear();
   };
   //! Clear the plastic information
-  void Clear(Option_t *option = ""){
+  void Clear(Option_t *option = "")
+  {
     ftime = sqrt(-1.);
     fcharge = sqrt(-1.);
     ftimeL = sqrt(-1.);
     ftimeR = sqrt(-1.);
     fchargeL = sqrt(-1.);
     fchargeR = sqrt(-1.);
+    fmultihitL = 0;
+    fmultihitR = 0;
+    fTDCLeftHits.clear();
+    fTDCRightHits.clear();
   }
   //! Set the time
-  void SetTime(double timeL, double timeR){
+  void SetTime(double timeL, double timeR)
+  {
     ftimeL = timeL;
     ftimeR = timeR;
-    if(!isnan(timeL) && !isnan(timeR))
-      ftime = (timeL + timeR)/2;
+    if (!isnan(timeL) && !isnan(timeR))
+      ftime = (timeL + timeR) / 2;
   }
   //! Set the charge
-  void SetCharge(double chargeL, double chargeR){
+  void SetCharge(double chargeL, double chargeR)
+  {
     fchargeL = chargeL;
     fchargeR = chargeR;
     fcharge = sqrt(chargeL * chargeR);
   }
+  //! Set the Multihit
+  void SetMultihit(Int_t multihitL, Int_t multihitR)
+  {
+    fmultihitL = multihitL;
+    fmultihitR = multihitR;
+  }
+  //! Set the Multihit TDC Values
+  void AddMulHitTDCL(Int_t val) { fTDCLeftHits.push_back(val); }
+  void AddMulHitTDCR(Int_t val) { fTDCRightHits.push_back(val); }
+
   //! Get the time
-  double GetTime(){return ftime;}
+  double GetTime() { return ftime; }
   //! Get the charge
-  double GetCharge(){return fcharge;}
+  double GetCharge() { return fcharge; }
   //! Get the time left
-  double GetTimeL(){return ftimeL;}
+  double GetTimeL() { return ftimeL; }
   //! Get the charge left
-  double GetChargeL(){return fchargeL;}
+  double GetChargeL() { return fchargeL; }
   //! Get the time right
-  double GetTimeR(){return ftimeR;}
+  double GetTimeR() { return ftimeR; }
   //! Get the charge right
-  double GetChargeR(){return fchargeR;}
-  
+  double GetChargeR() { return fchargeR; }
+  //! Get the multihit left
+  Int_t GetMultihitL() { return fmultihitL; }
+  //! Get the multihit right
+  Int_t GetMultihitR() { return fmultihitR; }
+  //! Get the TDC left hit at index i
+  double GetMulHitTDCL(int i) const { return fTDCLeftHits[i]; }
+  //! Get the TDC right hit at index i
+  double GetMulHitTDCR(int i) const { return fTDCRightHits[i]; }
+
 protected:
   //! timing of the plastic (TL + TR)
   double ftime;
@@ -109,52 +140,64 @@ protected:
   double fchargeL;
   //! charge of right PMT
   double fchargeR;
+  //! multihit of left PMT
+  Int_t fmultihitL;
+  //! multihit of right PMT
+  Int_t fmultihitR;
+  //! TDC left hits for multihit
+  std::vector<Int_t> fTDCLeftHits;
+  //! TDC right hits for multihit
+  std::vector<Int_t> fTDCRightHits;
 
   /// \cond CLASSIMP
-  ClassDef(Plastic,1);
+  ClassDef(Plastic, 1);
   /// \endcond
 };
 
 /*!
   Container for the Track information
 */
-class Track : public TObject {
+class Track : public TObject
+{
 public:
   //! default constructor
-  Track(){
+  Track()
+  {
     Clear();
   };
   //! Clear the track information
-  void Clear(Option_t *option = ""){
+  void Clear(Option_t *option = "")
+  {
     fx = sqrt(-1.);
     fy = sqrt(-1.);
     fa = sqrt(-1.);
     fb = sqrt(-1.);
   }
   //! Set the track information
-  void Set(double x, double y, double a, double b){
+  void Set(double x, double y, double a, double b)
+  {
     fx = x;
     fy = y;
     fa = a;
     fb = b;
   }
   //! Set x
-  void SetX(double x){fx = x;}
+  void SetX(double x) { fx = x; }
   //! Set y
-  void SetY(double y){fy = y;}
+  void SetY(double y) { fy = y; }
   //! Set a
-  void SetA(double a){fa = a;}
+  void SetA(double a) { fa = a; }
   //! Set b
-  void SetB(double b){fb = b;}
+  void SetB(double b) { fb = b; }
 
   //! Get x
-  double GetX(){return fx;}
+  double GetX() { return fx; }
   //! Get y
-  double GetY(){return fy;}
+  double GetY() { return fy; }
   //! Get a
-  double GetA(){return fa;}
+  double GetA() { return fa; }
   //! Get b
-  double GetB(){return fb;}
+  double GetB() { return fb; }
 
 protected:
   //! horizontal position x
@@ -167,39 +210,41 @@ protected:
   double fb;
 
   /// \cond CLASSIMP
-  ClassDef(Track,1);
+  ClassDef(Track, 1);
   /// \endcond
 };
-
 
 /*!
   Container for the focal plane information of an event
 */
-class FocalPlane : public TObject {
+class FocalPlane : public TObject
+{
 public:
   //! default constructor
-  FocalPlane(){
+  FocalPlane()
+  {
     Clear();
   };
   //! Clear the track information
-  void Clear(Option_t *option = ""){
+  void Clear(Option_t *option = "")
+  {
     ftrack.Clear();
     fplastic.Clear();
     fmusic.Clear();
   }
   //! set the track
-  void SetTrack(Track track){ftrack = track;}
+  void SetTrack(Track track) { ftrack = track; }
   //! return the track
-  Track* GetTrack(){return &ftrack;}
+  Track *GetTrack() { return &ftrack; }
   //! set the plastic
-  void SetPlastic(Plastic plastic){fplastic = plastic;}
+  void SetPlastic(Plastic plastic) { fplastic = plastic; }
   //! return the plastic
-  Plastic* GetPlastic(){return &fplastic;}
+  Plastic *GetPlastic() { return &fplastic; }
   //! set the music
-  void SetMUSIC(MUSIC music){fmusic = music;}
+  void SetMUSIC(MUSIC music) { fmusic = music; }
   //! return the music
-  MUSIC* GetMUSIC(){return &fmusic;}
-  
+  MUSIC *GetMUSIC() { return &fmusic; }
+
 protected:
   //! Track of that focal plane
   Track ftrack;
@@ -209,7 +254,7 @@ protected:
   MUSIC fmusic;
 
   /// \cond CLASSIMP
-  ClassDef(FocalPlane,1);
+  ClassDef(FocalPlane, 1);
   /// \endcond
 };
 
