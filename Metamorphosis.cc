@@ -42,6 +42,13 @@
 #include "Beam.hh"
 #include "DALI.hh"
 #include "Globaldefs.h"
+
+#include "TGraph.h"
+#include "TROOT.h"
+#include "TCutG.h"
+#include <vector>
+#include <map>
+
 using namespace TMath;
 using namespace std;
 
@@ -90,7 +97,108 @@ int main(int argc, char *argv[])
   {
     return 4;
   }
+
+  // read in the settings
   Settings *set = new Settings(SetFile);
+
+  //////////========= Plastic Cuts Info =========////////////
+
+  int RunID = 1010; // Run Number of RIBF249
+
+  // Define hlist to hold histograms and cuts
+  TList *hlist = new TList();
+
+  // Decide which cutType to load
+  char load_dT_vs_logQ_cuts = 'y'; // LoadCutID: 1
+  char load_logQ_vs_X_cuts = 'y';  // LoadCutID: 2
+  char load_dT_vs_X_cuts = 'y';    // LoadCutID: 3
+
+  vector<int> fpIDs = {3, 7, 8, 11}; // default focal planes for Plastics
+
+  // gCUT files for Plastic
+  std::map<std::string, std::map<int, TCutG *>> PlasticCuts; // key = focal-plane id (3,7,8,...) value=cut pointer
+  std::map<int, TCutG *> dT_vs_logQ_cuts;
+  std::map<int, TCutG *> logQ_vs_X_cuts;
+  std::map<int, TCutG *> dT_vs_X_cuts;
+
+  if (RunID && RunID != 0)
+  {
+    // Load cut files for each focal plane id and put into different PlasticCuts
+    for (int id : fpIDs)
+    {
+      if (load_dT_vs_logQ_cuts == 'y')
+      {
+        // cout << "Loading dT_vs_logQ cuts for FocalPlane " << id << endl;
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_logQ_%d.cxx", RunID, RunID, id);
+        gROOT->ProcessLine(Form(".L %s", file.Data()));
+        TObject *obj = gROOT->FindObject(Form("dT_vs_logQ_%d", id));
+        if (obj && obj->InheritsFrom("TCutG"))
+        {
+          dT_vs_logQ_cuts[id] = (TCutG *)obj;
+          if (dT_vs_logQ_cuts[id]) // hlist the cut only if it was loaded
+          {
+            TCutG *clone = (TCutG *)dT_vs_logQ_cuts[id]->Clone(Form("%s_cut", dT_vs_logQ_cuts[id]->GetName()));
+            hlist->Add(clone);
+          }
+          cout << "Loaded dT_vs_logQ cut for FocalPlane " << id << endl;
+        }
+        else
+        {
+          dT_vs_logQ_cuts[id] = nullptr;
+          cout << "Warning: no dT_vs_logQ CUTG found for FocalPlane " << id << " (file: " << file.Data() << ")" << endl;
+        }
+        PlasticCuts["dT_vs_logQ_cuts"] = dT_vs_logQ_cuts;
+      }
+      if (load_logQ_vs_X_cuts == 'y')
+      {
+        // cout << "Loading logQ_vs_X cuts for FocalPlane " << id << endl;
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_logQ_vs_X_%d.cxx", RunID, RunID, id);
+        gROOT->ProcessLine(Form(".L %s", file.Data()));
+        TObject *obj = gROOT->FindObject(Form("logQ_vs_X_%d", id));
+        if (obj && obj->InheritsFrom("TCutG"))
+        {
+          logQ_vs_X_cuts[id] = (TCutG *)obj;
+          if (logQ_vs_X_cuts[id]) // hlist the cut only if it was loaded
+          {
+            TCutG *clone = (TCutG *)logQ_vs_X_cuts[id]->Clone(Form("%s_cut", logQ_vs_X_cuts[id]->GetName()));
+            hlist->Add(clone);
+          }
+          cout << "Loaded logQ_vs_X cut for FocalPlane " << id << endl;
+        }
+        else
+        {
+          logQ_vs_X_cuts[id] = nullptr;
+          cout << "Warning: no logQ_vs_X CUTG found for FocalPlane " << id << " (file: " << file.Data() << ")" << endl;
+        }
+        PlasticCuts["logQ_vs_X_cuts"] = logQ_vs_X_cuts;
+      }
+      if (load_dT_vs_X_cuts == 'y')
+      {
+        // cout << "Loading dT_vs_X cuts for FocalPlane " << id << endl;
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_X_%d.cxx", RunID, RunID, id);
+        gROOT->ProcessLine(Form(".L %s", file.Data()));
+        TObject *obj = gROOT->FindObject(Form("dT_vs_X_%d", id));
+        if (obj && obj->InheritsFrom("TCutG"))
+        {
+          dT_vs_X_cuts[id] = (TCutG *)obj;
+          if (dT_vs_X_cuts[id]) // hlist the cut only if it was loaded
+          {
+            TCutG *clone = (TCutG *)dT_vs_X_cuts[id]->Clone(Form("%s_cut", dT_vs_X_cuts[id]->GetName()));
+            hlist->Add(clone);
+          }
+          cout << "Loaded dT_vs_X cut for FocalPlane " << id << endl;
+        }
+        else
+        {
+          dT_vs_X_cuts[id] = nullptr;
+          cout << "Warning: no dT_vs_X CUTG found for FocalPlane " << id << " (file: " << file.Data() << ")" << endl;
+        }
+        PlasticCuts["dT_vs_X_cuts"] = dT_vs_X_cuts;
+      }
+    }
+  }
+
+  //////////--------- Plastic Cuts Info ---------////////////
 
   // Create StoreManager both for calibration "TArtCalib..." and treatment "TArtReco..."
   //------------------------------------------------------------------------------------
@@ -264,8 +372,14 @@ int main(int argc, char *argv[])
   tr->SetAutoSave(10000);
   tr->SetAutoFlush(10000);
 
+  // branch for plastic cut combination information
+  int plcuts = 0;
+  tr->Branch("plcuts", &plcuts, "plcuts/I");
+
   unsigned long long int last_timestamp = 0;
   int ctr = 0;
+
+  // start the event loop
   while (estore->GetNextEvent() && !signal_received)
   {
     // clearing
@@ -364,7 +478,7 @@ int main(int argc, char *argv[])
     Plastic plastic;
     MUSIC music;
 
-    /////////// Define Variables for Plastic Cuts ///////////
+    // Define Variables for Plastic Cuts
     float dT[NFPLANES];
     float logQ[NFPLANES];
 
@@ -506,12 +620,12 @@ int main(int argc, char *argv[])
         music.SetEnergy(tic->GetEnergyAvSum(), tic->GetEnergySqSum());
       }
 
-      // fill the Focal Plane class
+      // fill the Focal Plane class for every event
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);
       fp[f]->SetMUSIC(music);
 
-      ////////// Plastic Cuts to be put into a leaf //////////
+      // load info into the Variables for Plastic Cut calculations
       if (tpla)
       {
         // protect dT calculation against non-positive times
@@ -529,6 +643,46 @@ int main(int argc, char *argv[])
           logQ[f] = log(qL / qR);
         else
           logQ[f] = NAN; // mark invalid
+      }
+    }
+
+    // Plastic Cuts Evaluation
+    plcuts = 0; // clearing cut bits
+    for (unsigned short f = 0; f < NFPLANES; f++)
+    {
+      int bit_shift = f * 3; // 3 cut types per focal plane
+
+      // dT vs logQ cut
+      if (PlasticCuts["dT_vs_logQ_cuts"].find(fpID[f]) != PlasticCuts["dT_vs_logQ_cuts"].end())
+      {
+        TCutG *cut = PlasticCuts["dT_vs_logQ_cuts"][fpID[f]];
+        if (cut && !std::isnan(dT[f]) && !std::isnan(logQ[f]))
+        {
+          if (cut->IsInside(logQ[f], dT[f]))
+            plcuts |= (1 << bit_shift); // pass
+        }
+      }
+
+      // logQ vs X cut
+      if (PlasticCuts["logQ_vs_X_cuts"].find(fpID[f]) != PlasticCuts["logQ_vs_X_cuts"].end())
+      {
+        TCutG *cut = PlasticCuts["logQ_vs_X_cuts"][fpID[f]];
+        if (cut && !std::isnan(logQ[f]) && fp[f]->GetTrack()->GetX() != -99999)
+        {
+          if (cut->IsInside(fp[f]->GetTrack()->GetX(), logQ[f]))
+            plcuts |= (1 << (bit_shift + 1)); // pass
+        }
+      }
+
+      // dT vs X cut
+      if (PlasticCuts["dT_vs_X_cuts"].find(fpID[f]) != PlasticCuts["dT_vs_X_cuts"].end())
+      {
+        TCutG *cut = PlasticCuts["dT_vs_X_cuts"][fpID[f]];
+        if (cut && !std::isnan(dT[f]) && fp[f]->GetTrack()->GetX() != -99999)
+        {
+          if (cut->IsInside(fp[f]->GetTrack()->GetX(), dT[f]))
+            plcuts |= (1 << (bit_shift + 2)); // pass
+        }
       }
     }
 
