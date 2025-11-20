@@ -63,6 +63,6 @@
 # Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010_fzetc_minus2.root -s ./settings/set_50Ca_C_minus2.dat -n 500000
 # Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010_fzetc_plus2.root -s ./settings/set_50Ca_C_plus2.dat -n 500000
 
-Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010_plc.root -s ./settings/set_50Ca_C.dat -n 500000 
+Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010_plc.root -s ./settings/set_50Ca_C.dat -n 100000
 
 

@@ -372,9 +372,12 @@ int main(int argc, char *argv[])
   tr->SetAutoSave(10000);
   tr->SetAutoFlush(10000);
 
-  // branch for plastic cut combination information
-  int plcuts = 0;
+  // branch for individual plastic cut combination information
+  int plcuts = 0; // 12-bit cut-by-cut mask
   tr->Branch("plcuts", &plcuts, "plcuts/I");
+  // branch for plastic cuts by focalplane
+  int fplcuts = 0; // 4-bit FP-pass mask (FP3, FP7, FP8, FP11)
+  tr->Branch("fplcuts", &fplcuts, "fplcuts/I");
 
   unsigned long long int last_timestamp = 0;
   int ctr = 0;
@@ -646,45 +649,108 @@ int main(int argc, char *argv[])
       }
     }
 
+    // -----------------------------
     // Plastic Cuts Evaluation
-    plcuts = 0; // clearing cut bits
-    for (unsigned short f = 0; f < NFPLANES; f++)
+    // -----------------------------
+    plcuts = 0;  // 3-bit-per-FP mask for individual cuts
+    fplcuts = 0; // 1-bit-per-FP mask for FP fully passed
+
+    int fidx = 0; // FP index
+
+    for (auto &id : fpIDs) // fpIDs={3,7,8,11}
     {
-      int bit_shift = f * 3; // 3 cut types per focal plane
+      int bit_shift = fidx; // 3 cuts per FP
+      bool pass_all = true; // track if all 3 cuts pass for this FP
 
-      // dT vs logQ cut
-      if (PlasticCuts["dT_vs_logQ_cuts"].find(fpID[f]) != PlasticCuts["dT_vs_logQ_cuts"].end())
+      // safety check: ensure fp[fpNr(id)] exists and has a Track
+      Track *trackPtr = nullptr;
+      if (fp[fpNr(id)])
+        trackPtr = fp[fpNr(id)]->GetTrack();
+
+      // -----------------------------
+      // 1) dT vs logQ cut
+      // -----------------------------
+      if (PlasticCuts["dT_vs_logQ_cuts"][id])
       {
-        TCutG *cut = PlasticCuts["dT_vs_logQ_cuts"][fpID[f]];
-        if (cut && !std::isnan(dT[f]) && !std::isnan(logQ[f]))
+        TCutG *cut = PlasticCuts["dT_vs_logQ_cuts"][id];
+        if (cut && !std::isnan(dT[fpNr(id)]) && !std::isnan(logQ[fpNr(id)]) &&
+            cut->IsInside(logQ[fpNr(id)], dT[fpNr(id)]))
         {
-          if (cut->IsInside(logQ[f], dT[f]))
-            plcuts |= (1 << bit_shift); // pass
+          plcuts |= (1 << bit_shift); // set first bit
+        }
+        else
+        {
+          pass_all = false;
+          break;
         }
       }
-
-      // logQ vs X cut
-      if (PlasticCuts["logQ_vs_X_cuts"].find(fpID[f]) != PlasticCuts["logQ_vs_X_cuts"].end())
+      // -----------------------------
+      // 2) logQ vs X cut
+      // -----------------------------
+      if (PlasticCuts["logQ_vs_X_cuts"][id])
       {
-        TCutG *cut = PlasticCuts["logQ_vs_X_cuts"][fpID[f]];
-        if (cut && !std::isnan(logQ[f]) && fp[f]->GetTrack()->GetX() != -99999)
+        TCutG *cut = PlasticCuts["logQ_vs_X_cuts"][id];
+        if (cut && !std::isnan(logQ[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
+            cut->IsInside(trackPtr->GetX(), logQ[fpNr(id)]))
         {
-          if (cut->IsInside(fp[f]->GetTrack()->GetX(), logQ[f]))
-            plcuts |= (1 << (bit_shift + 1)); // pass
+          plcuts |= (1 << (bit_shift + 1)); // set second bit
+        }
+        else
+        {
+          pass_all = false;
+          break;
         }
       }
-
-      // dT vs X cut
-      if (PlasticCuts["dT_vs_X_cuts"].find(fpID[f]) != PlasticCuts["dT_vs_X_cuts"].end())
+      // -----------------------------
+      // 3) dT vs X cut
+      // -----------------------------
+      if (PlasticCuts["dT_vs_X_cuts"][id])
       {
-        TCutG *cut = PlasticCuts["dT_vs_X_cuts"][fpID[f]];
-        if (cut && !std::isnan(dT[f]) && fp[f]->GetTrack()->GetX() != -99999)
+        TCutG *cut = PlasticCuts["dT_vs_X_cuts"][id];
+        if (cut && !std::isnan(dT[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
+            cut->IsInside(trackPtr->GetX(), dT[fpNr(id)]))
         {
-          if (cut->IsInside(fp[f]->GetTrack()->GetX(), dT[f]))
-            plcuts |= (1 << (bit_shift + 2)); // pass
+          plcuts |= (1 << (bit_shift + 2)); // set third bit
+        }
+        else
+        {
+          pass_all = false;
+          break;
         }
       }
+      // -----------------------------
+      // FINAL: Mark this FP as fully passed
+      // one bit per FP: 0/1/2/3 mapped to FP3/FP7/FP8/FP11
+      // -----------------------------
+      if (pass_all)
+      {
+        fplcuts |= (1 << fidx);
+        // cout << "fidx: " << fidx << endl;
+      }
+
+      fidx = fidx + 1;
     }
+
+    // // -----------------------------
+    // // Example: decode and print the cuts
+    // // -----------------------------
+    // for (unsigned short f = 0; f < NFPLANES; f++)
+    // {
+    //   int b0 = f * 3;     // dT vs logQ
+    //   int b1 = f * 3 + 1; // logQ vs X
+    //   int b2 = f * 3 + 2; // dT vs X
+
+    //   bool dtlogq = plcuts & (1 << b0);
+    //   bool logqX = plcuts & (1 << b1);
+    //   bool dtX = plcuts & (1 << b2);
+    //   bool fpall = fplcuts & (1 << f);
+
+    //   std::cout << "FP" << fpID[f]
+    //             << ": dT/logQ=" << dtlogq
+    //             << ", logQ/X=" << logqX
+    //             << ", dT/X=" << dtX
+    //             << ", all=" << fpall << std::endl;
+    // }
 
     // Reconstructiong the PID
     recopid->ClearData();
