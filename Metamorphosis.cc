@@ -372,12 +372,94 @@ int main(int argc, char *argv[])
   tr->SetAutoSave(10000);
   tr->SetAutoFlush(10000);
 
+  // -----------------------------------------------------------------------------
+  //  Plastic Scintillator Cut Evaluation
+  //
+  //  This block evaluates three independent selection cuts for each focal plane
+  //  plastic (FP3, FP7, FP8, FP11):
+  //
+  //      (1) dT vs logQ     cut  → bit 0
+  //      (2) logQ vs X      cut  → bit 1
+  //      (3) dT vs X        cut  → bit 2
+  //
+  //  The results are stored in two different types of bit masks:
+  //
+  //  ---------------------------------------------------------------------------
+  //  (A) fpCutMask[0] : 1-bit-per-FP mask for BigRIPS only
+  //  ---------------------------------------------------------------------------
+  //    fpCutMask[0] tracks whether *all 3 cuts* passed for FP3 and FP7 only.
+  //    These are the FPs used for BigRIPS tracking quality.
+  //
+  //      bit 0 → FP3 all cuts passed
+  //      bit 1 → FP7 all cuts passed
+  //
+  //    Values range 0–3.
+  //
+  //  ---------------------------------------------------------------------------
+  //  (B) fpCutMask[1] : 1-bit-per-FP mask for BigRIPS + ZeroDegree
+  //  ---------------------------------------------------------------------------
+  //    fpCutMask[1] tracks whether *all 3 cuts* passed for all four FPs
+  //    (FP3, FP7, FP8, FP11).
+  //
+  //      bit 0 → FP3 all cuts passed
+  //      bit 1 → FP7 all cuts passed
+  //      bit 2 → FP8 all cuts passed
+  //      bit 3 → FP11 all cuts passed
+  //
+  //    Values range 0–15.
+  //
+  //  ---------------------------------------------------------------------------
+  //  (C) plCutMask : 3-bit-per-FP mask (total 12 bits for 4 FPs)
+  //  ---------------------------------------------------------------------------
+  //    plCutMask encodes *individual cut results* for every FP and every cut type.
+  //
+  //    Bit layout (fidx = 0..3 → FP3, FP7, FP8, FP11):
+  //
+  //        fidx=0 (FP3):
+  //            bit 0 → dT vs logQ passed
+  //            bit 1 → logQ vs X passed
+  //            bit 2 → dT vs X passed
+  //
+  //        fidx=1 (FP7):
+  //            bit 3 → dT vs logQ passed
+  //            bit 4 → logQ vs X passed
+  //            bit 5 → dT vs X passed
+  //
+  //        fidx=2 (FP8):
+  //            bit 6 → dT vs logQ passed
+  //            bit 7 → logQ vs X passed
+  //            bit 8 → dT vs X passed
+  //
+  //        fidx=3 (FP11):
+  //            bit  9 → dT vs logQ passed
+  //            bit 10 → logQ vs X passed
+  //            bit 11 → dT vs X passed
+  //
+  //    Example:
+  //       plCutMask = 0b000000111111
+  //       → all 3 cuts passed for FP3 and FP7.
+  //
+  //  ---------------------------------------------------------------------------
+  //  Logic overview:
+  //  ---------------------------------------------------------------------------
+  //    • For each FP, we check the 3 TCutG gates if they exist.
+  //    • For each cut passed, a specific bit inside `plCutMask` is set.
+  //    • If all 3 cuts pass:
+  //          → corresponding bit in fpCutMask[1] is set.
+  //    • If FP is 3 or 7 and all 3 cuts pass:
+  //          → corresponding bit in fpCutMask[0] is set.
+  //
+  //  This structure enables fast post-analysis AND/OR logic on FP cut combinations
+  //  and provides diagnostic access to individual cut performance per FP.
+  //
+  // -----------------------------------------------------------------------------
+
+  int fpCutMask[2] = {0, 0}; // 4-bit FP-pass mask (FP3, FP7, FP8, FP11); fpCutMask[0] for BigRIPS, fpCutMask[1] for BigRIPS && ZeroDegree
+  tr->Branch("fpCutMask[2]", &fpCutMask, "fpCutMask[2]/I");
+
   // branch for individual plastic cut combination information
-  int plcuts = 0; // 12-bit cut-by-cut mask
-  tr->Branch("plcuts", &plcuts, "plcuts/I");
-  // branch for plastic cuts by focalplane
-  int fplcuts = 0; // 4-bit FP-pass mask (FP3, FP7, FP8, FP11)
-  tr->Branch("fplcuts", &fplcuts, "fplcuts/I");
+  int plCutMask = 0; // 12-bit cut-by-cut mask
+  tr->Branch("plCutMask", &plCutMask, "plCutMask/I");
 
   unsigned long long int last_timestamp = 0;
   int ctr = 0;
@@ -652,15 +734,17 @@ int main(int argc, char *argv[])
     // -----------------------------
     // Plastic Cuts Evaluation
     // -----------------------------
-    plcuts = 0;  // 3-bit-per-FP mask for individual cuts
-    fplcuts = 0; // 1-bit-per-FP mask for FP fully passed
+    plCutMask = 0;    // 3-bit-per-FP mask for individual cuts
+    fpCutMask[0] = 0; // BigRIPS 1-bit-per-FP mask for FP fully passed
+    fpCutMask[1] = 0; // BigRIPS && ZeroDegree 1-bit-per-FP mask for FP fully passed
 
     int fidx = 0; // FP index
 
     for (auto &id : fpIDs) // fpIDs={3,7,8,11}
     {
       int bit_shift = fidx; // 3 cuts per FP
-      bool pass_all = true; // track if all 3 cuts pass for this FP
+      bool passBR = true;   // track is all 3 cuts of a particular FP pass for BriRIPS
+      bool passBRZD = true; // track is all 3 cuts of a particular FP pass for BriRIPS and ZeroDegree
 
       // safety check: ensure fp[fpNr(id)] exists and has a Track
       Track *trackPtr = nullptr;
@@ -676,11 +760,15 @@ int main(int argc, char *argv[])
         if (cut && !std::isnan(dT[fpNr(id)]) && !std::isnan(logQ[fpNr(id)]) &&
             cut->IsInside(logQ[fpNr(id)], dT[fpNr(id)]))
         {
-          plcuts |= (1 << bit_shift); // set first bit
+          plCutMask |= (1 << bit_shift); // set first bit
         }
         else
         {
-          pass_all = false;
+          passBRZD = false;
+
+          if (id == 3 || id == 7)
+            passBR = false;
+
           break;
         }
       }
@@ -693,11 +781,15 @@ int main(int argc, char *argv[])
         if (cut && !std::isnan(logQ[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
             cut->IsInside(trackPtr->GetX(), logQ[fpNr(id)]))
         {
-          plcuts |= (1 << (bit_shift + 1)); // set second bit
+          plCutMask |= (1 << (bit_shift + 1)); // set second bit
         }
         else
         {
-          pass_all = false;
+          passBRZD = false;
+
+          if (id == 3 || id == 7)
+            passBR = false;
+
           break;
         }
       }
@@ -710,24 +802,38 @@ int main(int argc, char *argv[])
         if (cut && !std::isnan(dT[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
             cut->IsInside(trackPtr->GetX(), dT[fpNr(id)]))
         {
-          plcuts |= (1 << (bit_shift + 2)); // set third bit
+          plCutMask |= (1 << (bit_shift + 2)); // set third bit
         }
         else
         {
-          pass_all = false;
+          passBRZD = false;
+
+          if (id == 3 || id == 7)
+            passBR = false;
+
           break;
         }
       }
       // -----------------------------
       // FINAL: Mark this FP as fully passed
       // one bit per FP: 0/1/2/3 mapped to FP3/FP7/FP8/FP11
+      // fidx = 0,1,2,3
       // -----------------------------
-      if (pass_all)
+      if (passBRZD)
       {
-        fplcuts |= (1 << fidx);
+        fpCutMask[1] |= (1 << fidx); // for BigRIPS && ZeroDegree
         // cout << "fidx: " << fidx << endl;
       }
 
+      // FINAL for BigRIPS only
+      if (id == 3 || id == 7)
+      {
+        if (passBR)
+        {
+          fpCutMask[0] |= (1 << fidx); // for BigRIPS
+          // cout << "fidx: " << fidx << endl;
+        }
+      }
       fidx = fidx + 1;
     }
 
@@ -740,10 +846,10 @@ int main(int argc, char *argv[])
     //   int b1 = f * 3 + 1; // logQ vs X
     //   int b2 = f * 3 + 2; // dT vs X
 
-    //   bool dtlogq = plcuts & (1 << b0);
-    //   bool logqX = plcuts & (1 << b1);
-    //   bool dtX = plcuts & (1 << b2);
-    //   bool fpall = fplcuts & (1 << f);
+    //   bool dtlogq = plCutMask & (1 << b0);
+    //   bool logqX = plCutMask & (1 << b1);
+    //   bool dtX = plCutMask & (1 << b2);
+    //   bool fpall = fplCutMask & (1 << f);
 
     //   std::cout << "FP" << fpID[f]
     //             << ": dT/logQ=" << dtlogq
