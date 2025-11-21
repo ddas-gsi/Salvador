@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   char load_logQ_vs_X_cuts = 'y';  // LoadCutID: 2
   char load_dT_vs_X_cuts = 'y';    // LoadCutID: 3
 
-  vector<int> fpIDs = {3, 7, 8, 11}; // default focal planes for Plastics
+  vector<int> fpIDs = {3, 7, 8, 11}; // default focal planes for Plastics; fpIDs = {3, 7, 8, 11}
 
   // gCUT files for Plastic
   std::map<std::string, std::map<int, TCutG *>> PlasticCuts; // key = focal-plane id (3,7,8,...) value=cut pointer
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
     fpCutMask[0] = 0; // BigRIPS
     fpCutMask[1] = 0; // BigRIPS && ZeroDegree
 
-    fidx = 0; // reset FP index
+    int fidx = 0; // reset FP index
     for (auto &id : fpIDs)
     {
       bool passBR = true;   // all cuts for BigRIPS
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
     // Example: FP3 -> bits 0-2, FP7 -> bits 3-5, etc.
     plCutMask = 0; // initialize mask
 
-    int fidx = 0;          // focal plane index
+    fidx = 0;              // focal plane index
     for (auto &id : fpIDs) // e.g., fpIDs = {3,7,8,11}
     {
       int bit_shift = fidx * 3; // 3 bits per FP
