@@ -409,36 +409,48 @@ int main(int argc, char *argv[])
   //    Values range 0–15.
   //
   //  ---------------------------------------------------------------------------
-  //  (C) plCutMask : 3-bit-per-FP mask (total 12 bits for 4 FPs)
+  //  (C) plCutMask[] : per-FP 3-bit plastic-cut mask (array of 4 ints)
   //  ---------------------------------------------------------------------------
-  //    plCutMask encodes *individual cut results* for every FP and every cut type.
   //
-  //    Bit layout (fidx = 0..3 → FP3, FP7, FP8, FP11):
+  // Layout & semantics
+  // ------------------
+  // - plCutMask is an array of 4 integers, one entry per plastic focal plane:
+  //     plCutMask[0] -> FP3
+  //     plCutMask[1] -> FP7
+  //     plCutMask[2] -> FP8
+  //     plCutMask[3] -> FP11
   //
-  //        fidx=0 (FP3):
-  //            bit 0 → dT vs logQ passed
-  //            bit 1 → logQ vs X passed
-  //            bit 2 → dT vs X passed
+  // - For each plCutMask[fidx] the three least-significant bits store the pass/fail
+  //   result of the three plastic cuts (bits numbered LSB->MSB):
+  //       bit 0 (1<<0) : dT vs logQ  passed  (1) / failed (0)
+  //       bit 1 (1<<1) : logQ vs X   passed  (1) / failed (0)
+  //       bit 2 (1<<2) : dT vs X     passed  (1) / failed (0)
   //
-  //        fidx=1 (FP7):
-  //            bit 3 → dT vs logQ passed
-  //            bit 4 → logQ vs X passed
-  //            bit 5 → dT vs X passed
+  // - Each plCutMask[fidx] is therefore a 3-bit value in the range [0..7].
+  //   Examples:
+  //       0b000 (0) -> no cuts passed
+  //       0b001 (1) -> only dT vs logQ passed
+  //       0b010 (2) -> only logQ vs X passed
+  //       0b011 (3) -> dT vs logQ and logQ vs X passed
+  //       0b111 (7) -> all three cuts passed
   //
-  //        fidx=2 (FP8):
-  //            bit 6 → dT vs logQ passed
-  //            bit 7 → logQ vs X passed
-  //            bit 8 → dT vs X passed
-  //
-  //        fidx=3 (FP11):
-  //            bit  9 → dT vs logQ passed
-  //            bit 10 → logQ vs X passed
-  //            bit 11 → dT vs X passed
-  //
-  //     Example: plCutMask = 0b000_001_111 means:
-  //           - FP3: all 3 cuts passed
-  //           - FP7: only first cut passed
-  //           - FP8, FP11: none passed
+  // Implementation notes
+  // -------------------------------------------
+  // - The loop iterates `for (auto &id : fpIDs)` and increments fidx per iteration.
+  //   The mapping fpIDs -> fidx above must match the order of fpIDs at runtime.
+  // - For each FP you fetch Track* via `trackPtr = fp[ fpNr(id) ]->GetTrack()` if
+  //   the focal-plane object exists. If `fp[fpNr(id)]` is null no track checks are done.
+  // - A cut's bit is set only if:
+  //     1) the corresponding TCutG* exists (your code checks PlasticCuts["..."][id])
+  //     2) the relevant numeric values are valid (you check NaN and X != -99999)
+  //     3) cut->IsInside(...) returns true
+  // - There is **no short-circuiting** inside this block: the three cuts are evaluated
+  //   independently and all three bits may be set or cleared regardless of earlier failures.
+  //   (This is intentional in the current implementation.)
+  // - The sentinel value `trackPtr->GetX() == -99999` is treated as invalid and the
+  //   corresponding cut will not be considered passed.
+  // - plCutMask entries are reset to 0 at the start of each event, so the mask reflects
+  //   only the current event.
   //
   //  ---------------------------------------------------------------------------
   //  Logic overview:
@@ -459,8 +471,8 @@ int main(int argc, char *argv[])
   tr->Branch("fpCutMask[2]", &fpCutMask, "fpCutMask[2]/I");
 
   // branch for individual plastic cut combination information
-  int plCutMask = 0; // 12-bit cut-by-cut mask
-  tr->Branch("plCutMask", &plCutMask, "plCutMask/I");
+  int plCutMask[4] = {0, 0, 0, 0}; // 3-bit cut-by-cut mask for each of the 4 FP plastics (FP3, FP7, FP8, FP11)
+  tr->Branch("plCutMask[4]", &plCutMask, "plCutMask[4]/I");
 
   unsigned long long int last_timestamp = 0;
   int ctr = 0;
@@ -815,13 +827,16 @@ int main(int argc, char *argv[])
     // Bit 0: dT vs logQ
     // Bit 1: logQ vs X
     // Bit 2: dT vs X
-    // Example: FP3 -> bits 0-2, FP7 -> bits 3-5, etc.
-    plCutMask = 0; // initialize mask
+    // Example: FP3 -> bits 0-2 in plCutMask[0], FP7 -> bits 0-2 in plCutMask[1], etc.
+    plCutMask[0] = 0; // FP3
+    plCutMask[1] = 0; // FP7
+    plCutMask[2] = 0; // FP8
+    plCutMask[3] = 0; // FP11
 
     fidx = 0;              // focal plane index
     for (auto &id : fpIDs) // e.g., fpIDs = {3,7,8,11}
     {
-      int bit_shift = fidx * 3; // 3 bits per FP
+      int bit_shift = 0;
       Track *trackPtr = nullptr;
       if (fp[fpNr(id)])
         trackPtr = fp[fpNr(id)]->GetTrack();
@@ -834,7 +849,7 @@ int main(int argc, char *argv[])
         TCutG *cut = PlasticCuts["dT_vs_logQ_cuts"][id];
         if (cut && !std::isnan(dT[fpNr(id)]) && !std::isnan(logQ[fpNr(id)]) &&
             cut->IsInside(logQ[fpNr(id)], dT[fpNr(id)]))
-          plCutMask |= (1 << bit_shift);
+          plCutMask[fidx] |= (1 << bit_shift);
       }
 
       // -----------------------------
@@ -845,7 +860,7 @@ int main(int argc, char *argv[])
         TCutG *cut = PlasticCuts["logQ_vs_X_cuts"][id];
         if (cut && !std::isnan(logQ[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
             cut->IsInside(trackPtr->GetX(), logQ[fpNr(id)]))
-          plCutMask |= (1 << (bit_shift + 1));
+          plCutMask[fidx] |= (1 << (bit_shift + 1));
       }
 
       // -----------------------------
@@ -856,7 +871,7 @@ int main(int argc, char *argv[])
         TCutG *cut = PlasticCuts["dT_vs_X_cuts"][id];
         if (cut && !std::isnan(dT[fpNr(id)]) && trackPtr && trackPtr->GetX() != -99999 &&
             cut->IsInside(trackPtr->GetX(), dT[fpNr(id)]))
-          plCutMask |= (1 << (bit_shift + 2));
+          plCutMask[fidx] |= (1 << (bit_shift + 2));
       }
 
       fidx++;
@@ -923,7 +938,8 @@ int main(int argc, char *argv[])
                set->GetBRAoQCorrection_F5A() * fp[fpNr(5)]->GetTrack()->GetA() +
                set->GetBRAoQCorrection_F7X() * fp[fpNr(7)]->GetTrack()->GetX() +
                set->GetBRAoQCorrection_F7A() * fp[fpNr(7)]->GetTrack()->GetA() +
-               set->GetBRAoQCorrection_F7Q() * sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeL() * fp[fpNr(7)]->GetPlastic()->GetChargeR());
+               set->GetBRAoQCorrection_F7Q() * sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeL() * fp[fpNr(7)]->GetPlastic()->GetChargeR()) +
+               set->GetBRAoQCorrection_constant();
 
         beam->CorrectAQ(b, corr);
         beam->ScaleAQ(b, set->GetBRAoQCorrection_gain(), set->GetBRAoQCorrection_offs());
@@ -943,7 +959,8 @@ int main(int argc, char *argv[])
                set->GetZDAoQCorrection_F11B() * fp[fpNr(11)]->GetTrack()->GetB() +
                set->GetZDAoQCorrection_F11B2() * pow(fp[fpNr(11)]->GetTrack()->GetB(), 2) +
                set->GetZDAoQCorrection_F11Y() * fp[fpNr(11)]->GetTrack()->GetY() +
-               set->GetZDAoQCorrection_F11Y2() * pow(fp[fpNr(11)]->GetTrack()->GetY(), 2);
+               set->GetZDAoQCorrection_F11Y2() * pow(fp[fpNr(11)]->GetTrack()->GetY(), 2) +
+               set->GetZDAoQCorrection_constant();
 
         beam->CorrectAQ(b + 3, corr);
         beam->ScaleAQ(b + 3, set->GetZDAoQCorrection_gain(), set->GetZDAoQCorrection_offs());
@@ -967,8 +984,8 @@ int main(int argc, char *argv[])
         beam->CorrectZ(b, corr);
 
         // ========= ZD Zet correction =========
-        corr = set->GetZDZCorrection_ripsbeta5() * beam->GetRIPSBeta(5) +
-               set->GetZDZCorrection_ripsbeta5sq() * pow(beam->GetRIPSBeta(5), 2) +
+        corr = set->GetZDZCorrection_ripsbeta4() * beam->GetRIPSBeta(4) +
+               set->GetZDZCorrection_ripsbeta4sq() * pow(beam->GetRIPSBeta(4), 2) +
                set->GetZDZCorrection_aoq5() * beam->GetAQ(5) +
                set->GetZDZCorrection_aoq5sq() * pow(beam->GetAQ(5), 2) +
                set->GetZDZCorrection_constant();

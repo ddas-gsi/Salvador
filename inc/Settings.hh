@@ -184,6 +184,9 @@ public:
   double GetZDAoQCorrection_F11B2() { return faoq_corr[1][2].B2; }
   double GetZDAoQCorrection_F11Y2() { return faoq_corr[1][2].Y2; }
 
+  double GetBRAoQCorrection_constant() { return faoq_const[0][0]; }
+  double GetZDAoQCorrection_constant() { return faoq_const[1][0]; }
+
   double GetBRAoQCorrection_gain() { return faoq_lin[0][0]; }
   double GetBRAoQCorrection_offs() { return faoq_lin[0][1]; }
   double GetZDAoQCorrection_gain() { return faoq_lin[1][0]; }
@@ -196,8 +199,8 @@ public:
   double GetBRZCorrection_aoq2sq() { return fzet_corr[0][3]; }
   double GetBRZCorrection_constant() { return fzet_corr[0][4]; }
 
-  double GetZDZCorrection_ripsbeta5() { return fzet_corr[1][0]; }
-  double GetZDZCorrection_ripsbeta5sq() { return fzet_corr[1][1]; }
+  double GetZDZCorrection_ripsbeta4() { return fzet_corr[1][0]; }
+  double GetZDZCorrection_ripsbeta4sq() { return fzet_corr[1][1]; }
   double GetZDZCorrection_aoq5() { return fzet_corr[1][2]; }
   double GetZDZCorrection_aoq5sq() { return fzet_corr[1][3]; }
   double GetZDZCorrection_constant() { return fzet_corr[1][4]; }
@@ -277,6 +280,8 @@ private:
   AoQCorrections faoq_corr[2][3]; // 2 spectrometers, 3 focal planes
 
   // double faoq_corr[2][3][3];      // BR/ZD; focal plane; X, angle A, q
+
+  double faoq_const[2][1]; // BR/ZD; constant shift
 
   double faoq_lin[2][2]; // BR/ZD; gain; offs
 

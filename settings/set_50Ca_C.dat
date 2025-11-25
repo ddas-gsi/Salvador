@@ -21,8 +21,8 @@ TOF.Offset.5:		-118.3514679		#F8-F11
 InteractionPoints:	/u/ddas/exp/users/ddas/Salvador/dali_coordinates.dat
 AverageBeta:		0.5247
 
-Timing.Gate.Low:	0
-Timing.Gate.High:	20
+Timing.Gate.Low:	-1000
+Timing.Gate.High:	1000
 
 Addback.Threshold:	350
 Addback.Distance:	15
@@ -41,6 +41,7 @@ BigRIPS.AoQCorr_F7X:	+0.0001
 BigRIPS.AoQCorr_F7A:	-0.0001
 BigRIPS.AoQCorr_F7Q:	0.
 
+BigRIPS.AoQCorr_Constant:  +0.00306
 
 # ===== ZD AoQ Corrections =====
 ZeroDeg.AoQCorr_F8X:	+0.0002
@@ -64,6 +65,8 @@ ZeroDeg.AoQCorr_F11B2:	+4.25615e-06
 ZeroDeg.AoQCorr_F11Y:	-3.35538e-07
 ZeroDeg.AoQCorr_F11Y2:	-3.78872e-06
 
+ZeroDeg.AoQCorr_Constant:  -0.00189
+
 # ===== Z Corrections =====
 BigRIPS.ZCorr_RipsBeta1:	    -12.5
 BigRIPS.ZCorr_RipsBeta1sq:      0.00
@@ -71,9 +74,9 @@ BigRIPS.ZCorr_AoQ2:             0.00
 BigRIPS.ZCorr_AoQ2sq:           -0.2
 BigRIPS.ZCorr_Constant:         8.23
 
-ZeroDeg.ZCorr_RipsBeta5:        +4.5
-ZeroDeg.ZCorr_RipsBeta5sq:      0.00
+ZeroDeg.ZCorr_RipsBeta4:        +4.8
+ZeroDeg.ZCorr_RipsBeta4sq:      0.00
 ZeroDeg.ZCorr_AoQ5:             0.00
 ZeroDeg.ZCorr_AoQ5sq:           0.00
-ZeroDeg.ZCorr_Constant:         -2.2
+ZeroDeg.ZCorr_Constant:         -2.35
 

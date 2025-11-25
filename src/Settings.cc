@@ -156,6 +156,9 @@ void Settings::ReadSettings()
   faoq_corr[1][2].B2 = set->GetValue("ZeroDeg.AoQCorr_F11B2", 0.0);
   faoq_corr[1][2].Y2 = set->GetValue("ZeroDeg.AoQCorr_F11Y2", 0.0);
 
+  faoq_const[0][0] = set->GetValue("BigRIPS.AoQCorr_Constant", 0.0);
+  faoq_const[1][0] = set->GetValue("ZeroDeg.AoQCorr_Constant", 0.0);
+
   faoq_lin[0][0] = set->GetValue("BigRIPS.AoQCorr_Gain", 1.0);
   faoq_lin[0][1] = set->GetValue("BigRIPS.AoQCorr_Offs", 0.0);
 
@@ -169,8 +172,8 @@ void Settings::ReadSettings()
   fzet_corr[0][3] = set->GetValue("BigRIPS.ZCorr_AoQ2sq", 0.0);
   fzet_corr[0][4] = set->GetValue("BigRIPS.ZCorr_Constant", 0.0);
 
-  fzet_corr[1][0] = set->GetValue("ZeroDeg.ZCorr_RipsBeta5", 0.0);
-  fzet_corr[1][1] = set->GetValue("ZeroDeg.ZCorr_RipsBeta5sq", 0.0);
+  fzet_corr[1][0] = set->GetValue("ZeroDeg.ZCorr_RipsBeta4", 0.0);
+  fzet_corr[1][1] = set->GetValue("ZeroDeg.ZCorr_RipsBeta4sq", 0.0);
   fzet_corr[1][2] = set->GetValue("ZeroDeg.ZCorr_AoQ5", 0.0);
   fzet_corr[1][3] = set->GetValue("ZeroDeg.ZCorr_AoQ5sq", 0.0);
   fzet_corr[1][4] = set->GetValue("ZeroDeg.ZCorr_Constant", 0.0);
