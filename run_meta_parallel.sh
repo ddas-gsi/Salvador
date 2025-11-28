@@ -5,6 +5,7 @@
 #   ./run_meta_parallel.sh 6095 6066
 # Custom suffix:
 #   ./run_meta_parallel.sh 6095 6066 --suffix "_53Au_final_test.root"
+# ./run_meta_parallel.sh 1001 1002 1003 1004 1005 1006 1007 1008 1009 1010 1011 1012 1013
 
 # Check for at least one RUN number
 if [ "$#" -lt 1 ]; then
@@ -18,7 +19,7 @@ OFILE_PREFIX="/u/ddas/software/Salvador/rootfiles/ddas/salva/meta/meta_"
 OFILE_SUFFIX=".root"
 # OFILE_SUFFIX="_53Au_final_tof5fix.root"
 
-MAX_PARALLEL=10  # Maximum number of parallel jobs
+MAX_PARALLEL=20  # Maximum number of parallel jobs
 
 # Parse optional suffix argument
 ARGS=()
@@ -53,7 +54,7 @@ run_single() {
     Metamorphosis \
         -i "${IFILE_PREFIX}${RUN_Nbr}.ridf.gz" \
         -o "${OFILE_PREFIX}${RUN_Nbr}${OFILE_SUFFIX}" \
-        -s ./settings/set_50Ca_Au.dat
+        -s ./settings/set_50Ca_C.dat
     sleep 2
 
     echo "✅ Finished processing RUN Number: $RUN_Nbr"
