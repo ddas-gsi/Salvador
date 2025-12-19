@@ -7,10 +7,13 @@ from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
 # --- Config ---
-inputFile = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/disi/disi_1010.root"
-outputDir = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers"
-settingsFile = Path.home() / "Lustre/gamma/ddas/RIBF249/settings/set_50Ca_C.dat"
+
 runNr = 1010
+
+# inputFile = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/disi/disi_1010.root"
+inputFile = Path.home() / f"Lustre/gamma/ddas/RIBF249/rootfiles/ddas/disi/disi_{runNr}.root"
+outputDir = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers"
+settingsFile = Path.home() / "software/Salvador/settings/set_50Ca_C.dat"
 max_workers = 20  # Number of parallel processes
 
 # Ensure output directory exists

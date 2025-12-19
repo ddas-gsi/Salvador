@@ -103,10 +103,15 @@
 #                -o ./rootfiles/ddas/salva/burn/burn_1010_f37811_separate_lc-1_AoQ25corr.root \
 #                -tn tr -v 2 -lcx -1 -fid 37811 -r 1010
 
-BurningGiraffe -i ./rootfiles/ddas/salva/meta/meta_1010_aoqc.root \
-               -o ./rootfiles/ddas/salva/burn/burn_1010_f37811_lc-1_aoqc.root \
-               -tn tr -v 2 -lcx -1 -fid 37811 -r 1010
+# BurningGiraffe -i ./rootfiles/ddas/salva/meta/meta_1010_aoqc.root \
+#                -o ./rootfiles/ddas/salva/burn/burn_1010_f37811_lc-1_aoqc.root \
+#                -tn tr -v 2 -lcx -1 -fid 37811 -r 1010
 
-BurningGiraffe -i ./rootfiles/ddas/salva/meta/meta_1010_aoqc.root \
-               -o ./rootfiles/ddas/salva/burn/burn_1010_f37_lc-1_aoqc.root \
-               -tn tr -v 2 -lcx -1 -fid 37 -r 1010
+# BurningGiraffe -i ./rootfiles/ddas/salva/meta/meta_1010_aoqc.root \
+#                -o ./rootfiles/ddas/salva/burn/burn_1010_f37_lc-1_aoqc.root \
+#                -tn tr -v 2 -lcx -1 -fid 37 -r 1010
+
+
+BurningGiraffe -i ./rootfiles/ddas/disi/disi_1010.root \
+               -o ./rootfiles/ddas/burn/burn_1010_gamma.root \
+               -tn tr_in51Caout50Ca -v 2 -lcx -1 -fid 37 -r 1010

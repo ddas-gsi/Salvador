@@ -197,12 +197,14 @@ int main(int argc, char *argv[])
     // start analysis
     for (UShort_t in = 0; in < InPartCut.size(); in++)
     { // loop over incoming cuts
-      if (InPartCut[in]->IsInside(beam->GetAQ(br), beam->GetZ(br)))
+      // if (InPartCut[in]->IsInside(beam->GetAQ(br), beam->GetZ(br)))
+      if (InPartCut[in]->IsInside(beam->GetCorrAQ(br), beam->GetCorrZ(br)))
       {
         // splittree[in][OutPartCut[in].size()]->Fill(); // commented this to make disi run faster
         for (UShort_t ou = 0; ou < OutPartCut[in].size(); ou++)
         { // loop over outgoing cuts
-          if (OutPartCut[in][ou]->IsInside(beam->GetAQ(zd), beam->GetZ(zd)))
+          // if (OutPartCut[in][ou]->IsInside(beam->GetAQ(zd), beam->GetZ(zd)))
+          if (OutPartCut[in][ou]->IsInside(beam->GetCorrAQ(zd), beam->GetCorrZ(zd)))
           {
             splittree[in][ou]->Fill();
             break;

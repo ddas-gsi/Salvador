@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     if (load_dT_vs_logQ_cuts == 'y')
     {
       cout << "Loading dT_vs_logQ cuts for FocalPlane " << id << endl;
-      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_logQ_%d.cxx", RunID, RunID, id);
+      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_dT_vs_logQ_%d.cxx", RunID, RunID, id);
       gROOT->ProcessLine(Form(".L %s", file.Data()));
       TObject *obj = gROOT->FindObject(Form("dT_vs_logQ_%d", id));
       if (obj && obj->InheritsFrom("TCutG"))
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
     if (load_logQ_vs_X_cuts == 'y')
     {
       cout << "Loading logQ_vs_X cuts for FocalPlane " << id << endl;
-      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_logQ_vs_X_%d.cxx", RunID, RunID, id);
+      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_logQ_vs_X_%d.cxx", RunID, RunID, id);
       gROOT->ProcessLine(Form(".L %s", file.Data()));
       TObject *obj = gROOT->FindObject(Form("logQ_vs_X_%d", id));
       if (obj && obj->InheritsFrom("TCutG"))
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
     if (load_dT_vs_X_cuts == 'y')
     {
       cout << "Loading dT_vs_X cuts for FocalPlane " << id << endl;
-      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_X_%d.cxx", RunID, RunID, id);
+      TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_dT_vs_X_%d.cxx", RunID, RunID, id);
       gROOT->ProcessLine(Form(".L %s", file.Data()));
       TObject *obj = gROOT->FindObject(Form("dT_vs_X_%d", id));
       if (obj && obj->InheritsFrom("TCutG"))
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
   }
 
   //////// load pid cuts from file for ***PID 2*** ////////
-  TString pid50Ca20_pid2f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/pid/%d_50Ca20_pid2.cxx", RunID);
+  TString pid50Ca20_pid2f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid2.cxx", RunID);
   gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid2f1.Data()));
   TCutG *pid50Ca20_pid2 = (TCutG *)gROOT->FindObject("50Ca20_pid2");
   if (pid50Ca20_pid2)
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
     cerr << "Error: could not find PID 2 cut 50Ca20" << endl;
     return 2;
   }
-  TString pid49K19_pid2f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/pid/%d_49K19_pid2.cxx", RunID);
+  TString pid49K19_pid2f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid2.cxx", RunID);
   gROOT->ProcessLine(Form(".L %s", pid49K19_pid2f2.Data()));
   TCutG *pid49K19_pid2 = (TCutG *)gROOT->FindObject("49K19_pid2");
   if (pid49K19_pid2)
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
   }
 
   //////// load pid cuts from file for ***PID 5*** ////////
-  TString pid50Ca20_pid5f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/pid/%d_50Ca20_pid5.cxx", RunID);
+  TString pid50Ca20_pid5f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid5.cxx", RunID);
   gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid5f1.Data()));
   TCutG *pid50Ca20_pid5 = (TCutG *)gROOT->FindObject("50Ca20_pid5");
   if (pid50Ca20_pid5)
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     cerr << "Error: could not find PID 5 cut 50Ca20" << endl;
     return 2;
   }
-  TString pid49K19_pid5f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/pid/%d_49K19_pid5.cxx", RunID);
+  TString pid49K19_pid5f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid5.cxx", RunID);
   gROOT->ProcessLine(Form(".L %s", pid49K19_pid5f2.Data()));
   TCutG *pid49K19_pid5 = (TCutG *)gROOT->FindObject("49K19_pid5");
   if (pid49K19_pid5)

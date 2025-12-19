@@ -1,6 +1,5 @@
 # --- ROOT files ---
 *.root
-*.C
 *.pcm
 
 # --- Build & Compilation ---

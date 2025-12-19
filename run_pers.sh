@@ -19,14 +19,18 @@
 #             -s ./settings/set_50Ca_C.dat \
 #             -tn tr_in50Caout50Ca \
 #             -b 0.5269
-
+            
+# Persistence -i ./rootfiles/ddas/disi/disi_1010_kw.root \
+#             -o ./rootfiles/ddas/pers/pers_in51Caout50Ca_1010_kw.root \
+#             -s ./settings/set_50Ca_C.dat \
+#             -tn tr_in51Caout50Ca 
 
 # Persistence -i ./rootfiles/ddas/disi/disi_1010.root \
 #             -o ./rootfiles/ddas/pers/pers_in51Caout50Ca_1010.root \
 #             -s ./settings/set_50Ca_C.dat \
 #             -tn tr_in51Caout50Ca 
-            
-Persistence -i ./rootfiles/ddas/disi/disi_1010_kw.root \
-            -o ./rootfiles/ddas/pers/pers_in51Caout50Ca_1010_kw.root \
+
+Persistence -i ./rootfiles/ddas/disi/disi_1010.root \
+            -o ./rootfiles/ddas/pers/pers_in51Caout50Ca_1010_new.root \
             -s ./settings/set_50Ca_C.dat \
             -tn tr_in51Caout50Ca 

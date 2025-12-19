@@ -18,7 +18,7 @@ TOF.Offset.3:		-118.6772936		#F8-F9
 TOF.Offset.4:		-118.1679974		#F9-F11
 TOF.Offset.5:		-118.3514679		#F8-F11
 
-InteractionPoints:	/u/ddas/exp/users/ddas/Salvador/dali_coordinates.dat
+InteractionPoints:	/u/ddas/software/Salvador/dali_coordinates_20251010.dat
 AverageBeta:		0.5247
 
 Timing.Gate.Low:	-1000

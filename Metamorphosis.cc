@@ -1023,6 +1023,7 @@ int main(int argc, char *argv[])
         dhit->SetTOffset(hit->GetTimeOffseted());
         //      if(dhit->GetEnergy()>0)
         dali->AddHit(dhit);
+        // dali->AddHitAB(dhit);
       }
     }
 

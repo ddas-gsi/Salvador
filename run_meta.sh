@@ -67,5 +67,8 @@
 
 # Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010_plcWContinue.root -s ./settings/set_50Ca_C.dat
 
-Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/salva/meta/meta_1010.root -s ./settings/set_50Ca_C.dat -n 100000
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010.root -s ./settings/set_50Ca_C.dat   -n 500000
 
+Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010.root -s ./settings/set_50Ca_C.dat   
+
+   
