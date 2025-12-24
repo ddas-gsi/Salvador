@@ -150,10 +150,10 @@ void calibSpectra(
 
             for (int i = 0; i < nfound; i++)
             {
-                TMarker *m = new TMarker(mean[i], amp[i], 20);
+                TMarker *m = new TMarker(mean[i], amp[i], 23); // Marker style 23: inverted triangle; 20: full circle
                 m->SetMarkerColor(kBlue);
                 m->SetMarkerSize(1.0);
-                m->SetMarkerStyle(23);
+                m->SetMarkerStyle(23); // Marker style 23: inverted triangle; 20: full circle
                 m->Draw("same");
 
                 // 20  // full circle ●   (default, clean)
