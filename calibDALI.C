@@ -485,3 +485,253 @@ void calibDALI_Cs137(
     fi->Close();
     delete fi;
 }
+
+// Calibrate and Fit the peaks for each detector
+
+struct PeakData
+{
+    Int_t detID;
+    Bool_t hasPeak1;
+    Bool_t hasPeak2;
+    Double_t mean1;
+    Double_t sigma1;
+    Double_t mean2;
+    Double_t sigma2;
+};
+
+void ReadCSV_2Peaks(const std::string &filename,
+                    std::map<int, PeakData> &db)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        std::cerr << "ERROR: Cannot open " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line); // skip header
+
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string token;
+
+        // --- read DetectorID ---
+        std::getline(ss, token, ',');
+        int det = std::stoi(token);
+
+        // --- get or create entry ---
+        PeakData &d = db[det];
+
+        // --- infuse detID into struct ---
+        d.detID = det;
+
+        // --- read peak 1 ---
+        std::getline(ss, token, ',');
+        d.mean1 = std::stod(token);
+
+        std::getline(ss, token, ',');
+        d.sigma1 = std::stod(token);
+
+        // --- read peak 2 ---
+        std::getline(ss, token, ',');
+        d.mean2 = std::stod(token);
+
+        std::getline(ss, token, ',');
+        d.sigma2 = std::stod(token);
+
+        d.hasPeak1 = true;
+        d.hasPeak2 = true;
+    }
+}
+
+void ReadCSV_1Peak(const std::string &filename,
+                   std::map<int, PeakData> &db)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        std::cerr << "ERROR: Cannot open " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line); // skip header
+
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string token;
+
+        // --- read DetectorID ---
+        std::getline(ss, token, ',');
+        int det = std::stoi(token);
+
+        // --- get or create entry ---
+        PeakData &d = db[det];
+
+        // --- infuse detID ---
+        d.detID = det;
+
+        // --- read peak 1 ---
+        std::getline(ss, token, ',');
+        d.mean1 = std::stod(token);
+
+        std::getline(ss, token, ',');
+        d.sigma1 = std::stod(token);
+
+        d.hasPeak1 = true;
+        // hasPeak2 intentionally untouched
+    }
+}
+
+void energyCalib(bool drawErr = false)
+{
+    std::map<int, PeakData> calibDB_Co60, calibDB_Y88, calibDB_Cs137;
+    ReadCSV_2Peaks("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/Co60_0077_v_corr.csv", calibDB_Co60);
+    ReadCSV_2Peaks("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/Y88_0078_v_corr.csv", calibDB_Y88);
+    ReadCSV_1Peak("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/Cs137_0079_v_corr.csv", calibDB_Cs137);
+
+    // calibration parameters ROOT file
+    TFile *fo = TFile::Open(
+        "/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_energyCalib_007X.root",
+        "RECREATE");
+
+    if (!fo || fo->IsZombie())
+    {
+        std::cerr << "ERROR: Cannot create output ROOT file" << std::endl;
+        return;
+    }
+    // Create dirs
+    TDirectory *dirFits = fo->mkdir("Fits");
+    TDirectory *dirRes = fo->mkdir("Res");
+
+    // calibration parameters CSV file
+    std::ofstream outCSV("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_energyCalib_007X.csv");
+    outCSV << "DetectorID,p0,p1,p0_err,p1_err\n"; // header
+
+    if (calibDB_Co60.size() == calibDB_Y88.size() && calibDB_Y88.size() == calibDB_Cs137.size())
+    {
+        std::cout << "Calibration DBs loaded successfully and have consistent detector counts." << std::endl;
+        std::cout << "Loaded detectors from source Co60  : " << calibDB_Co60.size() << std::endl;
+        std::cout << "Loaded detectors from source Y88   : " << calibDB_Y88.size() << std::endl;
+        std::cout << "Loaded detectors from source Cs137 : " << calibDB_Cs137.size() << std::endl;
+    }
+    else
+    {
+        std::cerr << "Warning: Calibration DBs have inconsistent detector counts!" << std::endl;
+    }
+
+    int ndet = calibDB_Co60.size(); // calibDB_Co60.size(); // For testing, limit to first 10 detectors
+    int idet = 0;
+    TCanvas *c1 = new TCanvas("c1", "Calibrate Detector", 900, 600);
+
+    if (calibDB_Co60.size() == calibDB_Y88.size() && calibDB_Y88.size() == calibDB_Cs137.size())
+    {
+        for (const auto &[det, d] : calibDB_Co60)
+        {
+            std::cout << "Detector " << calibDB_Co60[det].detID << " : " << calibDB_Co60[det].mean1
+                      << ", " << calibDB_Co60[det].mean2
+                      << ", " << calibDB_Y88[det].mean1
+                      << ", " << calibDB_Y88[det].mean2
+                      << ", " << calibDB_Cs137[det].mean1 << std::endl;
+
+            if (calibDB_Co60[det].detID == calibDB_Y88[det].detID && calibDB_Y88[det].detID == calibDB_Cs137[det].detID)
+            {
+                const int npeaks = 5;
+                double energies[npeaks] = {1173.240, 1332.508, 898.047, 1836.090, 661.657}; // in keV for Co60(2), Y88(2), Cs137(1)
+                double errEnergies[npeaks] = {0.003, 0.004, 0.011, 0.008, 0.003};           // in keV
+
+                double adcPeakCentroids[npeaks] = {calibDB_Co60[det].mean1, calibDB_Co60[det].mean2,
+                                                   calibDB_Y88[det].mean1, calibDB_Y88[det].mean2,
+                                                   calibDB_Cs137[det].mean1};
+                double adcPeakSigmas[npeaks] = {calibDB_Co60[det].sigma1, calibDB_Co60[det].sigma2,
+                                                calibDB_Y88[det].sigma1, calibDB_Y88[det].sigma2,
+                                                calibDB_Cs137[det].sigma1};
+
+                c1->cd();
+                c1->Clear();
+
+                // Unique names per detector
+                TString gname = Form("det_%d_calib", det);
+                TString fname = Form("fit_det_%d", det);
+                TString rname = Form("residuals_det_%d", det);
+
+                TGraphErrors *gr = new TGraphErrors(npeaks, adcPeakCentroids, energies, adcPeakSigmas, errEnergies);
+                gr->SetName(gname);
+                gr->SetTitle(Form("Energy Calibration Detector %d", det));
+                gr->GetXaxis()->SetTitle("ADC Channel (Centroids)");
+                gr->GetYaxis()->SetTitle("Energy (keV)");
+
+                // TF1 *linFit = new TF1("linFit", "pol1", 0, 2000);
+                TF1 *linFit = new TF1(fname, "pol1", 0, 2000);
+                gr->Fit(linFit, "W"); // "W" to ignore errors in X
+
+                // Get Calibration parameters
+                double p0 = linFit->GetParameter(0);    // intercept
+                double p1 = linFit->GetParameter(1);    // slope
+                double p0_err = linFit->GetParError(0); // uncertainty in intercept
+                double p1_err = linFit->GetParError(1); // uncertainty in slope
+                std::cout << "Linear fit: y = " << p0 << " + " << p1 << " * x" << std::endl;
+                linFit->SetTitle(Form("Detector %d:   E = %.3f + %.6f * ADC", det, p0, p1));
+                gr->SetTitle(Form("Detector %d:    E = %.3f + %.6f * ADC", det, p0, p1)); // overwrite graph title with fit info
+
+                // Save calibration parameters to CSV
+                outCSV << det << "," << p0 << "," << p1 << "," << p0_err << "," << p1_err << "\n";
+
+                // Create and fill residuals histogram
+                TH1D *hres = new TH1D(rname, Form("Residuals detector %d;Energy residual (keV);Counts", det), 50, -100, 100);
+                for (int i = 0; i < npeaks; i++)
+                {
+                    double efit = linFit->Eval(adcPeakCentroids[i]);
+                    hres->Fill(energies[i] - efit);
+                }
+
+                if (drawErr)
+                {
+                    gr->SetLineColor(kGreen);
+                    gr->SetLineStyle(1); // must be non-zero to draw X errors
+                    gr->SetLineWidth(1); // must be non-zero to draw X errors
+                }
+                else
+                {
+                    gr->SetLineStyle(0); // no line
+                    gr->SetLineWidth(0); // no line
+                }
+
+                gr->SetMarkerStyle(20);
+                gr->SetMarkerSize(1.2);
+                gr->Draw("APE"); // points + X errors
+
+                linFit->SetLineColor(kRed);
+                linFit->Draw("Same"); // overlay fit on the same canvas
+
+                c1->Update();
+
+                // Save to output file
+                fo->cd();
+                dirFits->cd();
+                gr->Write();
+                dirRes->cd();
+                linFit->Write();
+                hres->Write();
+
+                delete gr;
+                delete linFit;
+                delete hres;
+            }
+            else
+            {
+                std::cerr << "Detector ID mismatch among calibration DBs for detector : " << det << "!" << std::endl;
+            }
+
+            idet++;
+            if (idet >= ndet)
+                break;
+        }
+        fo->Close();
+        outCSV.close();
+        delete fo;
+    }
+}
