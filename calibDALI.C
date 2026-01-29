@@ -609,7 +609,7 @@ void energyCalib(bool drawErr = false)
 
     // calibration parameters CSV file
     std::ofstream outCSV("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_energyCalib_007X.csv");
-    outCSV << "DetectorID,p0,p1,p0_err,p1_err\n"; // header
+    outCSV << "DetectorID,p0,p1,p0_err,p1_err,Chi2,NDf,redChi2\n"; // header
 
     if (calibDB_Co60.size() == calibDB_Y88.size() && calibDB_Y88.size() == calibDB_Cs137.size())
     {
@@ -654,7 +654,7 @@ void energyCalib(bool drawErr = false)
                 c1->Clear();
 
                 // Unique names per detector
-                TString gname = Form("det_%d_calib", det);
+                TString gname = Form("Detector_%d_calib", det);
                 TString fname = Form("fit_det_%d", det);
                 TString rname = Form("residuals_det_%d", det);
 
@@ -673,12 +673,15 @@ void energyCalib(bool drawErr = false)
                 double p1 = linFit->GetParameter(1);    // slope
                 double p0_err = linFit->GetParError(0); // uncertainty in intercept
                 double p1_err = linFit->GetParError(1); // uncertainty in slope
+                double chi2 = linFit->GetChisquare();
+                int ndf = linFit->GetNDF();
+                double redChi2 = (ndf > 0) ? chi2 / ndf : 0.0; // condition ? value_if_true : value_if_false
                 std::cout << "Linear fit: y = " << p0 << " + " << p1 << " * x" << std::endl;
                 linFit->SetTitle(Form("Detector %d:   E = %.3f + %.6f * ADC", det, p0, p1));
                 gr->SetTitle(Form("Detector %d:    E = %.3f + %.6f * ADC", det, p0, p1)); // overwrite graph title with fit info
 
                 // Save calibration parameters to CSV
-                outCSV << det << "," << p0 << "," << p1 << "," << p0_err << "," << p1_err << "\n";
+                outCSV << det << "," << p0 << "," << p1 << "," << p0_err << "," << p1_err << "," << chi2 << "," << ndf << "," << redChi2 << "\n";
 
                 // Create and fill residuals histogram
                 TH1D *hres = new TH1D(rname, Form("Residuals detector %d;Energy residual (keV);Counts", det), 50, -100, 100);
