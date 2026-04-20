@@ -101,6 +101,12 @@ int main(int argc, char *argv[])
     }
     return 3;
   }
+
+  int fpCutMask[2] = {0, 0};
+  tr->SetBranchAddress("fpCutMask[2]", &fpCutMask);
+  int plCutMask[4] = {0, 0, 0, 0};
+  tr->SetBranchAddress("plCutMask[4]", &plCutMask);
+
   int trigbit = 0;
   tr->SetBranchAddress("trigbit", &trigbit);
   PPAC *ppac = new PPAC;
@@ -137,10 +143,18 @@ int main(int argc, char *argv[])
   // histograms
   TH1F *trigger = new TH1F("trigger", "trigger", NTRIG, 0, NTRIG);
   hlist->Add(trigger);
+  TH1F *fpCutMask_br = new TH1F("fpCutMask_br", "fpCutMask_br", 16, 0, 16);
+  hlist->Add(fpCutMask_br);
+  TH1F *fpCutMask_zd = new TH1F("fpCutMask_zd", "fpCutMask_zd", 16, 0, 16);
+  hlist->Add(fpCutMask_zd);
   TH2F *bigrips = new TH2F("bigrips", "bigrips", 1000, 2.2, 2.8, 1000, 0, 40);
   hlist->Add(bigrips);
   TH2F *zerodeg = new TH2F("zerodeg", "zerodeg", 1000, 2.2, 2.8, 1000, 0, 40);
   hlist->Add(zerodeg);
+  TH2F *bigrips_corr = new TH2F("bigrips_corr", "bigrips_corr", 1000, 2.2, 2.8, 1000, 0, 40);
+  hlist->Add(bigrips_corr);
+  TH2F *zerodeg_corr = new TH2F("zerodeg_corr", "zerodeg_corr", 1000, 2.2, 2.8, 1000, 0, 40);
+  hlist->Add(zerodeg_corr);
   TH2F *bigrips_tr[NTRIG];
   TH2F *zerodeg_tr[NTRIG];
   TH1F *f5X_tr[NTRIG];
@@ -220,6 +234,14 @@ int main(int argc, char *argv[])
     bbeta[b] = new TH1F(Form("bbeta_%d", b), Form("bbeta_%d", b), 10000, 0, 1);
     hlist->Add(bbeta[b]);
   }
+  // RIPSBeta
+  TH1F *ripsbeta[6];
+  for (unsigned short b = 0; b < 6; b++)
+  {
+    ripsbeta[b] = new TH1F(Form("ripsbeta_%d", b), Form("ripsbeta_%d", b), 10000, 0, 1);
+    hlist->Add(ripsbeta[b]);
+  }
+
   TH1F *delta[4];
   for (unsigned short b = 0; b < 4; b++)
   {
@@ -282,12 +304,26 @@ int main(int argc, char *argv[])
   hlist->Add(egam_IDgate);
   TH1F *egamdc_IDgate = new TH1F("egamdc_IDgate", "egamdc_IDgate", bins, 0, bins);
   hlist->Add(egamdc_IDgate);
-  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 1000, -1000, 1000, 1000, 0, bins);
+  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 2000, -1000, 1000, bins, 0, bins);
   hlist->Add(egamtgam);
-  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 1000, -1000, 1000, 1000, 0, bins);
+  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 2000, -1000, 1000, bins, 0, bins);
   hlist->Add(egamdctgam);
+  TH2F *time_id = new TH2F("time_id", "time_id", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  hlist->Add(time_id);
+  TH2F *time_id_g1000 = new TH2F("time_id_g1000", "time_id_g1000", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  hlist->Add(time_id_g1000);
+  TH2F *time_id_g700 = new TH2F("time_id_g700", "time_id_g700", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  hlist->Add(time_id_g700);
+  TH2F *time_id_g500 = new TH2F("time_id_g500", "time_id_g500", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  hlist->Add(time_id_g500);
   TH2F *tgamID = new TH2F("tgamID", "tgamID", DALIIDS, 0, DALIIDS, 1000, -500, 500);
   hlist->Add(tgamID);
+  TH2F *tgamID_g1000 = new TH2F("tgamID_g1000", "tgamID_g1000", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  hlist->Add(tgamID_g1000);
+  TH2F *tgamID_g700 = new TH2F("tgamID_g700", "tgamID_g700", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  hlist->Add(tgamID_g700);
+  TH2F *tgamID_g500 = new TH2F("tgamID_g500", "tgamID_g500", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  hlist->Add(tgamID_g500);
   TH2F *egammult = new TH2F("egammult", "egammult", 20, 0, 20, bins, 0, bins);
   hlist->Add(egammult);
   TH2F *egamdcmult = new TH2F("egamdcmult", "egamdcmult", 20, 0, 20, bins, 0, bins);
@@ -314,6 +350,12 @@ int main(int argc, char *argv[])
   hlist->Add(egamAB);
   TH1F *egamABdc = new TH1F("egamABdc", "egamABdc", bins, 0, bins);
   hlist->Add(egamABdc);
+  TH1F *egamABdc_good = new TH1F("egamABdc_good", "egamABdc_good", bins, 0, bins);
+  hlist->Add(egamABdc_good);
+  TH1F *egamABdc_hyp = new TH1F("egamABdc_hyp", "egamABdc_hyp", bins, 0, bins);
+  hlist->Add(egamABdc_hyp);
+  TH1F *egamABdc_plhit1 = new TH1F("egamABdc_plhit1", "egamABdc_plhit1", bins, 0, bins);
+  hlist->Add(egamABdc_plhit1);
   TH2F *egamABmult = new TH2F("egamABmult", "egamABmult", 20, 0, 20, bins, 0, bins);
   hlist->Add(egamABmult);
   TH2F *egamABmultAB = new TH2F("egamABmultAB", "egamABmultAB", 20, 0, 20, bins, 0, bins);
@@ -326,7 +368,7 @@ int main(int argc, char *argv[])
   hlist->Add(egamAB_IDgate);
   TH2F *egamABtgam = new TH2F("egamABtgam", "egamABtgam", 1000, -500, 500, 1000, 0, bins);
   hlist->Add(egamABtgam);
-  TH2F *egamABdctgam = new TH2F("egamABdctgam", "egamABdctgam", 1000, -500, 500, 1000, 0, bins);
+  TH2F *egamABdctgam = new TH2F("egamABdctgam", "egamABdctgam", 1000, -500, 500, bins, 0, bins);
   hlist->Add(egamABdctgam);
   TH2F *tgamABID = new TH2F("tgamABID", "tgamABID", DALIIDS, 0, DALIIDS, 1000, -500, 500);
   hlist->Add(tgamABID);
@@ -368,6 +410,8 @@ int main(int argc, char *argv[])
   hlist->Add(egamdctrig_mult[0]);
   egamdctheta_mult[0] = new TH2F("egamdctheta", "egamdctheta", 200, 0, 4, 400, 0, bins);
   hlist->Add(egamdctheta_mult[0]);
+  TH2F *egamtheta = new TH2F("egamtheta", "egamtheta", 200, 0, 4, bins, 0, bins);
+  hlist->Add(egamtheta);
   egamdcphi_mult[0] = new TH2F("egamdcphi", "egamdcphi", 200, -4, 4, 400, 0, bins);
   hlist->Add(egamdcphi_mult[0]);
   egamABID_mult[0] = new TH2F("egamABID", "egamABID", DALIIDS, 0, DALIIDS, bins, 0, bins);
@@ -550,6 +594,9 @@ int main(int argc, char *argv[])
     if (recalibrate)
       rec->ReCalibrate(dali->GetHits());
 
+    // Recalibrate DALI Time Offsets from the settings file
+    rec->ReCalDALIToffsets(dali->GetHits());
+
     // sort by energy
     dali->SetHits(rec->Sort(dali->GetHits()));
 
@@ -569,364 +616,415 @@ int main(int argc, char *argv[])
       dali->Print();
 
     Plastic *pl3 = fp[fpNr(3)]->GetPlastic();
-    PL3PPAC3->Fill(pl3->GetTimeL() - pl3->GetTimeR(), fp[fpNr(3)]->GetTrack()->GetX());
-    PL3PL3->Fill(log(pl3->GetChargeL() / pl3->GetChargeR()), pl3->GetTimeL() - pl3->GetTimeR());
-    Plastic *pl7 = fp[fpNr(7)]->GetPlastic();
-    PL7PPAC7->Fill(pl7->GetTimeL() - pl7->GetTimeR(), fp[fpNr(7)]->GetTrack()->GetX());
-    PL7PL7->Fill(log(pl7->GetChargeL() / pl7->GetChargeR()), pl7->GetTimeL() - pl7->GetTimeR());
-    Plastic *pl9 = fp[fpNr(9)]->GetPlastic();
-    PL9PPAC9->Fill(pl9->GetTimeL() - pl9->GetTimeR(), fp[fpNr(9)]->GetTrack()->GetX());
-    PL9PL9->Fill(log(pl9->GetChargeL() / pl9->GetChargeR()), pl9->GetTimeL() - pl9->GetTimeR());
-    Plastic *pl11 = fp[fpNr(11)]->GetPlastic();
-    PL11PPAC11->Fill(pl11->GetTimeL() - pl11->GetTimeR(), fp[fpNr(11)]->GetTrack()->GetX());
-    PL11PL11->Fill(log(pl11->GetChargeL() / pl11->GetChargeR()), pl11->GetTimeL() - pl11->GetTimeR());
 
-    // beam direction, scattering angle
-    // align
-    rec->AlignPPAC(ppac->GetPPACID(35), ppac->GetPPACID(36));
-    TVector3 ppacpos[3];
-    ppacpos[0] = rec->PPACPosition(ppac->GetPPACID(19), ppac->GetPPACID(20));
-    ppacpos[1] = rec->PPACPosition(ppac->GetPPACID(21), ppac->GetPPACID(22));
-    ppacpos[2] = rec->PPACPosition(ppac->GetPPACID(35), ppac->GetPPACID(36));
-
-    // cout << ppac->GetPPACID(19)->GetZ() <<"\t" <<  ppac->GetPPACID(20)->GetZ()<<"\t"<<ppacpos[0].Z() << endl;
-    // cout << ppac->GetPPACID(21)->GetZ() <<"\t" <<  ppac->GetPPACID(22)->GetZ()<<"\t"<<ppacpos[1].Z() << endl;
-    // cout << ppac->GetPPACID(35)->GetZ() <<"\t" <<  ppac->GetPPACID(36)->GetZ()<<"\t"<<ppacpos[2].Z() << endl;
-
-    beam->SetIncomingDirection(ppacpos[1] - ppacpos[0]);
-    TVector3 inc = beam->GetIncomingDirection();
-    TVector3 targ = rec->TargetPosition(inc, ppacpos[1]);
-    // cout << setw(5) << setprecision(5)<< ppacpos[0].X() <<"\t" << ppacpos[0].Y() <<"\t" << ppacpos[0].Z() <<"\t" << ppacpos[1].X() <<"\t" << ppacpos[1].Y() <<"\t" << ppacpos[1].Z() <<"\t" << targ.X() <<"\t" << targ.Y() <<"\t" << targ.Z() <<"\t" << ppacpos[2].X() <<"\t" << ppacpos[2].Y() <<"\t" << ppacpos[2].Z() << endl;
-    beam->SetTargetPosition(targ);
-    TVector3 out, sca;
-    if (trigbit > 1)
+    // FocalPlane cuts conditions put here
+    if (fpCutMask[0] == 3 && fpCutMask[1] == 15)
     {
-      beam->SetOutgoingDirection(ppacpos[2] - targ);
-      out = beam->GetOutgoingDirection();
-      sca = beam->GetScatteredDirection();
-    }
 
-    // histos
-    trigger->Fill(trigbit);
-    bigrips->Fill(beam->GetAQ(br), beam->GetZ(br));
-    zerodeg->Fill(beam->GetAQ(zd), beam->GetZ(zd));
-    if (trigbit > -1 && trigbit < NTRIG)
-    {
-      bigrips_tr[trigbit]->Fill(beam->GetAQ(br), beam->GetZ(br));
-      zerodeg_tr[trigbit]->Fill(beam->GetAQ(zd), beam->GetZ(zd));
-      f5X_tr[trigbit]->Fill(fp[fpNr(5)]->GetTrack()->GetX());
-      thetaphi_tr[trigbit]->Fill(beam->GetPhi(), beam->GetTheta() * 1000);
-      thetaphideg_tr[trigbit]->Fill(beam->GetPhi() * rad2deg, beam->GetTheta() * rad2deg);
-    }
+      PL3PPAC3->Fill(pl3->GetTimeL() - pl3->GetTimeR(), fp[fpNr(3)]->GetTrack()->GetX());
+      PL3PL3->Fill(log(pl3->GetChargeL() / pl3->GetChargeR()), pl3->GetTimeL() - pl3->GetTimeR());
+      Plastic *pl7 = fp[fpNr(7)]->GetPlastic();
+      PL7PPAC7->Fill(pl7->GetTimeL() - pl7->GetTimeR(), fp[fpNr(7)]->GetTrack()->GetX());
+      PL7PL7->Fill(log(pl7->GetChargeL() / pl7->GetChargeR()), pl7->GetTimeL() - pl7->GetTimeR());
+      Plastic *pl9 = fp[fpNr(9)]->GetPlastic();
+      PL9PPAC9->Fill(pl9->GetTimeL() - pl9->GetTimeR(), fp[fpNr(9)]->GetTrack()->GetX());
+      PL9PL9->Fill(log(pl9->GetChargeL() / pl9->GetChargeR()), pl9->GetTimeL() - pl9->GetTimeR());
+      Plastic *pl11 = fp[fpNr(11)]->GetPlastic();
+      PL11PPAC11->Fill(pl11->GetTimeL() - pl11->GetTimeR(), fp[fpNr(11)]->GetTrack()->GetX());
+      PL11PL11->Fill(log(pl11->GetChargeL() / pl11->GetChargeR()), pl11->GetTimeL() - pl11->GetTimeR());
 
-    // BEAM
-    if (trigbit > 1)
-    {
-      // cout << beam->GetPhi() <<"\t" << sca.Phi() - inc.Phi() << endl;
-      thetaphi->Fill(beam->GetPhi(), beam->GetTheta() * 1000);
-      thetaphideg->Fill(beam->GetPhi() * rad2deg, beam->GetTheta() * rad2deg);
-      thetaphiin->Fill(inc.Phi(), inc.Theta() * 1000);
-      thetaphiout->Fill(out.Phi(), out.Theta() * 1000);
-      thetaphisca->Fill(sca.Phi(), sca.Theta() * 1000);
-      phiinout->Fill(inc.Phi(), out.Phi());
-    }
-    // beam
-    for (unsigned short b = 0; b < 3; b++)
-      bbeta[b]->Fill(beam->GetBeta(b));
-    for (unsigned short b = 0; b < 4; b++)
-      delta[b]->Fill(beam->GetDelta(b));
-    deltadiff[0]->Fill(beam->GetDelta(1) - beam->GetDelta(0));
-    deltadiff[1]->Fill(beam->GetDelta(3) - beam->GetDelta(2));
+      // beam direction, scattering angle
+      // align
+      rec->AlignPPAC(ppac->GetPPACID(35), ppac->GetPPACID(36));
+      TVector3 ppacpos[3];
+      ppacpos[0] = rec->PPACPosition(ppac->GetPPACID(19), ppac->GetPPACID(20));
+      ppacpos[1] = rec->PPACPosition(ppac->GetPPACID(21), ppac->GetPPACID(22));
+      ppacpos[2] = rec->PPACPosition(ppac->GetPPACID(35), ppac->GetPPACID(36));
 
-    double a = inc.X() / inc.Z();
-    double b = inc.Y() / inc.Z();
+      // cout << ppac->GetPPACID(19)->GetZ() <<"\t" <<  ppac->GetPPACID(20)->GetZ()<<"\t"<<ppacpos[0].Z() << endl;
+      // cout << ppac->GetPPACID(21)->GetZ() <<"\t" <<  ppac->GetPPACID(22)->GetZ()<<"\t"<<ppacpos[1].Z() << endl;
+      // cout << ppac->GetPPACID(35)->GetZ() <<"\t" <<  ppac->GetPPACID(36)->GetZ()<<"\t"<<ppacpos[2].Z() << endl;
 
-    compareA->Fill(atan2(inc.X(), inc.Z()) * 1000, fp[fpNr(8)]->GetTrack()->GetA());
-    compareB->Fill(atan2(inc.Y(), inc.Z()) * 1000, fp[fpNr(8)]->GetTrack()->GetB());
-    targetXY->Fill(targ.X(), targ.Y());
-    incAB->Fill(atan2(inc.X(), inc.Z()) * 1000, atan2(inc.Y(), inc.Z()) * 1000);
-
-    scaAB->Fill(atan2(sca.X(), sca.Z()) * 1000, atan2(sca.Y(), sca.Z()) * 1000);
-
-    double x = ppacpos[1].X() + a * (ppac->GetPPACID(35)->GetZ() - ppacpos[1].Z());
-    double y = ppacpos[1].Y() + b * (ppac->GetPPACID(35)->GetZ() - ppacpos[1].Z());
-    compareX[0]->Fill(ppac->GetPPACID(35)->GetX(), x);
-    compareY[0]->Fill(ppac->GetPPACID(35)->GetY(), y);
-    compare1dX[0]->Fill(ppac->GetPPACID(35)->GetX() - x);
-    compare1dY[0]->Fill(ppac->GetPPACID(35)->GetY() - y);
-
-    x = ppacpos[1].X() + a * (ppac->GetPPACID(36)->GetZ() - ppacpos[1].Z());
-    y = ppacpos[1].Y() + b * (ppac->GetPPACID(36)->GetZ() - ppacpos[1].Z());
-    compareX[1]->Fill(ppac->GetPPACID(36)->GetX(), x);
-    compareY[1]->Fill(ppac->GetPPACID(36)->GetY(), y);
-    compare1dX[1]->Fill(ppac->GetPPACID(36)->GetX() - x);
-    compare1dY[1]->Fill(ppac->GetPPACID(36)->GetY() - y);
-
-    // PPACs
-    for (unsigned short p = 0; p < ppac->GetN(); p++)
-    {
-      SinglePPAC *sp = ppac->GetPPAC(p);
-      ppacZpos->Fill(sp->GetID(), sp->GetZ());
-      if (sp->GetID() >= 19 && sp->GetID() <= 22)
+      beam->SetIncomingDirection(ppacpos[1] - ppacpos[0]);
+      TVector3 inc = beam->GetIncomingDirection();
+      TVector3 targ = rec->TargetPosition(inc, ppacpos[1]);
+      // cout << setw(5) << setprecision(5)<< ppacpos[0].X() <<"\t" << ppacpos[0].Y() <<"\t" << ppacpos[0].Z() <<"\t" << ppacpos[1].X() <<"\t" << ppacpos[1].Y() <<"\t" << ppacpos[1].Z() <<"\t" << targ.X() <<"\t" << targ.Y() <<"\t" << targ.Z() <<"\t" << ppacpos[2].X() <<"\t" << ppacpos[2].Y() <<"\t" << ppacpos[2].Z() << endl;
+      beam->SetTargetPosition(targ);
+      TVector3 out, sca;
+      if (trigbit > 1)
       {
-        f8ppacX[sp->GetID() - 19]->Fill(sp->GetX());
-        f8ppacY[sp->GetID() - 19]->Fill(sp->GetY());
-        if (sp->Fired())
-          f8ppacXY[sp->GetID() - 19]->Fill(sp->GetX(), sp->GetY());
+        beam->SetOutgoingDirection(ppacpos[2] - targ);
+        out = beam->GetOutgoingDirection();
+        sca = beam->GetScatteredDirection();
       }
-      if (sp->GetID() >= 35 && sp->GetID() <= 36)
-      {
-        f8ppacX[sp->GetID() - 35 + 4]->Fill(sp->GetX());
-        f8ppacY[sp->GetID() - 35 + 4]->Fill(sp->GetY());
-        if (sp->Fired())
-          f8ppacXY[sp->GetID() - 35 + 4]->Fill(sp->GetX(), sp->GetY());
-      }
-    }
 
-    // DALI
-    mult->Fill(dali->GetMult());
-    multtrig->Fill(trigbit, dali->GetMult());
-    for (unsigned short k = 0; k < dali->GetMult(); k++)
-    {
-      ID_theta->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi());
-      egam->Fill(dali->GetHit(k)->GetEnergy());
-      egamdc->Fill(dali->GetHit(k)->GetDCEnergy());
-      triggertgam->Fill(dali->GetHit(k)->GetTOffset(), trigbit);
-      egamtgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetEnergy());
-      egamdctgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
-      tgamID->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
-      egamtrig->Fill(trigbit, dali->GetHit(k)->GetEnergy());
-      // egamdctrig->Fill(trigbit,dali->GetHit(k)->GetDCEnergy());
-      egammult->Fill(dali->GetMult(), dali->GetHit(k)->GetEnergy());
-      egamdcmult->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
-      egamdcmult_trig[trigbit]->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
-      if (dali->GetHit(k)->GetID() >= minID)
+      // histos
+      trigger->Fill(trigbit);
+      fpCutMask_br->Fill(fpCutMask[0]);
+      fpCutMask_zd->Fill(fpCutMask[1]);
+      bigrips->Fill(beam->GetAQ(br), beam->GetZ(br));
+      zerodeg->Fill(beam->GetAQ(zd), beam->GetZ(zd));
+      bigrips_corr->Fill(beam->GetCorrAQ(br), beam->GetCorrZ(br));
+      zerodeg_corr->Fill(beam->GetCorrAQ(zd), beam->GetCorrZ(zd));
+      if (trigbit > -1 && trigbit < NTRIG)
       {
-        egamdcmult_IDgate_trig[trigbit]->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
+        bigrips_tr[trigbit]->Fill(beam->GetAQ(br), beam->GetZ(br));
+        zerodeg_tr[trigbit]->Fill(beam->GetAQ(zd), beam->GetZ(zd));
+        f5X_tr[trigbit]->Fill(fp[fpNr(5)]->GetTrack()->GetX());
+        thetaphi_tr[trigbit]->Fill(beam->GetPhi(), beam->GetTheta() * 1000);
+        thetaphideg_tr[trigbit]->Fill(beam->GetPhi() * rad2deg, beam->GetTheta() * rad2deg);
       }
-      egamID_mult[0]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
-      egamdcID_mult[0]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
-      egamdctrig_mult[0]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
-      egamdctrigmult_theta[trigbit][0]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
 
-      egamdctheta_mult[0]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
-      egamdcphi_mult[0]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
-      if (dali->GetMult() < 9)
+      // BEAM
+      if (trigbit > 1)
       {
-        egamID_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
-        egamdcID_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
-        egamdctrig_mult[dali->GetMult()]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
-        egamdctrigmult_theta[trigbit][dali->GetMult()]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
-        egamdctheta_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
-        egamdcphi_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
+        // cout << beam->GetPhi() <<"\t" << sca.Phi() - inc.Phi() << endl;
+        thetaphi->Fill(beam->GetPhi(), beam->GetTheta() * 1000);
+        thetaphideg->Fill(beam->GetPhi() * rad2deg, beam->GetTheta() * rad2deg);
+        thetaphiin->Fill(inc.Phi(), inc.Theta() * 1000);
+        thetaphiout->Fill(out.Phi(), out.Theta() * 1000);
+        thetaphisca->Fill(sca.Phi(), sca.Theta() * 1000);
+        phiinout->Fill(inc.Phi(), out.Phi());
       }
-      else
-      {
-        egamID_mult[9]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
-        egamdcID_mult[9]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
-        egamdctrig_mult[9]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
-        egamdctrigmult_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
-        egamdctheta_mult[9]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
-        egamdcphi_mult[9]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
-      }
-      if (dali->GetHit(k)->GetID() >= minID)
-      {
-        egam_IDgate->Fill(dali->GetHit(k)->GetEnergy());
-        egamdc_IDgate->Fill(dali->GetHit(k)->GetDCEnergy());
-        egammult_IDgate->Fill(dali->GetMult(), dali->GetHit(k)->GetEnergy());
-        egamdcmult_IDgate->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
-      }
-    }
+      // beam
+      for (unsigned short b = 0; b < 3; b++)
+        bbeta[b]->Fill(beam->GetBeta(b));
 
-    multAB->Fill(dali->GetMultAB());
-    for (unsigned short k = 0; k < dali->GetMultAB(); k++)
-    {
-      egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
-      egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
-      egamABtrig->Fill(trigbit, dali->GetHitAB(k)->GetEnergy());
-      egamABtgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetEnergy());
-      egamABdctgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
-      tgamABID->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetTOffset());
-      // egamABdctrig->Fill(trigbit,dali->GetHitAB(k)->GetDCEnergy());
-      egamABmult->Fill(dali->GetMult(), dali->GetHitAB(k)->GetEnergy());
-      egamABmultAB->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetEnergy());
-      egamABID_mult[0]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
-      egamABdcmult->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
-      egamABdcmultAB->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
-      egamABdcmult_trig[trigbit]->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
-      egamABdcmultAB_trig[trigbit]->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
-      if (dali->GetHitAB(k)->GetID() >= minID)
-      {
-        egamABdcmult_IDgate_trig[trigbit]->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdcmultAB_IDgate_trig[trigbit]->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
-      }
-      egamABdcID_mult[0]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
-      egamABdctrig_mult[0]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
-      egamABdctrigmult_theta[trigbit][0]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+      // RIPSBeta
+      for (unsigned short b = 0; b < 6; b++)
+        ripsbeta[b]->Fill(beam->GetRIPSBeta(b));
 
-      if (dali->GetMult() < 9)
-      {
-        egamABID_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
-        egamABdcID_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrig_mult[dali->GetMult()]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrigmult_theta[trigbit][dali->GetMult()]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
-      }
-      else
-      {
-        egamABID_mult[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
-        egamABdcID_mult[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrig_mult[9]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrigmult_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
-      }
-      if (dali->GetMultAB() < 9)
-      {
-        egamABID_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
-        egamABdcID_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrig_multAB[dali->GetMultAB()]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrigmultAB_theta[trigbit][dali->GetMultAB()]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
-      }
-      else
-      {
-        egamABID_multAB[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
-        egamABdcID_multAB[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrig_multAB[9]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
-        egamABdctrigmultAB_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
-      }
-      if (dali->GetHitAB(k)->GetID() >= minID)
-      {
-        egamAB_IDgate->Fill(dali->GetHitAB(k)->GetEnergy());
-        egamABdc_IDgate->Fill(dali->GetHitAB(k)->GetDCEnergy());
-        egamABmult_IDgate->Fill(dali->GetMult(), dali->GetHitAB(k)->GetEnergy());
-        egamABmultAB_IDgate->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetEnergy());
-        egamABdcmult_IDgate->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
-        egamABdcmultAB_IDgate->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
-      }
-    }
+      for (unsigned short b = 0; b < 4; b++)
+        delta[b]->Fill(beam->GetDelta(b));
+      deltadiff[0]->Fill(beam->GetDelta(1) - beam->GetDelta(0));
+      deltadiff[1]->Fill(beam->GetDelta(3) - beam->GetDelta(2));
 
-    if (dali->GetMult() > 1)
-    {
-      for (unsigned short k = 0; k < dali->GetMult(); k++)
+      double a = inc.X() / inc.Z();
+      double b = inc.Y() / inc.Z();
+
+      compareA->Fill(atan2(inc.X(), inc.Z()) * 1000, fp[fpNr(8)]->GetTrack()->GetA());
+      compareB->Fill(atan2(inc.Y(), inc.Z()) * 1000, fp[fpNr(8)]->GetTrack()->GetB());
+      targetXY->Fill(targ.X(), targ.Y());
+      incAB->Fill(atan2(inc.X(), inc.Z()) * 1000, atan2(inc.Y(), inc.Z()) * 1000);
+
+      scaAB->Fill(atan2(sca.X(), sca.Z()) * 1000, atan2(sca.Y(), sca.Z()) * 1000);
+
+      double x = ppacpos[1].X() + a * (ppac->GetPPACID(35)->GetZ() - ppacpos[1].Z());
+      double y = ppacpos[1].Y() + b * (ppac->GetPPACID(35)->GetZ() - ppacpos[1].Z());
+      compareX[0]->Fill(ppac->GetPPACID(35)->GetX(), x);
+      compareY[0]->Fill(ppac->GetPPACID(35)->GetY(), y);
+      compare1dX[0]->Fill(ppac->GetPPACID(35)->GetX() - x);
+      compare1dY[0]->Fill(ppac->GetPPACID(35)->GetY() - y);
+
+      x = ppacpos[1].X() + a * (ppac->GetPPACID(36)->GetZ() - ppacpos[1].Z());
+      y = ppacpos[1].Y() + b * (ppac->GetPPACID(36)->GetZ() - ppacpos[1].Z());
+      compareX[1]->Fill(ppac->GetPPACID(36)->GetX(), x);
+      compareY[1]->Fill(ppac->GetPPACID(36)->GetY(), y);
+      compare1dX[1]->Fill(ppac->GetPPACID(36)->GetX() - x);
+      compare1dY[1]->Fill(ppac->GetPPACID(36)->GetY() - y);
+
+      // PPACs
+      for (unsigned short p = 0; p < ppac->GetN(); p++)
       {
-        for (unsigned short l = k + 1; l < dali->GetMult(); l++)
+        SinglePPAC *sp = ppac->GetPPAC(p);
+        ppacZpos->Fill(sp->GetID(), sp->GetZ());
+        if (sp->GetID() >= 19 && sp->GetID() <= 22)
         {
-          tdiff->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
-          TVector3 dist = dali->GetHit(k)->GetPos() - dali->GetHit(l)->GetPos();
-          rdiff->Fill(dist.Mag());
-          adiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()));
-          radiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()), dist.Mag());
-          // if(gc->IsInside(dali->GetHit(k)->GetEnergy(),dali->GetHit(l)->GetEnergy())){
-          //   tdiff_coinc->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
-          //   rdiff_coinc->Fill(dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
-          //   adiff_coinc->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()));
-          //   radiff_coinc->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()),dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
-          // }
-          double dcen[2];
-          if (dali->GetHit(k)->GetDCEnergy() > dali->GetHit(l)->GetDCEnergy())
-          {
-            dcen[0] = dali->GetHit(k)->GetDCEnergy();
-            dcen[1] = dali->GetHit(l)->GetDCEnergy();
-          }
-          else
-          {
-            dcen[0] = dali->GetHit(l)->GetDCEnergy();
-            dcen[1] = dali->GetHit(k)->GetDCEnergy();
-          }
-          egamegam_mult[0]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-          egamegamdc_mult[0]->Fill(dcen[0], dcen[1]);
-          if (dali->GetMult() < 9)
-          {
-            egamegam_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-            egamegamdc_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
-          }
-          else
-          {
-            egamegam_mult[9]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-            egamegamdc_mult[9]->Fill(dcen[0], dcen[1]);
-          }
-          if (dali->GetHit(k)->GetID() >= minID && dali->GetHit(l)->GetID() >= minID)
-          {
-            egamegam_IDgate_mult[0]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-            egamegamdc_IDgate_mult[0]->Fill(dcen[0], dcen[1]);
-            if (dali->GetMult() < 9)
-            {
-              egamegam_IDgate_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-              egamegamdc_IDgate_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
-            }
-            else
-            {
-              egamegam_IDgate_mult[9]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
-              egamegamdc_IDgate_mult[9]->Fill(dcen[0], dcen[1]);
-            }
-          } // ID gated
+          f8ppacX[sp->GetID() - 19]->Fill(sp->GetX());
+          f8ppacY[sp->GetID() - 19]->Fill(sp->GetY());
+          if (sp->Fired())
+            f8ppacXY[sp->GetID() - 19]->Fill(sp->GetX(), sp->GetY());
+        }
+        if (sp->GetID() >= 35 && sp->GetID() <= 36)
+        {
+          f8ppacX[sp->GetID() - 35 + 4]->Fill(sp->GetX());
+          f8ppacY[sp->GetID() - 35 + 4]->Fill(sp->GetY());
+          if (sp->Fired())
+            f8ppacXY[sp->GetID() - 35 + 4]->Fill(sp->GetX(), sp->GetY());
         }
       }
-    }
-    if (dali->GetMultAB() > 1)
-    {
+
+      // DALI
+      mult->Fill(dali->GetMult());
+      multtrig->Fill(trigbit, dali->GetMult());
+      for (unsigned short k = 0; k < dali->GetMult(); k++)
+      {
+        ID_theta->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi());
+        egam->Fill(dali->GetHit(k)->GetEnergy());
+        egamdc->Fill(dali->GetHit(k)->GetDCEnergy());
+        triggertgam->Fill(dali->GetHit(k)->GetTOffset(), trigbit);
+        egamtgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetEnergy());
+        egamtheta->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetEnergy()); // theta vs egam
+        egamdctgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
+        time_id->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+        tgamID->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+        if (dali->GetHit(k)->GetEnergy() > 1000)
+        {
+          tgamID_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+          time_id_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+        }
+        if (dali->GetHit(k)->GetEnergy() > 700)
+        {
+          tgamID_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+          time_id_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+        }
+        if (dali->GetHit(k)->GetEnergy() > 500)
+        {
+          tgamID_g500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+          time_id_g500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+        }
+        egamtrig->Fill(trigbit, dali->GetHit(k)->GetEnergy());
+        // egamdctrig->Fill(trigbit,dali->GetHit(k)->GetDCEnergy());
+        egammult->Fill(dali->GetMult(), dali->GetHit(k)->GetEnergy());
+        egamdcmult->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
+        egamdcmult_trig[trigbit]->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
+        if (dali->GetHit(k)->GetID() >= minID)
+        {
+          egamdcmult_IDgate_trig[trigbit]->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
+        }
+        egamID_mult[0]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
+        egamdcID_mult[0]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
+        egamdctrig_mult[0]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
+        egamdctrigmult_theta[trigbit][0]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
+
+        egamdctheta_mult[0]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
+        egamdcphi_mult[0]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
+        if (dali->GetMult() < 9)
+        {
+          egamID_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
+          egamdcID_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
+          egamdctrig_mult[dali->GetMult()]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
+          egamdctrigmult_theta[trigbit][dali->GetMult()]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
+          egamdctheta_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
+          egamdcphi_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
+        }
+        else
+        {
+          egamID_mult[9]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetEnergy());
+          egamdcID_mult[9]->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetDCEnergy());
+          egamdctrig_mult[9]->Fill(trigbit, dali->GetHit(k)->GetDCEnergy());
+          egamdctrigmult_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHit(k)->GetDCEnergy());
+          egamdctheta_mult[9]->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetDCEnergy());
+          egamdcphi_mult[9]->Fill(dali->GetHit(k)->GetPos().Phi(), dali->GetHit(k)->GetDCEnergy());
+        }
+        if (dali->GetHit(k)->GetID() >= minID)
+        {
+          egam_IDgate->Fill(dali->GetHit(k)->GetEnergy());
+          egamdc_IDgate->Fill(dali->GetHit(k)->GetDCEnergy());
+          egammult_IDgate->Fill(dali->GetMult(), dali->GetHit(k)->GetEnergy());
+          egamdcmult_IDgate->Fill(dali->GetMult(), dali->GetHit(k)->GetDCEnergy());
+        }
+      }
+
+      multAB->Fill(dali->GetMultAB());
       for (unsigned short k = 0; k < dali->GetMultAB(); k++)
       {
-        for (unsigned short l = k + 1; l < dali->GetMultAB(); l++)
+        egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
+        egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362) // For good HYPATIA detectors
         {
-          double dcen[2];
-          if (dali->GetHitAB(k)->GetDCEnergy() > dali->GetHitAB(l)->GetDCEnergy())
+          egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        }
+        if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362) // For good DALI+HYPATIA detectors
+        {
+          egamABdc_good->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        }
+        egamABtrig->Fill(trigbit, dali->GetHitAB(k)->GetEnergy());
+        egamABtgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetEnergy());
+        egamABdctgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
+        tgamABID->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetTOffset());
+        // egamABdctrig->Fill(trigbit,dali->GetHitAB(k)->GetDCEnergy());
+        egamABmult->Fill(dali->GetMult(), dali->GetHitAB(k)->GetEnergy());
+        egamABmultAB->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetEnergy());
+        egamABID_mult[0]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
+        egamABdcmult->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdcmultAB->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdcmult_trig[trigbit]->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdcmultAB_trig[trigbit]->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
+
+        // plastic multiplicity gates
+        if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
+            fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
+            fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
+            fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
+        {
+          egamABdc_plhit1->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        }
+
+        if (dali->GetHitAB(k)->GetID() >= minID)
+        {
+          egamABdcmult_IDgate_trig[trigbit]->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdcmultAB_IDgate_trig[trigbit]->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
+        }
+        egamABdcID_mult[0]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdctrig_mult[0]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
+        egamABdctrigmult_theta[trigbit][0]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+
+        if (dali->GetMult() < 9)
+        {
+          egamABID_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
+          egamABdcID_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrig_mult[dali->GetMult()]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrigmult_theta[trigbit][dali->GetMult()]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+        }
+        else
+        {
+          egamABID_mult[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
+          egamABdcID_mult[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrig_mult[9]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrigmult_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+        }
+        if (dali->GetMultAB() < 9)
+        {
+          egamABID_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
+          egamABdcID_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrig_multAB[dali->GetMultAB()]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrigmultAB_theta[trigbit][dali->GetMultAB()]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+        }
+        else
+        {
+          egamABID_multAB[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetEnergy());
+          egamABdcID_multAB[9]->Fill(dali->GetHitAB(k)->GetID(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrig_multAB[9]->Fill(trigbit, dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctrigmultAB_theta[trigbit][9]->Fill(beam->GetTheta() * rad2deg, dali->GetHitAB(k)->GetDCEnergy());
+        }
+        if (dali->GetHitAB(k)->GetID() >= minID)
+        {
+          egamAB_IDgate->Fill(dali->GetHitAB(k)->GetEnergy());
+          egamABdc_IDgate->Fill(dali->GetHitAB(k)->GetDCEnergy());
+          egamABmult_IDgate->Fill(dali->GetMult(), dali->GetHitAB(k)->GetEnergy());
+          egamABmultAB_IDgate->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetEnergy());
+          egamABdcmult_IDgate->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
+          egamABdcmultAB_IDgate->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
+        }
+      }
+
+      if (dali->GetMult() > 1)
+      {
+        for (unsigned short k = 0; k < dali->GetMult(); k++)
+        {
+          for (unsigned short l = k + 1; l < dali->GetMult(); l++)
           {
-            dcen[0] = dali->GetHitAB(k)->GetDCEnergy();
-            dcen[1] = dali->GetHitAB(l)->GetDCEnergy();
-          }
-          else
-          {
-            dcen[0] = dali->GetHitAB(l)->GetDCEnergy();
-            dcen[1] = dali->GetHitAB(k)->GetDCEnergy();
-          }
-          egamegamAB_mult[0]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-          egamegamABdc_mult[0]->Fill(dcen[0], dcen[1]);
-          if (dali->GetMult() < 9)
-          {
-            egamegamAB_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-            egamegamABdc_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
-          }
-          else
-          {
-            egamegamAB_mult[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-            egamegamABdc_mult[9]->Fill(dcen[0], dcen[1]);
-          }
-          if (dali->GetMultAB() < 9)
-          {
-            egamegamAB_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-            egamegamABdc_multAB[dali->GetMultAB()]->Fill(dcen[0], dcen[1]);
-          }
-          else
-          {
-            egamegamAB_multAB[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-            egamegamABdc_multAB[9]->Fill(dcen[0], dcen[1]);
-          }
-          if (dali->GetHitAB(k)->GetID() >= minID && dali->GetHitAB(l)->GetID() >= minID)
-          {
-            egamegamAB_IDgate_mult[0]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-            egamegamABdc_IDgate_mult[0]->Fill(dcen[0], dcen[1]);
-            if (dali->GetMult() < 9)
+            tdiff->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
+            TVector3 dist = dali->GetHit(k)->GetPos() - dali->GetHit(l)->GetPos();
+            rdiff->Fill(dist.Mag());
+            adiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()));
+            radiff->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()), dist.Mag());
+            // if(gc->IsInside(dali->GetHit(k)->GetEnergy(),dali->GetHit(l)->GetEnergy())){
+            //   tdiff_coinc->Fill(dali->GetHit(k)->GetTOffset() - dali->GetHit(l)->GetTOffset());
+            //   rdiff_coinc->Fill(dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
+            //   adiff_coinc->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()));
+            //   radiff_coinc->Fill(dali->GetHit(k)->GetPos().Angle(dali->GetHit(l)->GetPos()),dali->GetHit(k)->GetPos().DeltaR(dali->GetHit(l)->GetPos()));
+            // }
+            double dcen[2];
+            if (dali->GetHit(k)->GetDCEnergy() > dali->GetHit(l)->GetDCEnergy())
             {
-              egamegamAB_IDgate_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-              egamegamABdc_IDgate_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
+              dcen[0] = dali->GetHit(k)->GetDCEnergy();
+              dcen[1] = dali->GetHit(l)->GetDCEnergy();
             }
             else
             {
-              egamegamAB_IDgate_mult[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-              egamegamABdc_IDgate_mult[9]->Fill(dcen[0], dcen[1]);
+              dcen[0] = dali->GetHit(l)->GetDCEnergy();
+              dcen[1] = dali->GetHit(k)->GetDCEnergy();
+            }
+            egamegam_mult[0]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+            egamegamdc_mult[0]->Fill(dcen[0], dcen[1]);
+            if (dali->GetMult() < 9)
+            {
+              egamegam_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+              egamegamdc_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
+            }
+            else
+            {
+              egamegam_mult[9]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+              egamegamdc_mult[9]->Fill(dcen[0], dcen[1]);
+            }
+            if (dali->GetHit(k)->GetID() >= minID && dali->GetHit(l)->GetID() >= minID)
+            {
+              egamegam_IDgate_mult[0]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+              egamegamdc_IDgate_mult[0]->Fill(dcen[0], dcen[1]);
+              if (dali->GetMult() < 9)
+              {
+                egamegam_IDgate_mult[dali->GetMult()]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+                egamegamdc_IDgate_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
+              }
+              else
+              {
+                egamegam_IDgate_mult[9]->Fill(dali->GetHit(k)->GetEnergy(), dali->GetHit(l)->GetEnergy());
+                egamegamdc_IDgate_mult[9]->Fill(dcen[0], dcen[1]);
+              }
+            } // ID gated
+          }
+        }
+      }
+      if (dali->GetMultAB() > 1)
+      {
+        for (unsigned short k = 0; k < dali->GetMultAB(); k++)
+        {
+          for (unsigned short l = k + 1; l < dali->GetMultAB(); l++)
+          {
+            double dcen[2];
+            if (dali->GetHitAB(k)->GetDCEnergy() > dali->GetHitAB(l)->GetDCEnergy())
+            {
+              dcen[0] = dali->GetHitAB(k)->GetDCEnergy();
+              dcen[1] = dali->GetHitAB(l)->GetDCEnergy();
+            }
+            else
+            {
+              dcen[0] = dali->GetHitAB(l)->GetDCEnergy();
+              dcen[1] = dali->GetHitAB(k)->GetDCEnergy();
+            }
+            egamegamAB_mult[0]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+            egamegamABdc_mult[0]->Fill(dcen[0], dcen[1]);
+            if (dali->GetMult() < 9)
+            {
+              egamegamAB_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+              egamegamABdc_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
+            }
+            else
+            {
+              egamegamAB_mult[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+              egamegamABdc_mult[9]->Fill(dcen[0], dcen[1]);
             }
             if (dali->GetMultAB() < 9)
             {
-              egamegamAB_IDgate_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-              egamegamABdc_IDgate_multAB[dali->GetMultAB()]->Fill(dcen[0], dcen[1]);
+              egamegamAB_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+              egamegamABdc_multAB[dali->GetMultAB()]->Fill(dcen[0], dcen[1]);
             }
             else
             {
-              egamegamAB_IDgate_multAB[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
-              egamegamABdc_IDgate_multAB[9]->Fill(dcen[0], dcen[1]);
+              egamegamAB_multAB[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+              egamegamABdc_multAB[9]->Fill(dcen[0], dcen[1]);
+            }
+            if (dali->GetHitAB(k)->GetID() >= minID && dali->GetHitAB(l)->GetID() >= minID)
+            {
+              egamegamAB_IDgate_mult[0]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+              egamegamABdc_IDgate_mult[0]->Fill(dcen[0], dcen[1]);
+              if (dali->GetMult() < 9)
+              {
+                egamegamAB_IDgate_mult[dali->GetMult()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+                egamegamABdc_IDgate_mult[dali->GetMult()]->Fill(dcen[0], dcen[1]);
+              }
+              else
+              {
+                egamegamAB_IDgate_mult[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+                egamegamABdc_IDgate_mult[9]->Fill(dcen[0], dcen[1]);
+              }
+              if (dali->GetMultAB() < 9)
+              {
+                egamegamAB_IDgate_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+                egamegamABdc_IDgate_multAB[dali->GetMultAB()]->Fill(dcen[0], dcen[1]);
+              }
+              else
+              {
+                egamegamAB_IDgate_multAB[9]->Fill(dali->GetHitAB(k)->GetEnergy(), dali->GetHitAB(l)->GetEnergy());
+                egamegamABdc_IDgate_multAB[9]->Fill(dcen[0], dcen[1]);
+              }
             }
           }
         }
       }
+      // FocalPlane cuts
     }
 
     // fill tree

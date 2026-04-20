@@ -61,6 +61,7 @@ void Settings::ReadSettings()
   ftimegate[0] = set->GetValue("Timing.Gate.Low", -1000.);
   ftimegate[1] = set->GetValue("Timing.Gate.High", 1000.);
 
+  fDALItoffsetfile = set->GetValue("DALI.Toffsets.File", (char *)"toffsets.dat");
   fDALIposfile = set->GetValue("InteractionPoints", (char *)"settings/iponts.dat");
   fDALIbadfile = set->GetValue("Bad.Channels", (char *)"settings/baddali.dat");
 
@@ -178,6 +179,9 @@ void Settings::ReadSettings()
   fzet_corr[1][3] = set->GetValue("ZeroDeg.ZCorr_AoQ5sq", 0.0);
   fzet_corr[1][4] = set->GetValue("ZeroDeg.ZCorr_Constant", 0.0);
 
+  // Get the plastic cut RunID
+  fPlasticCutRunID = set->GetValue("PlasticCutRunID", 0);
+
   if (fverbose > 0)
     PrintSettings();
 }
@@ -212,6 +216,7 @@ void Settings::PrintSettings()
     cout << "performing re-calibration with second order" << endl;
     cout << "DALI second order calibration file\t" << fDALIrecalfile << endl;
   }
+  cout << "DALI Toffset file\t" << fDALItoffsetfile << endl;
   cout << "position file\t" << fDALIposfile << endl;
   cout << "timing gate\t" << ftimegate[0] << " to " << ftimegate[1] << endl;
 
@@ -308,6 +313,9 @@ void Settings::PrintSettings()
   cout << "ZeroDeg.AoQCorr_F11Q2\t" << faoq_corr[1][2].Q2 << endl;
   cout << "ZeroDeg.AoQCorr_F11B2\t" << faoq_corr[1][2].B2 << endl;
   cout << "ZeroDeg.AoQCorr_F11Y2\t" << faoq_corr[1][2].Y2 << endl;
+
+  // Plastic cut RunID
+  cout << "Plastic cut RunID\t" << fPlasticCutRunID << endl;
 }
 
 double Settings::GetAoQCorrection(int sp, int fp, const char *var)

@@ -18,8 +18,11 @@
 #include "Globaldefs.h"
 
 #include "TGraph.h"
+#include "TSystem.h"
 #include "TROOT.h"
 #include "TCutG.h"
+#include "TList.h"
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -29,9 +32,49 @@ int DALIIDS = 500;
 bool signal_received = false;
 void signalhandler(int sig);
 double get_time();
+
+TCutG *LoadPidCutIfExists(int RunID,
+                          const TString &basename, // e.g. "50Ca20_pid2"
+                          TList *hlist)
+{
+  TString filepath = Form(
+      "/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_%s.cxx",
+      RunID, basename.Data());
+
+  // File does NOT exist → clean skip
+  if (gSystem->AccessPathName(filepath))
+  {
+    cout << "PID cut file missing: " << filepath << " → skipping" << endl;
+    return nullptr;
+  }
+
+  // Load file
+  gROOT->ProcessLine(Form(".L %s", filepath.Data()));
+
+  // Find cut
+  TCutG *cut = dynamic_cast<TCutG *>(gROOT->FindObject(basename));
+
+  if (!cut)
+  {
+    cerr << "WARNING: file exists but cut '" << basename
+         << "' not found → skipping" << endl;
+    return nullptr;
+  }
+
+  // Clone & register
+  TCutG *clone =
+      static_cast<TCutG *>(cut->Clone(Form("%s_cut", cut->GetName())));
+  hlist->Add(clone);
+
+  cout << "Loaded PID cut: " << basename
+       << " for Run " << RunID << endl;
+
+  return clone;
+}
+
 int main(int argc, char *argv[])
 {
-  int RunID = 1010; // Run Number of RIBF249
+  int RunID = 0; // Run Number of RIBF249
 
   int total_50Ca20_pid2 = 0;
   int total_49K19_pid2 = 0;
@@ -99,7 +142,7 @@ int main(int argc, char *argv[])
     load_dT_vs_logQ_cuts = 'n';
     load_logQ_vs_X_cuts = 'n';
     load_dT_vs_X_cuts = 'n';
-    cout << "loading no cuts" << endl;
+    cout << "loading no Plastic cuts" << endl;
   }
   else if (LoadCutID == 1)
   {
@@ -127,7 +170,7 @@ int main(int argc, char *argv[])
     load_dT_vs_logQ_cuts = 'y';
     load_logQ_vs_X_cuts = 'y';
     load_dT_vs_X_cuts = 'y';
-    cout << "loading all cuts" << endl;
+    cout << "loading all Plastic cuts" << endl;
   }
   else
   {
@@ -269,65 +312,74 @@ int main(int argc, char *argv[])
     }
   }
 
-  //////// load pid cuts from file for ***PID 2*** ////////
-  TString pid50Ca20_pid2f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid2.cxx", RunID);
-  gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid2f1.Data()));
-  TCutG *pid50Ca20_pid2 = (TCutG *)gROOT->FindObject("50Ca20_pid2");
-  if (pid50Ca20_pid2)
-  {
-    TCutG *clone = (TCutG *)pid50Ca20_pid2->Clone(Form("%s_cut", pid50Ca20_pid2->GetName()));
-    hlist->Add(clone);
-    cout << "Loaded 50Ca20 PID 2 cut for Run Number: " << RunID << endl;
-  }
-  else if (!pid50Ca20_pid2)
-  {
-    cerr << "Error: could not find PID 2 cut 50Ca20" << endl;
-    return 2;
-  }
-  TString pid49K19_pid2f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid2.cxx", RunID);
-  gROOT->ProcessLine(Form(".L %s", pid49K19_pid2f2.Data()));
-  TCutG *pid49K19_pid2 = (TCutG *)gROOT->FindObject("49K19_pid2");
-  if (pid49K19_pid2)
-  {
-    TCutG *clone = (TCutG *)pid49K19_pid2->Clone(Form("%s_cut", pid49K19_pid2->GetName()));
-    hlist->Add(clone);
-    cout << "Loaded 49K19 PID 2 cut for Run Number: " << RunID << endl;
-  }
-  else if (!pid49K19_pid2)
-  {
-    cerr << "Error: could not find PID 2 cut 49K19" << endl;
-    return 2;
-  }
+  // //////// load pid cuts from file for ***PID 2*** ////////
+  // TString pid50Ca20_pid2f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid2.cxx", RunID);
+  // gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid2f1.Data()));
+  // TCutG *pid50Ca20_pid2 = (TCutG *)gROOT->FindObject("50Ca20_pid2");
+  // if (pid50Ca20_pid2)
+  // {
+  //   TCutG *clone = (TCutG *)pid50Ca20_pid2->Clone(Form("%s_cut", pid50Ca20_pid2->GetName()));
+  //   hlist->Add(clone);
+  //   cout << "Loaded 50Ca20 PID 2 cut for Run Number: " << RunID << endl;
+  // }
+  // else if (!pid50Ca20_pid2)
+  // {
+  //   cerr << "Error: could not find PID 2 cut 50Ca20" << endl;
+  //   return 2;
+  // }
 
-  //////// load pid cuts from file for ***PID 5*** ////////
-  TString pid50Ca20_pid5f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid5.cxx", RunID);
-  gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid5f1.Data()));
-  TCutG *pid50Ca20_pid5 = (TCutG *)gROOT->FindObject("50Ca20_pid5");
-  if (pid50Ca20_pid5)
-  {
-    TCutG *clone = (TCutG *)pid50Ca20_pid5->Clone(Form("%s_cut", pid50Ca20_pid5->GetName()));
-    hlist->Add(clone);
-    cout << "Loaded 50Ca20 PID 5 cut for Run Number: " << RunID << endl;
-  }
-  else if (!pid50Ca20_pid5)
-  {
-    cerr << "Error: could not find PID 5 cut 50Ca20" << endl;
-    return 2;
-  }
-  TString pid49K19_pid5f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid5.cxx", RunID);
-  gROOT->ProcessLine(Form(".L %s", pid49K19_pid5f2.Data()));
-  TCutG *pid49K19_pid5 = (TCutG *)gROOT->FindObject("49K19_pid5");
-  if (pid49K19_pid5)
-  {
-    TCutG *clone = (TCutG *)pid49K19_pid5->Clone(Form("%s_cut", pid49K19_pid5->GetName()));
-    hlist->Add(clone);
-    cout << "Loaded 49K19 PID 5 cut for Run Number: " << RunID << endl;
-  }
-  else if (!pid49K19_pid5)
-  {
-    cerr << "Error: could not find PID 5 cut 49K19" << endl;
-    return 2;
-  }
+  // TString pid49K19_pid2f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid2.cxx", RunID);
+  // gROOT->ProcessLine(Form(".L %s", pid49K19_pid2f2.Data()));
+  // TCutG *pid49K19_pid2 = (TCutG *)gROOT->FindObject("49K19_pid2");
+  // if (pid49K19_pid2)
+  // {
+  //   TCutG *clone = (TCutG *)pid49K19_pid2->Clone(Form("%s_cut", pid49K19_pid2->GetName()));
+  //   hlist->Add(clone);
+  //   cout << "Loaded 49K19 PID 2 cut for Run Number: " << RunID << endl;
+  // }
+  // else if (!pid49K19_pid2)
+  // {
+  //   cerr << "Error: could not find PID 2 cut 49K19" << endl;
+  //   return 2;
+  // }
+
+  // //////// load pid cuts from file for ***PID 5*** ////////
+  // TString pid50Ca20_pid5f1 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_50Ca20_pid5.cxx", RunID);
+  // gROOT->ProcessLine(Form(".L %s", pid50Ca20_pid5f1.Data()));
+  // TCutG *pid50Ca20_pid5 = (TCutG *)gROOT->FindObject("50Ca20_pid5");
+  // if (pid50Ca20_pid5)
+  // {
+  //   TCutG *clone = (TCutG *)pid50Ca20_pid5->Clone(Form("%s_cut", pid50Ca20_pid5->GetName()));
+  //   hlist->Add(clone);
+  //   cout << "Loaded 50Ca20 PID 5 cut for Run Number: " << RunID << endl;
+  // }
+  // else if (!pid50Ca20_pid5)
+  // {
+  //   cerr << "Error: could not find PID 5 cut 50Ca20" << endl;
+  //   return 2;
+  // }
+  // TString pid49K19_pid5f2 = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/pid/%d_49K19_pid5.cxx", RunID);
+  // gROOT->ProcessLine(Form(".L %s", pid49K19_pid5f2.Data()));
+  // TCutG *pid49K19_pid5 = (TCutG *)gROOT->FindObject("49K19_pid5");
+  // if (pid49K19_pid5)
+  // {
+  //   TCutG *clone = (TCutG *)pid49K19_pid5->Clone(Form("%s_cut", pid49K19_pid5->GetName()));
+  //   hlist->Add(clone);
+  //   cout << "Loaded 49K19 PID 5 cut for Run Number: " << RunID << endl;
+  // }
+  // else if (!pid49K19_pid5)
+  // {
+  //   cerr << "Error: could not find PID 5 cut 49K19" << endl;
+  //   return 2;
+  // }
+
+  // ===== PID 2 =====
+  TCutG *pid50Ca20_pid2 = LoadPidCutIfExists(RunID, "50Ca20_pid2", hlist);
+  TCutG *pid49K19_pid2 = LoadPidCutIfExists(RunID, "49K19_pid2", hlist);
+
+  // ===== PID 5 =====
+  TCutG *pid50Ca20_pid5 = LoadPidCutIfExists(RunID, "50Ca20_pid5", hlist);
+  TCutG *pid49K19_pid5 = LoadPidCutIfExists(RunID, "49K19_pid5", hlist);
 
   //////////// Define Histograms ////////////
   // ppacs
@@ -395,18 +447,24 @@ int main(int argc, char *argv[])
   hlist->Add(time_id);
   TH2F *time_id_g = new TH2F("time_id_g", "time_id_g", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
   hlist->Add(time_id_g);
-  TH2F *toffset_id = new TH2F("toffset_id", "toffset_id", DALIIDS, 0, DALIIDS, 1000, -200, 800);
+  TH2F *toffset_id = new TH2F("toffset_id", "toffset_id", DALIIDS, 0, DALIIDS, 1000, -800, 800);
   hlist->Add(toffset_id);
+  TH2F *toffset_id_g = new TH2F("toffset_id_g", "toffset_id_g", DALIIDS, 0, DALIIDS, 1000, -800, 800);
+  hlist->Add(toffset_id_g);
+
+  // Summed energy
+  TH1F *egamma = new TH1F("egamma", "egamma", 3000, 0, 3000);
+  hlist->Add(egamma);
 
   // PID
   TH2F *z_vs_aoq[6];
-  TH2F *z_vs_aoqc[6];
+  TH2F *z_vs_aoq_corr[6];
   for (unsigned short f = 0; f < 6; f++)
   {
     z_vs_aoq[f] = new TH2F(Form("z_vs_aoq_%d", f), Form("z_vs_aoq_%d", f), 1000, 2.2, 2.8, 1000, 0, 40);
     hlist->Add(z_vs_aoq[f]);
-    z_vs_aoqc[f] = new TH2F(Form("z_vs_aoqc_%d", f), Form("z_vs_aoqc_%d", f), 1000, 2.2, 2.8, 1000, 0, 40);
-    hlist->Add(z_vs_aoqc[f]);
+    z_vs_aoq_corr[f] = new TH2F(Form("z_vs_aoq_corr_%d", f), Form("z_vs_aoq_corr_%d", f), 1000, 2.2, 2.8, 1000, 0, 40);
+    hlist->Add(z_vs_aoq_corr[f]);
   }
 
   // AoQ Corrections plots for different focal planes
@@ -441,10 +499,16 @@ int main(int argc, char *argv[])
   }
 
   // AoQ Drift corrections against time
-  TH2F *aoq2_vs_time = new TH2F("aoq2_vs_time", "aoq2_vs_time", 10000, 0, 100e6, 1000, 2.2, 2.8);
-  hlist->Add(aoq2_vs_time);
-  TH2F *aoq5_vs_time = new TH2F("aoq5_vs_time", "aoq5_vs_time", 10000, 0, 100e6, 1000, 2.2, 2.8);
-  hlist->Add(aoq5_vs_time);
+  TH2F *aoqc2_vs_time = new TH2F("aoqc2_vs_time", "aoqc2_vs_time", 10000, 0, 100e7, 1000, 2.2, 2.8);
+  hlist->Add(aoqc2_vs_time);
+  TH2F *aoqc5_vs_time = new TH2F("aoqc5_vs_time", "aoqc5_vs_time", 10000, 0, 100e7, 1000, 2.2, 2.8);
+  hlist->Add(aoqc5_vs_time);
+
+  // Zet Drift correction against time
+  TH2F *zetc2_vs_time = new TH2F("zetc2_vs_time", "zetc2_vs_time", 10000, 0, 100e7, 1000, 15, 30);
+  hlist->Add(zetc2_vs_time);
+  TH2F *zetc5_vs_time = new TH2F("zetc5_vs_time", "zetc5_vs_time", 10000, 0, 100e7, 1000, 15, 30);
+  hlist->Add(zetc5_vs_time);
 
   // AoQ Abberation corrections
   TH2F *aoq2_vs_y_fp3_corr = new TH2F("aoq2_vs_y_fp3_corr", "aoq2_vs_y_fp3_corr", 1000, -25, 20, 1000, 2.2, 2.8);
@@ -665,11 +729,20 @@ int main(int argc, char *argv[])
         enF_id->Fill(id, hit->GetEnergy());
         enDC_id->Fill(id, hit->GetDCEnergy());
         time_id->Fill(id, hit->GetTime());
-        if (hit->GetEnergy() > 500)
+        if (hit->GetEnergy() > 1000)
         {
-          time_id_g->Fill(id, hit->GetTime());
+          // if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
+          //     fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
+          //     fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
+          //     fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
+          {
+            time_id_g->Fill(id, hit->GetTime());
+            toffset_id_g->Fill(id, hit->GetTOffset());
+          }
         }
         toffset_id->Fill(id, hit->GetTOffset());
+
+        egamma->Fill(dali->GetHit(g)->GetEnergy());
       }
 
       // cout << "No of FOCAL Planes: " << NFPLANES << endl;
@@ -699,67 +772,24 @@ int main(int argc, char *argv[])
       //   aoq5_vs_b_fp[f]->Fill(track->GetB(), beam->GetAQ(5));
       // }
 
-      // // ***** AoQ Abberation corrections *****
-      // // Modified at line number ~820 to handle BigRIPS and ZeroDegree separately
-      // if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
-      //     fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
-      //     fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
-      //     fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
-      // // (fp[fpNr(3)]->GetPlastic()->GetChargeR() < 5000 &&  // this conditions were already applied when calculating logQ
-      // // fp[fpNr(3)]->GetPlastic()->GetChargeL() < 5000 &&)
-      // {
-      //   // double corr = (2.5 - (2.49978 + 9.76153e-05 * fp[fpNr(3)]->GetTrack()->GetY() + 3.22614e-05 * pow(fp[fpNr(3)]->GetTrack()->GetY(), 2))) +  // corrections using different method. Just for safekeeping kept here.
-      //   //               (2.5 - (2.49968 + 3.19712e-05 * fp[fpNr(3)]->GetTrack()->GetX())) +
-      //   //               (2.5 - (2.50014 - 1.29684e-05 * fp[fpNr(3)]->GetTrack()->GetA())) +
-      //   //               (2.5 - (2.49957 - 1.60998e-05 * fp[fpNr(3)]->GetTrack()->GetB() + 2.85131e-06 * pow(fp[fpNr(3)]->GetTrack()->GetB(), 2))) +
-      //   //               (2.5 - (2.49926 - 3.91023e-05 * fp[fpNr(5)]->GetTrack()->GetX())) +
-      //   //               (2.5 - (2.49955 + 1.18671e-05 * fp[fpNr(5)]->GetTrack()->GetY() + 1.39958e-05 * pow(fp[fpNr(5)]->GetTrack()->GetY(), 2))) +
-      //   //               (2.5 - (2.49975 + 7.47592e-05 * fp[fpNr(5)]->GetTrack()->GetA()));
-
-      //   double aoq2 = beam->GetAQ(2);
-      //   double corr2 = 0.00004 * fp[fpNr(5)]->GetTrack()->GetX() +
-      //                  (-0.00005 * fp[fpNr(5)]->GetTrack()->GetA()) +
-      //                  (+0.0001 * fp[fpNr(7)]->GetTrack()->GetX()) +
-      //                  (-0.0001 * fp[fpNr(7)]->GetTrack()->GetA()) +
-      //                  (+0.0001 * fp[fpNr(3)]->GetTrack()->GetA()) +
-      //                  (-0.000003 * sqrt(fp[fpNr(3)]->GetPlastic()->GetChargeR() * fp[fpNr(3)]->GetPlastic()->GetChargeL())); // use Plastic multihit incase of charge corrections
-      //   //  (+0.000025 * sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeR() * fp[fpNr(7)]->GetPlastic()->GetChargeL())) + // use Plastic multihit incase of charge corrections
-
-      //   double aoq2_corr = aoq2 + corr2;
-
-      //   aoq2_h1->Fill(aoq2);
-      //   aoq2_corr_h1->Fill(aoq2_corr);
-      //   z_vs_aoq2_corr->Fill(aoq2_corr, beam->GetZ(2));
-      // }
-      // // Modified at line number ~820 to handle BigRIPS and ZeroDegree separately
-      // if (fp[fpNr(8)]->GetPlastic()->GetMultihitL() == 1 &&
-      //     fp[fpNr(8)]->GetPlastic()->GetMultihitR() == 1 &&
-      //     fp[fpNr(11)]->GetPlastic()->GetMultihitL() == 1 &&
-      //     fp[fpNr(11)]->GetPlastic()->GetMultihitR() == 1)
-      // {
-      //   double aoq5 = beam->GetAQ(5);
-      //   double corr5 = 0.0002 * fp[fpNr(8)]->GetTrack()->GetX() +
-      //                  (+1.75202e-05 * fp[fpNr(9)]->GetTrack()->GetX() + 7.45377e-07 * pow(fp[fpNr(9)]->GetTrack()->GetX(), 2)) +
-      //                  (+9.34926e-06 * fp[fpNr(9)]->GetTrack()->GetY() - 0.5238e-06 * pow(fp[fpNr(9)]->GetTrack()->GetY(), 2)) +
-      //                  (+0.00002 * fp[fpNr(11)]->GetTrack()->GetA()) +
-      //                  (-7.31561e-06 * fp[fpNr(11)]->GetTrack()->GetB() + 4.25615e-06 * pow(fp[fpNr(11)]->GetTrack()->GetB(), 2)) +
-      //                  (-3.35538e-07 * fp[fpNr(11)]->GetTrack()->GetY() - 3.78872e-06 * pow(fp[fpNr(11)]->GetTrack()->GetY(), 2));
-
-      //   double aoq5_corr = aoq5 + corr5;
-
-      //   aoq5_h1->Fill(aoq5);
-      //   aoq5_corr_h1->Fill(aoq5_corr);
-      //   z_vs_aoq5_corr->Fill(aoq5_corr, beam->GetZ(5));
-      // }
-
       // AoQ Drift corrections against time
       if (abs(beam->GetZ(2) - 20.0) < 0.1) // only for Z~20 in PID 2
       {
-        aoq2_vs_time->Fill(i, beam->GetAQ(2));
+        aoqc2_vs_time->Fill(i, beam->GetCorrAQ(2));
       }
       if (abs(beam->GetZ(5) - 20.0) < 0.1) // only for Z~20 in PID 5
       {
-        aoq5_vs_time->Fill(i, beam->GetAQ(5));
+        aoqc5_vs_time->Fill(i, beam->GetCorrAQ(5));
+      }
+
+      // Zet Drtft correction against time
+      if (abs(beam->GetAQ(2) - 2.65) < 0.01) // for 53Ca
+      {
+        zetc2_vs_time->Fill(i, beam->GetCorrZ(2));
+      }
+      if (abs(beam->GetAQ(5) - 2.65) < 0.01) // for 53Ca
+      {
+        zetc5_vs_time->Fill(i, beam->GetCorrZ(5));
       }
 
       // beam
@@ -767,62 +797,78 @@ int main(int argc, char *argv[])
         beta[b]->Fill(beam->GetBeta(b));
       for (unsigned short b = 0; b < 4; b++)
         delta[b]->Fill(beam->GetDelta(b));
-      for (unsigned short f = 0; f < 6; f++)
-      {
-        z_vs_aoq[f]->Fill(beam->GetAQ(f), beam->GetZ(f));
-        // z_vs_aoqc[f]->Fill(beam->GetCorrAQ(f), beam->GetZ(f));
+      // for (unsigned short f = 0; f < 6; f++)
+      // {
+      //   z_vs_aoq[f]->Fill(beam->GetAQ(f), beam->GetZ(f));
+      //   // z_vs_aoq_corr[f]->Fill(beam->GetCorrAQ(f), beam->GetZ(f));
 
-        if (f == 0 || f == 1 || f == 2) // PID 0,1,2 in BigRIPS
-        {
-          if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
-              fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
-              fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
-              fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
-          {
-            z_vs_aoqc[f]->Fill(beam->GetCorrAQ(f), beam->GetZ(f));
-          }
-        }
-        if (f == 3 || f == 4 || f == 5) // PID 3,4,5 in ZeroDegree
-        {
-          if (fp[fpNr(8)]->GetPlastic()->GetMultihitL() == 1 &&
-              fp[fpNr(8)]->GetPlastic()->GetMultihitR() == 1 &&
-              fp[fpNr(11)]->GetPlastic()->GetMultihitL() == 1 &&
-              fp[fpNr(11)]->GetPlastic()->GetMultihitR() == 1)
-          {
-            z_vs_aoqc[f]->Fill(beam->GetCorrAQ(f), beam->GetZ(f));
-          }
-        }
-      }
+      //   if (f == 0 || f == 1 || f == 2) // PID 0,1,2 in BigRIPS
+      //   {
+      //     if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
+      //         fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
+      //         fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
+      //         fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
+      //     {
+      //       z_vs_aoq_corr[f]->Fill(beam->GetCorrAQ(f), beam->GetCorrZ(f));
+      //     }
+      //   }
+      //   if (f == 3 || f == 4 || f == 5) // PID 3,4,5 in ZeroDegree
+      //   {
+      //     if (fp[fpNr(8)]->GetPlastic()->GetMultihitL() == 1 &&
+      //         fp[fpNr(8)]->GetPlastic()->GetMultihitR() == 1 &&
+      //         fp[fpNr(11)]->GetPlastic()->GetMultihitL() == 1 &&
+      //         fp[fpNr(11)]->GetPlastic()->GetMultihitR() == 1)
+      //     {
+      //       z_vs_aoq_corr[f]->Fill(beam->GetCorrAQ(f), beam->GetCorrZ(f));
+      //     }
+      //   }
+      // }
     }
 
     // Separately handle BigRIPS PID
     if (passBRCuts)
     {
-      // AoQ Abberation corrections
+      for (unsigned short f = 0; f < 6; f++)
+      {
+        if (f == 0 || f == 1 || f == 2) // PID 0,1,2 in BigRIPS
+        {
+          z_vs_aoq[f]->Fill(beam->GetAQ(f), beam->GetZ(f));
+
+          if (f == 2) // PID 2 only
+          {
+            aoq2_h1->Fill(beam->GetAQ(2));
+          }
+
+          if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
+              fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
+              fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
+              fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
+          {
+            z_vs_aoq_corr[f]->Fill(beam->GetCorrAQ(f), beam->GetCorrZ(f));
+
+            if (f == 2) // PID 2 only
+            {
+              aoq2_corr_h1->Fill(beam->GetCorrAQ(2));
+              z_vs_aoq2_corr->Fill(beam->GetCorrAQ(2), beam->GetCorrZ(2));
+            }
+          }
+        }
+      }
+
+      // AoQ and Zet corrected
       if (fp[fpNr(3)]->GetPlastic()->GetMultihitL() == 1 &&
           fp[fpNr(3)]->GetPlastic()->GetMultihitR() == 1 &&
           fp[fpNr(7)]->GetPlastic()->GetMultihitL() == 1 &&
           fp[fpNr(7)]->GetPlastic()->GetMultihitR() == 1)
       {
-        double aoq2 = beam->GetAQ(2);
-        double corr2 = 0.00004 * fp[fpNr(5)]->GetTrack()->GetX() +
-                       (-0.00005 * fp[fpNr(5)]->GetTrack()->GetA()) +
-                       (+0.0001 * fp[fpNr(7)]->GetTrack()->GetX()) +
-                       (-0.0001 * fp[fpNr(7)]->GetTrack()->GetA()) +
-                       (+0.0001 * fp[fpNr(3)]->GetTrack()->GetA()) +
-                       (-0.000003 * sqrt(fp[fpNr(3)]->GetPlastic()->GetChargeR() * fp[fpNr(3)]->GetPlastic()->GetChargeL())); // use Plastic multihit incase of charge corrections
-        //  (+0.000025 * sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeR() * fp[fpNr(7)]->GetPlastic()->GetChargeL())) + // use Plastic multihit incase of charge corrections
-
-        double aoq2_corr = aoq2 + corr2;
-
-        aoq2_h1->Fill(aoq2);
-        aoq2_corr_h1->Fill(aoq2_corr);
-        z_vs_aoq2_corr->Fill(aoq2_corr, beam->GetZ(2));
+        // aoq2_h1->Fill(beam->GetAQ(2));
+        // aoq2_corr_h1->Fill(beam->GetCorrAQ(2));
+        // z_vs_aoq2_corr->Fill(beam->GetCorrAQ(2), beam->GetCorrZ(2));
 
         // count nuclei of interest in PID 2 that pass all plastic cuts
-        if (pid50Ca20_pid2->IsInside(beam->GetAQ(2), beam->GetZ(2)))
+        if (pid50Ca20_pid2 && pid50Ca20_pid2->IsInside(beam->GetAQ(2), beam->GetZ(2)))
           inCut_50Ca20_pid2++;
-        if (pid49K19_pid2->IsInside(beam->GetAQ(2), beam->GetZ(2)))
+        if (pid49K19_pid2 && pid49K19_pid2->IsInside(beam->GetAQ(2), beam->GetZ(2)))
           inCut_49K19_pid2++;
       }
     }
@@ -832,30 +878,47 @@ int main(int argc, char *argv[])
     // Separately handle ZeroDegree PID
     // if (passZDCuts)
     {
-      // AoQ Abberation corrections
+      for (unsigned short f = 0; f < 6; f++)
+      {
+        if (f == 3 || f == 4 || f == 5) // PID 3,4,5 in ZeroDegree
+        {
+          z_vs_aoq[f]->Fill(beam->GetAQ(f), beam->GetZ(f));
+
+          if (f == 5) // PID 5 only
+          {
+            aoq5_h1->Fill(beam->GetAQ(5));
+          }
+
+          if (fp[fpNr(8)]->GetPlastic()->GetMultihitL() == 1 &&
+              fp[fpNr(8)]->GetPlastic()->GetMultihitR() == 1 &&
+              fp[fpNr(11)]->GetPlastic()->GetMultihitL() == 1 &&
+              fp[fpNr(11)]->GetPlastic()->GetMultihitR() == 1)
+          {
+            z_vs_aoq_corr[f]->Fill(beam->GetCorrAQ(f), beam->GetCorrZ(f));
+
+            if (f == 5) // PID 5 only
+            {
+              aoq5_corr_h1->Fill(beam->GetCorrAQ(5));
+              z_vs_aoq5_corr->Fill(beam->GetCorrAQ(5), beam->GetZ(5));
+            }
+          }
+        }
+      }
+
+      // AoQ and Zet corrected
       if (fp[fpNr(8)]->GetPlastic()->GetMultihitL() == 1 &&
           fp[fpNr(8)]->GetPlastic()->GetMultihitR() == 1 &&
           fp[fpNr(11)]->GetPlastic()->GetMultihitL() == 1 &&
           fp[fpNr(11)]->GetPlastic()->GetMultihitR() == 1)
       {
-        double aoq5 = beam->GetAQ(5);
-        double corr5 = 0.0002 * fp[fpNr(8)]->GetTrack()->GetX() +
-                       (+1.75202e-05 * fp[fpNr(9)]->GetTrack()->GetX() + 7.45377e-07 * pow(fp[fpNr(9)]->GetTrack()->GetX(), 2)) +
-                       (+9.34926e-06 * fp[fpNr(9)]->GetTrack()->GetY() - 0.5238e-06 * pow(fp[fpNr(9)]->GetTrack()->GetY(), 2)) +
-                       (+0.00002 * fp[fpNr(11)]->GetTrack()->GetA()) +
-                       (-7.31561e-06 * fp[fpNr(11)]->GetTrack()->GetB() + 4.25615e-06 * pow(fp[fpNr(11)]->GetTrack()->GetB(), 2)) +
-                       (-3.35538e-07 * fp[fpNr(11)]->GetTrack()->GetY() - 3.78872e-06 * pow(fp[fpNr(11)]->GetTrack()->GetY(), 2));
-
-        double aoq5_corr = aoq5 + corr5;
-
-        aoq5_h1->Fill(aoq5);
-        aoq5_corr_h1->Fill(aoq5_corr);
-        z_vs_aoq5_corr->Fill(aoq5_corr, beam->GetZ(5));
+        // aoq5_h1->Fill(beam->GetAQ(5));
+        // aoq5_corr_h1->Fill(beam->GetCorrAQ(5));
+        // z_vs_aoq5_corr->Fill(beam->GetCorrAQ(5), beam->GetZ(5));
 
         // count nuclei of interest in PID 5 that pass all plastic cuts
-        if (pid50Ca20_pid5->IsInside(beam->GetAQ(5), beam->GetZ(5)))
+        if (pid50Ca20_pid5 && pid50Ca20_pid5->IsInside(beam->GetAQ(5), beam->GetZ(5)))
           inCut_50Ca20_pid5++;
-        if (pid49K19_pid5->IsInside(beam->GetAQ(5), beam->GetZ(5)))
+        if (pid49K19_pid5 && pid49K19_pid5->IsInside(beam->GetAQ(5), beam->GetZ(5)))
           inCut_49K19_pid5++;
       }
     }
@@ -865,16 +928,16 @@ int main(int argc, char *argv[])
     {
       if (f == 2) // PID 2
       {
-        if (pid50Ca20_pid2->IsInside(beam->GetAQ(f), beam->GetZ(f)))
+        if (pid50Ca20_pid2 && pid50Ca20_pid2->IsInside(beam->GetAQ(f), beam->GetZ(f)))
           total_50Ca20_pid2++;
-        if (pid49K19_pid2->IsInside(beam->GetAQ(f), beam->GetZ(f)))
+        if (pid49K19_pid2 && pid49K19_pid2->IsInside(beam->GetAQ(f), beam->GetZ(f)))
           total_49K19_pid2++;
       }
       if (f == 5) // PID 5
       {
-        if (pid50Ca20_pid5->IsInside(beam->GetAQ(f), beam->GetZ(f)))
+        if (pid50Ca20_pid5 && pid50Ca20_pid5->IsInside(beam->GetAQ(f), beam->GetZ(f)))
           total_50Ca20_pid5++;
-        if (pid49K19_pid5->IsInside(beam->GetAQ(f), beam->GetZ(f)))
+        if (pid49K19_pid5 && pid49K19_pid5->IsInside(beam->GetAQ(f), beam->GetZ(f)))
           total_49K19_pid5++;
       }
     }

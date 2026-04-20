@@ -19,14 +19,19 @@ TOF.Offset.4:		-118.1679974		#F9-F11
 TOF.Offset.5:		-118.3514679		#F8-F11
 
 InteractionPoints:	/u/ddas/software/Salvador/dali_coordinates_20251010.dat
-AverageBeta:		0.5247
+#AverageBeta:		0.5247
+AverageBeta:		0.5166008
 
-Timing.Gate.Low:	-1000
-Timing.Gate.High:	1000
+#Timing.Gate.Low:	-20
+#Timing.Gate.High:	20
+
+Timing.Gate.Low:	-100
+Timing.Gate.High:	100
 
 Addback.Threshold:	350
 Addback.Distance:	15
 
+PlasticCutRunID:    1010
 
 # ===== BR AoQ Corrections =====
 BigRIPS.AoQCorr_F3X:	0.

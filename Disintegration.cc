@@ -86,6 +86,10 @@ int main(int argc, char *argv[])
   tr->SetBranchAddress("eventnumber", &eventnumber);
   int toteventnumber = 0;
   tr->SetBranchAddress("toteventnumber", &toteventnumber);
+  int fpCutMask[2] = {0, 0};
+  tr->SetBranchAddress("fpCutMask[2]", &fpCutMask);
+  int plCutMask[4] = {0, 0, 0, 0};
+  tr->SetBranchAddress("plCutMask[4]", &plCutMask);
 
   vector<TCutG *> InPartCut;
   vector<vector<TCutG *>> OutPartCut;
@@ -154,6 +158,8 @@ int main(int argc, char *argv[])
       splittree[in][ou]->Branch("dali", &dali, 320000);
       splittree[in][ou]->Branch("eventnumber", &eventnumber, "eventnumber/I");
       splittree[in][ou]->Branch("toteventnumber", &toteventnumber, "toteventnumber/I");
+      splittree[in][ou]->Branch("fpCutMask[2]", &fpCutMask, "fpCutMask[2]/I");
+      splittree[in][ou]->Branch("plCutMask[4]", &plCutMask, "plCutMask[4]/I");
     }
   }
 

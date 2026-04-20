@@ -595,7 +595,7 @@ void energyCalib(bool drawErr = false)
 
     // calibration parameters ROOT file
     TFile *fo = TFile::Open(
-        "/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_energyCalib_007X.root",
+        "/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_Calib_007X_20260130.root",
         "RECREATE");
 
     if (!fo || fo->IsZombie())
@@ -608,7 +608,7 @@ void energyCalib(bool drawErr = false)
     TDirectory *dirRes = fo->mkdir("Res");
 
     // calibration parameters CSV file
-    std::ofstream outCSV("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_energyCalib_007X.csv");
+    std::ofstream outCSV("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/DALI_Calib_007X_20260130.csv");
     outCSV << "DetectorID,p0,p1,p0_err,p1_err,Chi2,NDf,redChi2\n"; // header
 
     if (calibDB_Co60.size() == calibDB_Y88.size() && calibDB_Y88.size() == calibDB_Cs137.size())

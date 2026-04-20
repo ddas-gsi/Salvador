@@ -74,6 +74,8 @@ public:
   double Overflow() { return foverflow; }
   //! Get the underflow energy
   double Underflow() { return funderflow; }
+  //! Get the DALI Toffsets file with time Offsets
+  char *DALIToffsetFile() { return (char *)fDALItoffsetfile.c_str(); }
   //! Get the txt file witht the positions of the DALI crystals from the simulation
   char *DALIPosFile() { return (char *)fDALIposfile.c_str(); }
   //! Get the beta for the Doppler correction
@@ -205,6 +207,9 @@ public:
   double GetZDZCorrection_aoq5sq() { return fzet_corr[1][3]; }
   double GetZDZCorrection_constant() { return fzet_corr[1][4]; }
 
+  // Get the plastic cut RunID
+  int GetPlasticCutRunID() { return fPlasticCutRunID; }
+
 private:
   //! filename of the settings file
   string finputfile;
@@ -245,6 +250,8 @@ private:
   //! Underflow value for gamma energies
   double funderflow;
 
+  //! DALI Toffsets file with time Offsets
+  string fDALItoffsetfile;
   //! averaged positions from the simulation
   string fDALIposfile;
   //! averge beta for Doppler correction
@@ -287,5 +294,8 @@ private:
 
   //! Z correction based on ripsbeta and aoq
   double fzet_corr[2][5]; // BR/ZD; RipsBeta linear & quadratic; aoq linear and quadratic; and constant
+
+  // Plastic cut RunID
+  int fPlasticCutRunID;
 };
 #endif

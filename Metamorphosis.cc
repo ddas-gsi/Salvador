@@ -103,7 +103,9 @@ int main(int argc, char *argv[])
 
   //////////========= Plastic Cuts Info =========////////////
 
-  int RunID = 1010; // Run Number of RIBF249
+  // int RunID = 1010;                            // Run Number of RIBF249 1000 series 50Ca_C;
+  // int RunID = 2010;                            // Run Number of RIBF249 2000 series 50Ca_Au;
+  int plCutRunID = set->GetPlasticCutRunID(); // Get the plastic cut RunID from settings
 
   // Define hlist to hold histograms and cuts
   TList *hlist = new TList();
@@ -121,15 +123,17 @@ int main(int argc, char *argv[])
   std::map<int, TCutG *> logQ_vs_X_cuts;
   std::map<int, TCutG *> dT_vs_X_cuts;
 
-  if (RunID && RunID != 0)
+  if (plCutRunID && plCutRunID != 0)
   {
+    cout << "Loading plastic cuts for RunID:\t" << plCutRunID << endl;
+
     // Load cut files for each focal plane id and put into different PlasticCuts
     for (int id : fpIDs)
     {
       if (load_dT_vs_logQ_cuts == 'y')
       {
         // cout << "Loading dT_vs_logQ cuts for FocalPlane " << id << endl;
-        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_logQ_%d.cxx", RunID, RunID, id);
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_dT_vs_logQ_%d.cxx", plCutRunID, plCutRunID, id);
         gROOT->ProcessLine(Form(".L %s", file.Data()));
         TObject *obj = gROOT->FindObject(Form("dT_vs_logQ_%d", id));
         if (obj && obj->InheritsFrom("TCutG"))
@@ -152,7 +156,7 @@ int main(int argc, char *argv[])
       if (load_logQ_vs_X_cuts == 'y')
       {
         // cout << "Loading logQ_vs_X cuts for FocalPlane " << id << endl;
-        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_logQ_vs_X_%d.cxx", RunID, RunID, id);
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_logQ_vs_X_%d.cxx", plCutRunID, plCutRunID, id);
         gROOT->ProcessLine(Form(".L %s", file.Data()));
         TObject *obj = gROOT->FindObject(Form("logQ_vs_X_%d", id));
         if (obj && obj->InheritsFrom("TCutG"))
@@ -175,7 +179,7 @@ int main(int argc, char *argv[])
       if (load_dT_vs_X_cuts == 'y')
       {
         // cout << "Loading dT_vs_X cuts for FocalPlane " << id << endl;
-        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/salva/cuts/plastic/%d/%d_dT_vs_X_%d.cxx", RunID, RunID, id);
+        TString file = Form("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/cuts/plastic/%d/%d_dT_vs_X_%d.cxx", plCutRunID, plCutRunID, id);
         gROOT->ProcessLine(Form(".L %s", file.Data()));
         TObject *obj = gROOT->FindObject(Form("dT_vs_X_%d", id));
         if (obj && obj->InheritsFrom("TCutG"))
@@ -934,10 +938,16 @@ int main(int argc, char *argv[])
         corr = set->GetBRAoQCorrection_F3X() * fp[fpNr(3)]->GetTrack()->GetX() +
                set->GetBRAoQCorrection_F3A() * fp[fpNr(3)]->GetTrack()->GetA() +
                set->GetBRAoQCorrection_F3Q() * sqrt(fp[fpNr(3)]->GetPlastic()->GetChargeL() * fp[fpNr(3)]->GetPlastic()->GetChargeR()) +
+               set->GetBRAoQCorrection_F3B() * fp[fpNr(3)]->GetTrack()->GetB() +
+               set->GetBRAoQCorrection_F3B2() * pow(fp[fpNr(3)]->GetTrack()->GetB(), 2) +
                set->GetBRAoQCorrection_F5X() * fp[fpNr(5)]->GetTrack()->GetX() +
                set->GetBRAoQCorrection_F5A() * fp[fpNr(5)]->GetTrack()->GetA() +
+               set->GetBRAoQCorrection_F5B() * fp[fpNr(5)]->GetTrack()->GetB() +
+               set->GetBRAoQCorrection_F5Y() * fp[fpNr(5)]->GetTrack()->GetY() +
+               set->GetBRAoQCorrection_F5Y2() * pow(fp[fpNr(5)]->GetTrack()->GetY(), 2) +
                set->GetBRAoQCorrection_F7X() * fp[fpNr(7)]->GetTrack()->GetX() +
                set->GetBRAoQCorrection_F7A() * fp[fpNr(7)]->GetTrack()->GetA() +
+               set->GetBRAoQCorrection_F7B() * fp[fpNr(7)]->GetTrack()->GetB() +
                set->GetBRAoQCorrection_F7Q() * sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeL() * fp[fpNr(7)]->GetPlastic()->GetChargeR()) +
                set->GetBRAoQCorrection_constant();
 
@@ -951,6 +961,8 @@ int main(int argc, char *argv[])
                set->GetZDAoQCorrection_F9X() * fp[fpNr(9)]->GetTrack()->GetX() +
                set->GetZDAoQCorrection_F9X2() * pow(fp[fpNr(9)]->GetTrack()->GetX(), 2) +
                set->GetZDAoQCorrection_F9A() * fp[fpNr(9)]->GetTrack()->GetA() +
+               set->GetZDAoQCorrection_F9B() * fp[fpNr(9)]->GetTrack()->GetB() +
+               set->GetZDAoQCorrection_F9B2() * pow(fp[fpNr(9)]->GetTrack()->GetB(), 2) +
                set->GetZDAoQCorrection_F9Y() * fp[fpNr(9)]->GetTrack()->GetY() +
                set->GetZDAoQCorrection_F9Y2() * pow(fp[fpNr(9)]->GetTrack()->GetY(), 2) +
                set->GetZDAoQCorrection_F11X() * fp[fpNr(11)]->GetTrack()->GetX() +
