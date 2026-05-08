@@ -138,6 +138,17 @@ int main(int argc, char *argv[])
     rec->SetBeta(beta);
   bool recalibrate = rec->DoReCalibration();
 
+  bool recalDALIToffsets = rec->DoReCalDALIToffsets();
+  if (recalDALIToffsets)
+  {
+    cout << "ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
+    cout << "DALI time offsets will be read from file: " << rec->GetSettings()->DALIToffsetFile() << endl;
+  }
+  else
+  {
+    cout << "DALI time offsets done at Anaroot level" << endl;
+  }
+
   TList *hlist = new TList();
 
   // histograms
@@ -241,6 +252,10 @@ int main(int argc, char *argv[])
     ripsbeta[b] = new TH1F(Form("ripsbeta_%d", b), Form("ripsbeta_%d", b), 10000, 0, 1);
     hlist->Add(ripsbeta[b]);
   }
+  TH2F *ripsbeta_13 = new TH2F("ripsbeta_13", "ripsbeta1 vs ripsbeta3; ripsbeta3; ripsbeta1", 2000, 0.4, 0.6, 2000, 0.4, 0.6);
+  hlist->Add(ripsbeta_13);
+  TH2F *ripsbeta_25 = new TH2F("ripsbeta_25", "ripsbeta2 vs ripsbeta5; ripsbeta5; ripsbeta2", 2000, 0.4, 0.6, 2000, 0.4, 0.6);
+  hlist->Add(ripsbeta_25);
 
   TH1F *delta[4];
   for (unsigned short b = 0; b < 4; b++)
@@ -290,7 +305,7 @@ int main(int argc, char *argv[])
 
   TH2F *triggertgam = new TH2F("triggertgam", "triggertgam", 1000, -500, 500, NTRIG, 0, NTRIG);
   hlist->Add(triggertgam);
-  TH2F *ID_theta = new TH2F("ID_theta", "ID_theta", DALIIDS, 0, DALIIDS, 180, 0, 180);
+  TH2F *ID_theta = new TH2F("ID_theta", "ID_theta; ID; theta", DALIIDS, 0, DALIIDS, 180, 0, 180); // theta in degrees
   hlist->Add(ID_theta);
   TH1F *mult = new TH1F("mult", "mult", 50, 0, 50);
   hlist->Add(mult);
@@ -300,30 +315,40 @@ int main(int argc, char *argv[])
   hlist->Add(egam);
   TH1F *egamdc = new TH1F("egamdc", "egamdc", bins, 0, bins);
   hlist->Add(egamdc);
+  // EnergyDC at Forward angles
+  TH1F *egamdc_fwdAngle = new TH1F("egamdc_fwdAngle", "egamdc_fwdAngle", bins, 0, bins); // theta < 70 deg
+  hlist->Add(egamdc_fwdAngle);
+  // EnergyDC at Backward angles
+  TH1F *egamdc_bkwAngle = new TH1F("egamdc_bkwAngle", "egamdc_bkwAngle", bins, 0, bins); // theta > 70 deg
+  hlist->Add(egamdc_bkwAngle);
   TH1F *egam_IDgate = new TH1F("egam_IDgate", "egam_IDgate", bins, 0, bins);
   hlist->Add(egam_IDgate);
   TH1F *egamdc_IDgate = new TH1F("egamdc_IDgate", "egamdc_IDgate", bins, 0, bins);
   hlist->Add(egamdc_IDgate);
-  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 2000, -1000, 1000, bins, 0, bins);
+  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 1000, -500, 500, bins, 0, bins);
   hlist->Add(egamtgam);
-  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 2000, -1000, 1000, bins, 0, bins);
+  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 1000, -500, 500, bins, 0, bins);
   hlist->Add(egamdctgam);
   TH2F *time_id = new TH2F("time_id", "time_id", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
   hlist->Add(time_id);
-  TH2F *time_id_g1000 = new TH2F("time_id_g1000", "time_id_g1000", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  TH2F *time_id_g1000 = new TH2F("time_id_g1000", "time_id_g1000", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
   hlist->Add(time_id_g1000);
-  TH2F *time_id_g700 = new TH2F("time_id_g700", "time_id_g700", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  TH2F *time_id_g700 = new TH2F("time_id_g700", "time_id_g700", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
   hlist->Add(time_id_g700);
-  TH2F *time_id_g500 = new TH2F("time_id_g500", "time_id_g500", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
+  TH2F *time_id_g500 = new TH2F("time_id_g500", "time_id_g500", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
   hlist->Add(time_id_g500);
+  TH2F *time_id_le500 = new TH2F("time_id_le500", "time_id_le500", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
+  hlist->Add(time_id_le500);
   TH2F *tgamID = new TH2F("tgamID", "tgamID", DALIIDS, 0, DALIIDS, 1000, -500, 500);
   hlist->Add(tgamID);
-  TH2F *tgamID_g1000 = new TH2F("tgamID_g1000", "tgamID_g1000", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  TH2F *tgamID_g1000 = new TH2F("tgamID_g1000", "tgamID_g1000", DALIIDS, 0, DALIIDS, 500, -500, 500);
   hlist->Add(tgamID_g1000);
-  TH2F *tgamID_g700 = new TH2F("tgamID_g700", "tgamID_g700", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  TH2F *tgamID_g700 = new TH2F("tgamID_g700", "tgamID_g700", DALIIDS, 0, DALIIDS, 500, -500, 500);
   hlist->Add(tgamID_g700);
-  TH2F *tgamID_g500 = new TH2F("tgamID_g500", "tgamID_g500", DALIIDS, 0, DALIIDS, 1000, -500, 500);
+  TH2F *tgamID_g500 = new TH2F("tgamID_g500", "tgamID_g500", DALIIDS, 0, DALIIDS, 500, -500, 500);
   hlist->Add(tgamID_g500);
+  TH2F *tgamID_le500 = new TH2F("tgamID_le500", "tgamID_le500", DALIIDS, 0, DALIIDS, 500, -500, 500);
+  hlist->Add(tgamID_le500);
   TH2F *egammult = new TH2F("egammult", "egammult", 20, 0, 20, bins, 0, bins);
   hlist->Add(egammult);
   TH2F *egamdcmult = new TH2F("egamdcmult", "egamdcmult", 20, 0, 20, bins, 0, bins);
@@ -344,15 +369,36 @@ int main(int argc, char *argv[])
   TH2F *egamegamdc_mult[10];
   TH2F *egamegam_IDgate_mult[10];
   TH2F *egamegamdc_IDgate_mult[10];
+
   TH1F *multAB = new TH1F("multAB", "multAB", 50, 0, 50);
   hlist->Add(multAB);
   TH1F *egamAB = new TH1F("egamAB", "egamAB", bins, 0, bins);
   hlist->Add(egamAB);
+
+  // EnergyABdc vs Beta at Forward angles, looping over beta values to find the one that gives the best Doppler correction
+  TH2F *egamABdc_beta = new TH2F("egamABdc_beta", "egamABdc_beta at fwdAngle80; beta; egamABdc", 2000, 0.0, 1.0, bins, 0, bins);
+  hlist->Add(egamABdc_beta);
+
   TH1F *egamABdc = new TH1F("egamABdc", "egamABdc", bins, 0, bins);
   hlist->Add(egamABdc);
-  TH1F *egamABdc_good = new TH1F("egamABdc_good", "egamABdc_good", bins, 0, bins);
+  // EnergyABdc at Forward angles
+  TH1F *egamABdc_fwdAngle90 = new TH1F("egamABdc_fwdAngle90", "egamABdc_fwdAngle90", bins, 0, bins); // theta < 90 deg
+  hlist->Add(egamABdc_fwdAngle90);
+  TH1F *egamABdc_fwdAngle80 = new TH1F("egamABdc_fwdAngle80", "egamABdc_fwdAngle80", bins, 0, bins); // theta < 80 deg
+  hlist->Add(egamABdc_fwdAngle80);
+  TH1F *egamABdc_fwdAngle70 = new TH1F("egamABdc_fwdAngle70", "egamABdc_fwdAngle70", bins, 0, bins); // theta < 70 deg
+  hlist->Add(egamABdc_fwdAngle70);
+  TH1F *egamABdc_fwdAngle60 = new TH1F("egamABdc_fwdAngle60", "egamABdc_fwdAngle60", bins, 0, bins); // theta < 60 deg
+  hlist->Add(egamABdc_fwdAngle60);
+  // EnergyABdc at Backward angles
+  TH1F *egamABdc_bkwAngle = new TH1F("egamABdc_bkwAngle", "egamABdc_bkwAngle", bins, 0, bins); // theta > 90 deg
+  hlist->Add(egamABdc_bkwAngle);
+  // egamABdc vs theta
+  TH2F *egamABdc_theta = new TH2F("egamABdc_theta", "egamABdc_theta", 180, 0, 180, bins, 0, bins);
+  hlist->Add(egamABdc_theta);
+  TH1F *egamABdc_good = new TH1F("egamABdc_good", "egamABdc_good DALI+HYPATIA (ID:0 to 362)", bins, 0, bins); // For good DALI+HYPATIA detectors
   hlist->Add(egamABdc_good);
-  TH1F *egamABdc_hyp = new TH1F("egamABdc_hyp", "egamABdc_hyp", bins, 0, bins);
+  TH1F *egamABdc_hyp = new TH1F("egamABdc_hyp", "egamABdc_hypatia HYPATIA (ID: 300 to 362)", bins, 0, bins); // For good HYPATIA detectors
   hlist->Add(egamABdc_hyp);
   TH1F *egamABdc_plhit1 = new TH1F("egamABdc_plhit1", "egamABdc_plhit1", bins, 0, bins);
   hlist->Add(egamABdc_plhit1);
@@ -410,7 +456,7 @@ int main(int argc, char *argv[])
   hlist->Add(egamdctrig_mult[0]);
   egamdctheta_mult[0] = new TH2F("egamdctheta", "egamdctheta", 200, 0, 4, 400, 0, bins);
   hlist->Add(egamdctheta_mult[0]);
-  TH2F *egamtheta = new TH2F("egamtheta", "egamtheta", 200, 0, 4, bins, 0, bins);
+  TH2F *egamtheta = new TH2F("egamtheta", "egamtheta", 200, 0, 4, bins, 0, bins); // theta in radians
   hlist->Add(egamtheta);
   egamdcphi_mult[0] = new TH2F("egamdcphi", "egamdcphi", 200, -4, 4, 400, 0, bins);
   hlist->Add(egamdcphi_mult[0]);
@@ -584,6 +630,12 @@ int main(int argc, char *argv[])
 
     // analysis
 
+    // Recalibrate DALI Time Offsets from the settings file
+    if (recalDALIToffsets)
+    {
+      rec->ReCalDALIToffsets(dali->GetHits());
+    }
+
     // filter over and underflow
     dali->SetHits(rec->FilterBadHits(dali->GetHits()));
 
@@ -593,9 +645,6 @@ int main(int argc, char *argv[])
     // recalibration second order
     if (recalibrate)
       rec->ReCalibrate(dali->GetHits());
-
-    // Recalibrate DALI Time Offsets from the settings file
-    rec->ReCalDALIToffsets(dali->GetHits());
 
     // sort by energy
     dali->SetHits(rec->Sort(dali->GetHits()));
@@ -694,6 +743,11 @@ int main(int argc, char *argv[])
       for (unsigned short b = 0; b < 6; b++)
         ripsbeta[b]->Fill(beam->GetRIPSBeta(b));
 
+      // RIPSBeta1 vs RIPSBeta3
+      ripsbeta_13->Fill(beam->GetRIPSBeta(3), beam->GetRIPSBeta(1));
+      // RPISBeta2 vs RIPSBeta5
+      ripsbeta_25->Fill(beam->GetRIPSBeta(5), beam->GetRIPSBeta(2));
+
       for (unsigned short b = 0; b < 4; b++)
         delta[b]->Fill(beam->GetDelta(b));
       deltadiff[0]->Fill(beam->GetDelta(1) - beam->GetDelta(0));
@@ -752,26 +806,43 @@ int main(int argc, char *argv[])
         ID_theta->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi());
         egam->Fill(dali->GetHit(k)->GetEnergy());
         egamdc->Fill(dali->GetHit(k)->GetDCEnergy());
+
+        // EnergyDC for forward and backward angles
+        if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 70)
+        {
+          egamdc_fwdAngle->Fill(dali->GetHit(k)->GetDCEnergy());
+        }
+        else
+        {
+          egamdc_bkwAngle->Fill(dali->GetHit(k)->GetDCEnergy());
+        }
+
         triggertgam->Fill(dali->GetHit(k)->GetTOffset(), trigbit);
         egamtgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetEnergy());
         egamtheta->Fill(dali->GetHit(k)->GetPos().Theta(), dali->GetHit(k)->GetEnergy()); // theta vs egam
         egamdctgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
         time_id->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
         tgamID->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
-        if (dali->GetHit(k)->GetEnergy() > 1000)
-        {
-          tgamID_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
-          time_id_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
-        }
-        if (dali->GetHit(k)->GetEnergy() > 700)
-        {
-          tgamID_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
-          time_id_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
-        }
+
         if (dali->GetHit(k)->GetEnergy() > 500)
         {
           tgamID_g500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
           time_id_g500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+          if (dali->GetHit(k)->GetEnergy() > 700)
+          {
+            tgamID_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+            time_id_g700->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+            if (dali->GetHit(k)->GetEnergy() > 1000)
+            {
+              tgamID_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+              time_id_g1000->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
+            }
+          }
+        }
+        else if (dali->GetHit(k)->GetEnergy() < 500)
+        {
+          tgamID_le500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
+          time_id_le500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
         }
         egamtrig->Fill(trigbit, dali->GetHit(k)->GetEnergy());
         // egamdctrig->Fill(trigbit,dali->GetHit(k)->GetDCEnergy());
@@ -821,14 +892,48 @@ int main(int argc, char *argv[])
       {
         egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
         egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
-        if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362) // For good HYPATIA detectors
-        {
-          egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
-        }
-        if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362) // For good DALI+HYPATIA detectors
+        // For good DALI+HYPATIA detectors
+        if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362)
         {
           egamABdc_good->Fill(dali->GetHitAB(k)->GetDCEnergy());
+          // For good HYPATIA detectors
+          if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362)
+          {
+            egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
+          }
         }
+        // EnergyABdc for forward and backward angles
+        if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
+        {
+          egamABdc_fwdAngle90->Fill(dali->GetHitAB(k)->GetDCEnergy());
+          if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
+          {
+            egamABdc_fwdAngle80->Fill(dali->GetHitAB(k)->GetDCEnergy());
+            if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 70)
+            {
+              egamABdc_fwdAngle70->Fill(dali->GetHitAB(k)->GetDCEnergy());
+              if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 60)
+              {
+                egamABdc_fwdAngle60->Fill(dali->GetHitAB(k)->GetDCEnergy());
+              }
+            }
+          }
+        }
+        else // backward angles > 90 degrees
+        {
+          egamABdc_bkwAngle->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        }
+        egamABdc_theta->Fill(dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi(), dali->GetHitAB(k)->GetDCEnergy()); // egamABdc vs theta
+
+        // EnergyABdc vs Beta at Forward angles; looping over beta values to find the one that gives the best Doppler correction
+        if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
+        {
+          for (float ebeta = 0.4; ebeta < 0.6; ebeta += 0.0005)
+          {
+            egamABdc_beta->Fill(ebeta, dali->GetHitAB(k)->GetDCEnergy(ebeta));
+          }
+        }
+
         egamABtrig->Fill(trigbit, dali->GetHitAB(k)->GetEnergy());
         egamABtgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetEnergy());
         egamABdctgam->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());

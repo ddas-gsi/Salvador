@@ -46,6 +46,8 @@ public:
   vector<DALIHit *> FilterOverUnderflows(vector<DALIHit *> hits);
   //! apply the time cut
   vector<DALIHit *> TimingGate(vector<DALIHit *> hits);
+  //! Do recalibration of DALI time offsets from the settings file
+  bool DoReCalDALIToffsets() { return fset->DoReCalDALIToffsets(); }
   //! Recalibrate DALI Time offsets
   void ReCalDALIToffsets(vector<DALIHit *> hits);
   //! set the positions
@@ -82,6 +84,8 @@ private:
   double fbeta;
   //! DALI time offsets
   vector<double> fDaliToffsets;
+  //! DALI time gains
+  vector<double> fDaliTimeGains;
   //! average positions of first interaction points
   vector<vector<double>> fpositions;
   //! which detectors are bad and should be excluded

@@ -61,7 +61,13 @@ void Settings::ReadSettings()
   ftimegate[0] = set->GetValue("Timing.Gate.Low", -1000.);
   ftimegate[1] = set->GetValue("Timing.Gate.High", 1000.);
 
-  fDALItoffsetfile = set->GetValue("DALI.Toffsets.File", (char *)"toffsets.dat");
+  fdorecalDALIToffsets = false;
+  if (set->GetValue("Do.Recal.DALI.Toffsets", 0) > 0)
+  {
+    fdorecalDALIToffsets = true;
+    fDALItoffsetfile = set->GetValue("DALI.Toffsets.File", (char *)"toffsets.dat");
+  }
+
   fDALIposfile = set->GetValue("InteractionPoints", (char *)"settings/iponts.dat");
   fDALIbadfile = set->GetValue("Bad.Channels", (char *)"settings/baddali.dat");
 

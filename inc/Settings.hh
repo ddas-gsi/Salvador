@@ -74,8 +74,12 @@ public:
   double Overflow() { return foverflow; }
   //! Get the underflow energy
   double Underflow() { return funderflow; }
+
+  //! Do recalibration of DALI time offsets from the settings file
+  bool DoReCalDALIToffsets() { return fdorecalDALIToffsets; }
   //! Get the DALI Toffsets file with time Offsets
   char *DALIToffsetFile() { return (char *)fDALItoffsetfile.c_str(); }
+
   //! Get the txt file witht the positions of the DALI crystals from the simulation
   char *DALIPosFile() { return (char *)fDALIposfile.c_str(); }
   //! Get the beta for the Doppler correction
@@ -250,6 +254,8 @@ private:
   //! Underflow value for gamma energies
   double funderflow;
 
+  //! Do recalibration of DALI time offsets from the settings file
+  bool fdorecalDALIToffsets;
   //! DALI Toffsets file with time Offsets
   string fDALItoffsetfile;
   //! averaged positions from the simulation

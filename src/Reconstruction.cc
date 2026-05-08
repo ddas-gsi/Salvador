@@ -19,7 +19,11 @@ Reconstruction::Reconstruction(char *settings)
     gbeta->Fit(fminos, "Rn");
   }
 
-  ReadDALIToffsets(fset->DALIToffsetFile());
+  if (fset->DoReCalDALIToffsets())
+  {
+    ReadDALIToffsets(fset->DALIToffsetFile());
+  }
+
   ReadBadChannels(fset->BadChFile());
   ReadPositions(fset->DALIPosFile());
   if (fset->DoReCalibration())
@@ -101,12 +105,15 @@ void Reconstruction::ReadDALIToffsets(const char *infile)
   {
     TString key = Form("DALI.Toffset.%d", i);
     double val = toff.GetValue(key, -9999.0);
-
     fDaliToffsets.push_back(val);
+
+    TString keyGain = Form("DALI.TimGain.%d", i);
+    double valGain = toff.GetValue(keyGain, 1.0);
+    fDaliTimeGains.push_back(valGain);
 
     if (val == -9999.0)
     {
-      if (fset->VerboseLevel() > 0)
+      if (fset->VerboseLevel() > 1)
       {
         std::cerr << "Warning: " << key << ":\tMISSING" << std::endl;
       }
@@ -117,7 +124,11 @@ void Reconstruction::ReadDALIToffsets(const char *infile)
   {
     if (fDaliToffsets.at(i) != -9999.0)
     {
-      cout << "DALI.Toffset." << i << ":\t" << fDaliToffsets.at(i) << endl;
+      if (fset->VerboseLevel() > 0)
+      {
+        cout << "DALI.Toffset." << i << ":\t" << fDaliToffsets.at(i) << endl;
+        cout << "DALI.TimGain." << i << ":\t" << fDaliTimeGains.at(i) << endl;
+      }
     }
   }
 }
@@ -360,7 +371,7 @@ void Reconstruction::ReCalDALIToffsets(vector<DALIHit *> hits)
   {
     short id = hits.at(i)->GetID();
     double time = hits.at(i)->GetTime();
-    time = time - fDaliToffsets.at(id);
+    time = fDaliTimeGains.at(id) * time - fDaliToffsets.at(id);
     hits.at(i)->SetTOffset(time);
   }
 }
