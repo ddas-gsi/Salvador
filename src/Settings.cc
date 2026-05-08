@@ -46,6 +46,14 @@ void Settings::ReadSettings()
   }
 
   fbeta = set->GetValue("AverageBeta", 0.5);
+
+  fdoEventBetaCorr = false;
+  if (set->GetValue("Do.Event.Beta.Corr", 0) > 0)
+  {
+    fdoEventBetaCorr = true;
+    fbetaAft = set->GetValue("AverageBeta.After", 0.5); // average beta after the target
+  }
+
   fbetaM[0] = set->GetValue("BeforeBeta", 0.5);
   fbetaM[1] = set->GetValue("AfterBeta", 0.5);
   fminoslength = set->GetValue("LengthMINOS", 5.0);

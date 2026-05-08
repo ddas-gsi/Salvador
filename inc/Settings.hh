@@ -82,8 +82,14 @@ public:
 
   //! Get the txt file witht the positions of the DALI crystals from the simulation
   char *DALIPosFile() { return (char *)fDALIposfile.c_str(); }
+
   //! Get the beta for the Doppler correction
-  double Beta() { return fbeta; }
+  double GetAvgBeta() { return fbeta; }
+  //! Get the average beta after the target
+  double GetAvgBetaAfter() { return fbetaAft; }
+  //! Do event by event beta corrections for Doppler Reconstruction
+  bool DoEventBetaCorr() { return fdoEventBetaCorr; }
+
   //! Get the gate on the DALI - beam timing
   double TimingGate(int i) { return ftimegate[i]; }
 
@@ -262,6 +268,10 @@ private:
   string fDALIposfile;
   //! averge beta for Doppler correction
   double fbeta;
+  //! average beta after the target for Doppler correction
+  double fbetaAft;
+  //! Do event by event beta corrections for Doppler Reconstruction
+  bool fdoEventBetaCorr;
   //! timing gate DALI - beam
   double ftimegate[2];
   //! beta for Doppler correction with MINOS before and after target

@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   int minID = 0;
   int br = 2;
   int zd = 5;
+  double fEventBeta = 0;
 
   // Read in the command line arguments
   CommandLineInterface *interface = new CommandLineInterface();
@@ -141,12 +142,25 @@ int main(int argc, char *argv[])
   bool recalDALIToffsets = rec->DoReCalDALIToffsets();
   if (recalDALIToffsets)
   {
-    cout << "ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
+    cout << "✅ ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
     cout << "DALI time offsets will be read from file: " << rec->GetSettings()->DALIToffsetFile() << endl;
   }
   else
   {
     cout << "DALI time offsets done at Anaroot level" << endl;
+  }
+
+  bool doEventBetaCorr = rec->DoEventBetaCorr();
+  if (doEventBetaCorr)
+  {
+    cout << "\n✅ ENABLED: Doing Event by Event beta corrections for Doppler Reconstruction..." << endl;
+    cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
+    cout << "Average beta after the target:\t" << rec->GetSettings()->GetAvgBetaAfter() << endl;
+  }
+  else
+  {
+    cout << "\nDoing Average Beta corrections for Doppler Reconstruction..." << endl;
+    cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
   }
 
   TList *hlist = new TList();
@@ -256,6 +270,14 @@ int main(int argc, char *argv[])
   hlist->Add(ripsbeta_13);
   TH2F *ripsbeta_25 = new TH2F("ripsbeta_25", "ripsbeta2 vs ripsbeta5; ripsbeta5; ripsbeta2", 2000, 0.4, 0.6, 2000, 0.4, 0.6);
   hlist->Add(ripsbeta_25);
+
+  // event beta
+  TH1F *eventBeta = new TH1F("eventBeta", "eventBeta", 10000, 0, 1);
+  hlist->Add(eventBeta);
+  TH2F *eventBeta_ripsbeta1 = new TH2F("eventBeta_ripsbeta1", "eventBeta vs ripsbeta1; ripsbeta1; eventBeta", 2000, 0.4, 0.6, 2000, 0.4, 0.6);
+  hlist->Add(eventBeta_ripsbeta1);
+  TH2F *eventBeta_ripsbeta3 = new TH2F("eventBeta_ripsbeta3", "eventBeta vs ripsbeta3; ripsbeta3; eventBeta", 2000, 0.4, 0.6, 2000, 0.4, 0.6);
+  hlist->Add(eventBeta_ripsbeta3);
 
   TH1F *delta[4];
   for (unsigned short b = 0; b < 4; b++)
@@ -659,7 +681,15 @@ int main(int argc, char *argv[])
     dali->SetABHits(rec->Sort(dali->GetHitsAB()));
 
     // Doppler correction
-    rec->DopplerCorrect(dali);
+    if (doEventBetaCorr)
+    {
+      fEventBeta = rec->DopplerCorrectEvent(dali, beam); // Doppler Reconstruction with event-by-event beta correction
+    }
+    else
+    {
+      rec->DopplerCorrect(dali); // Doppler Reconstruction with average beta correction
+    }
+    // rec->DopplerCorrect(dali);
 
     if (Verbose > 2)
       dali->Print();
@@ -747,6 +777,14 @@ int main(int argc, char *argv[])
       ripsbeta_13->Fill(beam->GetRIPSBeta(3), beam->GetRIPSBeta(1));
       // RPISBeta2 vs RIPSBeta5
       ripsbeta_25->Fill(beam->GetRIPSBeta(5), beam->GetRIPSBeta(2));
+
+      // Event beta
+      if (doEventBetaCorr)
+      {
+        eventBeta->Fill(fEventBeta);
+        eventBeta_ripsbeta1->Fill(beam->GetRIPSBeta(1), fEventBeta);
+        eventBeta_ripsbeta3->Fill(beam->GetRIPSBeta(3), fEventBeta);
+      }
 
       for (unsigned short b = 0; b < 4; b++)
         delta[b]->Fill(beam->GetDelta(b));

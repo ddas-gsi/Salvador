@@ -8,7 +8,12 @@ using namespace std;
 Reconstruction::Reconstruction(char *settings)
 {
   fset = new Settings(settings);
-  fbeta = fset->Beta();
+  fbeta = fset->GetAvgBeta();
+
+  if (fset->DoEventBetaCorr())
+  {
+    fbetaAft = fset->GetAvgBetaAfter();
+  }
 
   double pp[3] = {-fset->MINOSlength() / 2, 0, fset->MINOSlength() / 2};
   double bb[3] = {fset->BetaBefore(), fbeta, fset->BetaAfter()};
@@ -405,6 +410,19 @@ void Reconstruction::SetPositions(DALI *dali)
 void Reconstruction::DopplerCorrect(DALI *dali)
 {
   dali->DopplerCorrect(fbeta);
+}
+
+/*!
+  Do event by event beta corrections for Doppler Reconstruction
+  \param dali the input DALI object
+  \param beam the input Beam object
+  \return event by events beta
+*/
+double Reconstruction::DopplerCorrectEvent(DALI *dali, Beam *beam)
+{
+  fEventBeta = fbeta * (1 + (beam->GetRIPSBeta(3) - fbetaAft) / fbetaAft);
+  dali->DopplerCorrect(fEventBeta);
+  return fEventBeta;
 }
 
 /*!

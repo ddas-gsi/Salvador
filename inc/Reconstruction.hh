@@ -9,6 +9,7 @@
 #include "DALIdefs.h"
 #include "DALI.hh"
 #include "PPAC.hh"
+#include "Beam.hh"
 /*!
   A class for reconstruction of DALI data, includes Doppler correction and add-back
 */
@@ -54,6 +55,12 @@ public:
   void SetPositions(DALI *dali);
   //! apply the Doppler correction
   void DopplerCorrect(DALI *dali);
+
+  //! Do event by event beta corrections for Doppler Reconstruction; returns the fEventBeta
+  double DopplerCorrectEvent(DALI *dali, Beam *beam);
+  //! Do event by event beta corrections
+  bool DoEventBetaCorr() { return fset->DoEventBetaCorr(); }
+
   //! apply the Doppler correction with a certain reaction point
   double DopplerCorrect(DALI *dali, double zreac);
   //! check the positions of two hits and decide if they are added back
@@ -82,6 +89,10 @@ private:
   Settings *fset;
   //! average beta for Doppler correction
   double fbeta;
+  //! average beta after the target for Doppler correction
+  double fbetaAft;
+  //! event by event beta corrections for Doppler Reconstruction
+  double fEventBeta;
   //! DALI time offsets
   vector<double> fDaliToffsets;
   //! DALI time gains
