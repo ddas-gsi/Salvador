@@ -56,9 +56,9 @@ public:
   //! apply the Doppler correction
   void DopplerCorrect(DALI *dali);
 
-  //! Do event by event beta corrections for Doppler Reconstruction; returns the fEventBeta
+  //! Do event by event beta corrections (at the mid of the target) for Doppler Reconstruction; returns the fEventBeta
   double DopplerCorrectEvent(DALI *dali, Beam *beam);
-  //! Do event by event beta corrections
+  //! Do event by event beta corrections (at the mid of the target)
   bool DoEventBetaCorr() { return fset->DoEventBetaCorr(); }
 
   //! apply the Doppler correction with a certain reaction point

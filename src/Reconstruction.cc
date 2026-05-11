@@ -413,7 +413,7 @@ void Reconstruction::DopplerCorrect(DALI *dali)
 }
 
 /*!
-  Do event by event beta corrections for Doppler Reconstruction
+  Do event by event beta corrections (at the mid of the target) for Doppler Reconstruction
   \param dali the input DALI object
   \param beam the input Beam object
   \return event by events beta

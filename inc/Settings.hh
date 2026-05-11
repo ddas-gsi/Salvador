@@ -87,7 +87,7 @@ public:
   double GetAvgBeta() { return fbeta; }
   //! Get the average beta after the target
   double GetAvgBetaAfter() { return fbetaAft; }
-  //! Do event by event beta corrections for Doppler Reconstruction
+  //! Do event by event beta corrections (at the mid of the target) for Doppler Reconstruction
   bool DoEventBetaCorr() { return fdoEventBetaCorr; }
 
   //! Get the gate on the DALI - beam timing

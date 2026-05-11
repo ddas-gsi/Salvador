@@ -689,7 +689,6 @@ int main(int argc, char *argv[])
     {
       rec->DopplerCorrect(dali); // Doppler Reconstruction with average beta correction
     }
-    // rec->DopplerCorrect(dali);
 
     if (Verbose > 2)
       dali->Print();
