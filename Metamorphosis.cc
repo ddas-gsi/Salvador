@@ -412,63 +412,6 @@ int main(int argc, char *argv[])
   //
   //    Values range 0–15.
   //
-  //  ---------------------------------------------------------------------------
-  //  (C) plCutMask[] : per-FP 3-bit plastic-cut mask (array of 4 ints)
-  //  ---------------------------------------------------------------------------
-  //
-  // Layout & semantics
-  // ------------------
-  // - plCutMask is an array of 4 integers, one entry per plastic focal plane:
-  //     plCutMask[0] -> FP3
-  //     plCutMask[1] -> FP7
-  //     plCutMask[2] -> FP8
-  //     plCutMask[3] -> FP11
-  //
-  // - For each plCutMask[fidx] the three least-significant bits store the pass/fail
-  //   result of the three plastic cuts (bits numbered LSB->MSB):
-  //       bit 0 (1<<0) : dT vs logQ  passed  (1) / failed (0)
-  //       bit 1 (1<<1) : logQ vs X   passed  (1) / failed (0)
-  //       bit 2 (1<<2) : dT vs X     passed  (1) / failed (0)
-  //
-  // - Each plCutMask[fidx] is therefore a 3-bit value in the range [0..7].
-  //   Examples:
-  //       0b000 (0) -> no cuts passed
-  //       0b001 (1) -> only dT vs logQ passed
-  //       0b010 (2) -> only logQ vs X passed
-  //       0b011 (3) -> dT vs logQ and logQ vs X passed
-  //       0b111 (7) -> all three cuts passed
-  //
-  // Implementation notes
-  // -------------------------------------------
-  // - The loop iterates `for (auto &id : fpIDs)` and increments fidx per iteration.
-  //   The mapping fpIDs -> fidx above must match the order of fpIDs at runtime.
-  // - For each FP you fetch Track* via `trackPtr = fp[ fpNr(id) ]->GetTrack()` if
-  //   the focal-plane object exists. If `fp[fpNr(id)]` is null no track checks are done.
-  // - A cut's bit is set only if:
-  //     1) the corresponding TCutG* exists (your code checks PlasticCuts["..."][id])
-  //     2) the relevant numeric values are valid (you check NaN and X != -99999)
-  //     3) cut->IsInside(...) returns true
-  // - There is **no short-circuiting** inside this block: the three cuts are evaluated
-  //   independently and all three bits may be set or cleared regardless of earlier failures.
-  //   (This is intentional in the current implementation.)
-  // - The sentinel value `trackPtr->GetX() == -99999` is treated as invalid and the
-  //   corresponding cut will not be considered passed.
-  // - plCutMask entries are reset to 0 at the start of each event, so the mask reflects
-  //   only the current event.
-  //
-  //  ---------------------------------------------------------------------------
-  //  Logic overview:
-  //  ---------------------------------------------------------------------------
-  //    • For each FP, we check the 3 TCutG gates if they exist.
-  //    • For each cut passed, a specific bit inside `plCutMask` is set.
-  //    • If all 3 cuts pass:
-  //          → corresponding bit in fpCutMask[1] is set.
-  //    • If FP is 3 or 7 and all 3 cuts pass:
-  //          → corresponding bit in fpCutMask[0] is set.
-  //
-  //  This structure enables fast post-analysis AND/OR logic on FP cut combinations
-  //  and provides diagnostic access to individual cut performance per FP.
-  //
   // -----------------------------------------------------------------------------
 
   int fpCutMask[2] = {0, 0}; // 4-bit FP-pass mask (FP3, FP7, FP8, FP11); fpCutMask[0] for BigRIPS, fpCutMask[1] for BigRIPS && ZeroDegree

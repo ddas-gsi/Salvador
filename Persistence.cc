@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
   hlist->Add(egamAB);
 
   // EnergyABdc vs Beta at Forward angles, looping over beta values to find the one that gives the best Doppler correction
-  TH2F *egamABdc_beta = new TH2F("egamABdc_beta", "egamABdc_beta at fwdAngle80; beta; egamABdc", 2000, 0.0, 1.0, bins, 0, bins);
+  TH2F *egamABdc_beta = new TH2F("egamABdc_beta", "egamABdc_beta at fwdAngle80; beta; egamABdc", 1000, 0.0, 1.0, bins, 0, bins);
   hlist->Add(egamABdc_beta);
 
   TH1F *egamABdc = new TH1F("egamABdc", "egamABdc", bins, 0, bins);
@@ -960,12 +960,13 @@ int main(int argc, char *argv[])
         {
           egamABdc_bkwAngle->Fill(dali->GetHitAB(k)->GetDCEnergy());
         }
+
         egamABdc_theta->Fill(dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi(), dali->GetHitAB(k)->GetDCEnergy()); // egamABdc vs theta
 
         // EnergyABdc vs Beta at Forward angles; looping over beta values to find the one that gives the best Doppler correction
         if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
         {
-          for (float ebeta = 0.4; ebeta < 0.6; ebeta += 0.0005)
+          for (float ebeta = 0.4; ebeta < 0.6; ebeta += 0.001)
           {
             egamABdc_beta->Fill(ebeta, dali->GetHitAB(k)->GetDCEnergy(ebeta));
           }

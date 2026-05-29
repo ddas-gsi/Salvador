@@ -49,7 +49,7 @@ __pycache__/
 
 # --- Custom user scripts and backups ---
 backup_salvador/
-myscripts/
+#myscripts/
 scripts/
 submit.sh
 .rootrc

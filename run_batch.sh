@@ -8,6 +8,7 @@
 # ./run_batch.sh --runs runs.txt --suffix "_v3.root" --force
 # ./run_batch.sh --runs runs_6000.csv --dry-run --force
 # ./run_batch.sh --runs runs_2000.csv --dry-run --force
+# ./run_batch.sh --runs runs_1000_p2.csv --dry-run --summary summary_1000_p2.tsv --force
 
 # While running check:
 # tail -f logs/run_6003.log
@@ -98,11 +99,11 @@ mapfile -t RUNS < <(
 ########################
 resolve_settings() {
     case $(( $1 / 1000 )) in
-        1) echo "./settings/set_50Ca_C.dat" ;;
-        2) echo "./settings/set_50Ca_Au.dat" ;;
-        3) echo "./settings/set_50Ca_Be.dat" ;;
-        5) echo "./settings/set_53Ca_Be.dat" ;;
-        6) echo "./settings/set_53Ca_Au.dat" ;;
+        1) echo "./settings/set_49K_C.dat" ;;
+        2) echo "./settings/set_49K_Au.dat" ;;
+        3) echo "./settings/set_49K_Be.dat" ;;
+        5) echo "./settings/set_51K_Be.dat" ;;
+        6) echo "./settings/set_51K_Au.dat" ;;
         *) echo "" ;;
     esac
 }
@@ -197,4 +198,4 @@ echo "========================================="
 
 echo ""
 echo ""
-echo "⏱️  Total batch runtime: ${SC_RUNTIME} seconds"
+echo " Total batch runtime: ${SC_RUNTIME} seconds"

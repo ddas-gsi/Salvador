@@ -17,7 +17,8 @@ void savePeakDataCSV(std::ofstream &foutCSV, int det,
                      const std::vector<double> &sigma,
                      const std::vector<double> &energyDiffs,
                      const std::vector<int> &fitStatuses,
-                     const std::vector<int> &refitStatuses);
+                     const std::vector<int> &refitStatuses,
+                     const std::vector<double> &energyDiffsPercent);
 
 void calibCoEdiff();
 
@@ -123,7 +124,7 @@ void calibEndiff()
         }
 
         // Save data to CSV
-        savePeakDataCSV(foutCSV, det, means, sigmas, EnergyDiffs, FitStatuses, ReFitStatuses);
+        savePeakDataCSV(foutCSV, det, means, sigmas, EnergyDiffs, FitStatuses, ReFitStatuses, EnergyDiffsPercent);
 
         // Draw the histogram with fit results
         hp->Draw();
@@ -142,7 +143,9 @@ void calibCoEdiff()
 {
     vector<double> Epeaks = {1173.240, 1332.508}; // Co60 1173.240 keV, 1332.508 keV
     vector<double> fit_mins = {1000};
+    vector<double> fit_mins_mod = {1050};
     vector<double> fit_maxs = {1450};
+    vector<double> fit_maxs_mod = {1500};
 
     TFile *finp = new TFile("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/Co60_burn_0077_eff.root", "READ");
     TFile *fout = new TFile("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/Calib/Co60_burn_0077_Ediff.root", "RECREATE");
@@ -188,10 +191,36 @@ void calibCoEdiff()
 
         cout << "Detector " << det << ": " << endl;
 
-        TFitResultPtr res = hp->Fit(dGausExpo, "R");
+        TFitResultPtr res = hp->Fit(dGausExpo, "RQ");
         int fitStatus = res;
-        FitStatuses.push_back(fitStatus);
+
         int refitStatus = 0;
+        if (fitStatus != 0)
+        {
+            cout << "Warning: Fit for detector " << det << " 2 peaks did not converge! Fit status: " << fitStatus << endl;
+            cout << "Refitting again with slightly different range" << endl;
+
+            delete dGausExpo;
+            TF1 *dGausExpo = new TF1(
+                "doubleGausExpo_mod",
+                "[0]*exp(-0.5*((x-[1])/[2])^2) + \
+                 [3]*exp(-0.5*((x-[4])/[5])^2) + \
+                 [6]*exp([7]*x)",
+                fit_mins_mod[0], fit_maxs_mod[0]);
+
+            dGausExpo->SetParameter(1, Epeaks[0]);
+            dGausExpo->SetParameter(2, 50);
+            dGausExpo->SetParameter(4, Epeaks[1]);
+            dGausExpo->SetParameter(5, 50);
+            dGausExpo->SetParameter(6, hp->GetBinContent(hp->FindBin(fit_mins_mod[0]))); // initial guess for the exponential background normalization
+            dGausExpo->SetParameter(7, -0.001);                                          // initial guess for the exponential background slope
+
+            TFitResultPtr res = hp->Fit(dGausExpo, "RQ+");
+            refitStatus = res;
+            cout << "Refit status: " << refitStatus << endl;
+        }
+
+        FitStatuses.push_back(fitStatus);
         ReFitStatuses.push_back(refitStatus);
 
         for (size_t i = 0; i < Epeaks.size(); i++)
@@ -218,7 +247,7 @@ void calibCoEdiff()
         }
 
         // Save data to CSV
-        savePeakDataCSV(foutCSV, det, means, sigmas, EnergyDiffs, FitStatuses, ReFitStatuses);
+        savePeakDataCSV(foutCSV, det, means, sigmas, EnergyDiffs, FitStatuses, ReFitStatuses, EnergyDiffsPercent);
 
         hp->Draw();
         c1->Update();
@@ -228,6 +257,7 @@ void calibCoEdiff()
         hp->Write(Form("calib_energy_fit_det%d", det));
 
         delete hp;
+        delete dGausExpo;
     }
 }
 
@@ -236,7 +266,8 @@ void savePeakDataCSV(std::ofstream &foutCSV, int det,
                      const std::vector<double> &sigma,
                      const std::vector<double> &energyDiffs,
                      const std::vector<int> &fitStatuses,
-                     const std::vector<int> &refitStatuses)
+                     const std::vector<int> &refitStatuses,
+                     const std::vector<double> &energyDiffsPercent)
 {
     if (!foutCSV.is_open())
     {
@@ -266,6 +297,10 @@ void savePeakDataCSV(std::ofstream &foutCSV, int det,
         {
             foutCSV << "," << Form("ReFitStatus%d", static_cast<int>(i + 1));
         }
+        for (size_t i = 0; i < energyDiffsPercent.size(); ++i)
+        {
+            foutCSV << "," << Form("EnergyDiffPercent%d", static_cast<int>(i + 1));
+        }
         foutCSV << "\n";
         header_written = true;
     }
@@ -287,6 +322,10 @@ void savePeakDataCSV(std::ofstream &foutCSV, int det,
     for (size_t i = 0; i < refitStatuses.size(); i++)
     {
         foutCSV << "," << refitStatuses[i];
+    }
+    for (size_t i = 0; i < energyDiffsPercent.size(); ++i)
+    {
+        foutCSV << "," << energyDiffsPercent[i];
     }
 
     foutCSV << "\n";
