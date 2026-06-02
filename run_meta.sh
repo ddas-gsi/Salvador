@@ -69,6 +69,51 @@
 
 # Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010.root -s ./settings/set_50Ca_C.dat   -n 500000
 
-Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010.root -s ./settings/set_50Ca_C.dat   
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010_new.root -s ./settings/set_50Ca_C.dat   -n 500000
 
-   
+
+# Running after defining plastic cuts for 2000 series
+# Metamorphosis -i ./ridf/Gamma25_2010.ridf.gz -o ./rootfiles/ddas/meta/meta_2010.root -s ./settings/set_50Ca_Au.dat   
+# Metamorphosis -i ./ridf/Gamma25_2009.ridf.gz -o ./rootfiles/ddas/meta/meta_2009.root -s ./settings/set_50Ca_Au.dat   -n 2000000
+
+
+# Running for 3000 series
+# Metamorphosis -i ./ridf/Gamma25_3003.ridf.gz -o ./rootfiles/ddas/meta/meta_3003.root -s ./settings/set_50Ca_Be.dat   -n 2000000
+
+# Running for 6000 series timeCalibration
+# Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030.root -s ./settings/set_53Ca_Au.dat   
+
+# BurningGiraffe -i ./rootfiles/ddas/meta/meta_6030.root \
+#                -o ./rootfiles/ddas/burn/burn_6030.root \
+#                -tn tr -v 2 
+
+# Fixing 49K AoQC for 2000 series
+# Metamorphosis -i ./ridf/Gamma25_2020.ridf.gz -o ./rootfiles/ddas/meta/meta_2020_minus2.root -s ./settings/set_50Ca_Au_minus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_2020.ridf.gz -o ./rootfiles/ddas/meta/meta_2020_plus2.root -s ./settings/set_50Ca_Au_plus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_2020.ridf.gz -o ./rootfiles/ddas/meta/meta_2020.root -s ./settings/set_50Ca_Au.dat -n 1000000
+
+# Empty target runs
+# Metamorphosis -i ./ridf/Gamma25_0006.ridf.gz -o ./rootfiles/ddas/meta/empty_target_meta_0006.root -s ./settings/set_49K_Au.dat
+# Metamorphosis -i ./ridf/Gamma25_0010.ridf.gz -o ./rootfiles/ddas/meta/empty_target_meta_0010.root -s ./settings/set_49K_Au.dat
+
+# Fixing 49K AoQC for 3000 series
+# Metamorphosis -i ./ridf/Gamma25_3002.ridf.gz -o ./rootfiles/ddas/meta/meta_3002_minus2.root -s ./settings/bkp/set_49K_Be_minus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_3002.ridf.gz -o ./rootfiles/ddas/meta/meta_3002_plus2.root -s ./settings/bkp/set_49K_Be_plus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_3002.ridf.gz -o ./rootfiles/ddas/meta/meta_3002.root -s ./settings/set_49K_Be.dat -n 1000000
+
+# Fixing 49K AoQC for 1000 series
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010_minus2.root -s ./settings/bkp/set_49K_C_minus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010_plus2.root -s ./settings/bkp/set_49K_C_plus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010.root -s ./settings/set_49K_C.dat -n 1000000
+
+# Fixing 51K AoQC for 5000 series
+# Metamorphosis -i ./ridf/Gamma25_5020.ridf.gz -o ./rootfiles/ddas/meta/meta_5020_minus2.root -s ./settings/bkp/set_51K_Be_minus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_5020.ridf.gz -o ./rootfiles/ddas/meta/meta_5020_plus2.root -s ./settings/bkp/set_51K_Be_plus2.dat -n 1000000
+# Metamorphosis -i ./ridf/Gamma25_5020.ridf.gz -o ./rootfiles/ddas/meta/meta_5020.root -s ./settings/set_51K_Be.dat -n 1000000
+
+# Fixing 51K AoQC for 6000 series
+# Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_minus2.root -s ./settings/bkp/set_51K_Au_minus2.dat -n 500000
+# Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_plus2.root -s ./settings/bkp/set_51K_Au_plus2.dat -n 500000
+Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030.root -s ./settings/set_51K_Au.dat -n 500000
+
+

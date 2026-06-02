@@ -215,13 +215,67 @@ import matplotlib.pyplot as plt
 # x = np.array([2.57664, 2.55081, 2.60239])   # AoQs
 # y = np.array([-118.1679974, -120.1679974, -116.1679974])         # ToF offsets ; Res= -117.986994436
 
-# # 1000, 50,51Ca centered, C target, TOF.Offset.5 fixed with 49K AoQ 2.578947
-x = np.array([2.57654, 2.55064, 2.60232])   # AoQs
-y = np.array([-118.3514679, -120.3514679, -116.3514679])         # ToF offsets ; Res= -118.1620434
+# # # 1000, 50,51Ca centered, C target, TOF.Offset.5 fixed with 49K AoQ 2.578947
+# x = np.array([2.57654, 2.55064, 2.60232])   # AoQs
+# y = np.array([-118.3514679, -120.3514679, -116.3514679])         # ToF offsets ; Res= -118.1620434
+
+
+# 5000, 52,53Ca centered, Be target ======================
+# # 5000, 52,53Ca centered, Be target, TOF.Offset.0 fixed with 51K AoQ 2.6842
+# x = np.array([2.67462, 2.70764, 2.64185])   # AoQs
+# y = np.array([299.9687209, 301.9687209, 297.9687209])         # ToF offsets ; Res= 300.5467508
+
+# # TOF.Offset.1 fixed with 51K AoQ 2.6842
+# x = np.array([2.68688, 2.71437, 2.65923])   # AoQs
+# y = np.array([323.5368458, 325.5368458, 321.5368458])         # ToF offsets; Res=323.34706466
+
+# # # TOF.Offset.2 fixed with 51K AoQ 2.6842
+# x = np.array([2.68129, 2.71131, 2.65094])   # AoQs
+# y = np.array([311.7423594, 313.7423594, 309.7423594])         # ToF offsets; Res=311.94315424
+
+# # TOF.Offset.3 fixed with 51K AoQ 2.6842
+# x = np.array([2.68126, 2.65357, 2.70887])   # AoQs
+# y = np.array([-119.0502864, -121.0502864, -117.0502864])         # ToF offsets; Res=-118.834938
+
+# # TOF.Offset.4 fixed with 51K AoQ 2.6842
+# x = np.array([2.68325, 2.65566, 2.71069])   # AoQs
+# y = np.array([-118.3179556, -120.3179556, -116.3179556])         # ToF offsets; Res=-118.244503
+
+# # TOF.Offset.5 fixed with 51K AoQ 2.6842
+# x = np.array([2.6825, 2.65495, 2.71001])   # AoQs
+# y = np.array([-118.5750022, -120.5750022, -116.5750022])         # ToF offsets; Res=-118.44976723
+
+# 6000, 52,53Ca centered, Au target ======================
+# # TOF.Offset.0 fixed with 51K AoQ 2.6842
+# x = np.array([2.67869, 2.71113, 2.6459])   # AoQs
+# y = np.array([300.1521287915849, 302.1521287915849, 298.1521287915849])         # ToF offsets; Res=300.49780647
+
+# # TOF.Offset.1 fixed with 51K AoQ 2.6842
+# x = np.array([2.68734, 2.71466, 2.65983])   # AoQs
+# y = np.array([323.67601772280926, 325.67601772280926, 321.67601772280926])         # ToF offsets; Res=323.452335207
+
+# # TOF.Offset.2 fixed with 51K AoQ 2.6842
+# x = np.array([2.68413, 2.71392, 2.65416])   # AoQs
+# y = np.array([311.96495269975924, 313.96495269975924, 309.96495269975924])         # ToF offsets; Res=311.9743587
+
+# # TOF.Offset.3 fixed with 51K AoQ 2.6842
+# x = np.array([2.6816, 2.65449, 2.70879])   # AoQs
+# y = np.array([-118.88763254470942, -120.88763254470942, -116.88763254470942])         # ToF offsets; Res=-118.697293
+
+# # TOF.Offset.4 fixed with 51K AoQ 2.6842
+# x = np.array([2.68318, 2.65604, 2.71011])   # AoQs
+# y = np.array([-118.172627273355, -120.172627273355, -116.172627273355])         # ToF offsets; Res=-118.09121275
+
+# # TOF.Offset.5 fixed with 51K AoQ 2.6842
+# x = np.array([2.68208, 2.65492, 2.709])   # AoQs
+# y = np.array([-118.4529247262164, -120.4529247262164, -116.4529247262164])         # ToF offsets; Res=-118.289425
 
 
 
-ToF_for_AoQ = 49/19.   #49K
+
+
+# ToF_for_AoQ = 49/19.   #49K
+ToF_for_AoQ = 51/19.   #51K
 
 
 # ---- Linear fit ----
