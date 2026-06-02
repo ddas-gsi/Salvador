@@ -19,6 +19,8 @@ Makefile
 
 # --- Salvador generated outputs ---
 run_*.log
+*.pdf
+*.bkp
 *.list
 *.csv
 *.txt
