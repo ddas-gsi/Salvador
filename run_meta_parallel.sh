@@ -19,14 +19,14 @@ if [ "$#" -lt 1 ]; then
 fi
 
 # Default file prefixes and suffix
-IFILE_PREFIX="/u/ddas/software/Salvador/ridf/Gamma25_"
+IFILE_PREFIX="./ridf/Gamma25_"
 ODIR="/u/ddas/software/Salvador/rootfiles/ddas/meta/"
 OFILE_PREFIX="/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_"
 OFILE_SUFFIX=".root"
 # OFILE_SUFFIX="_new.root"
 
 
-MAX_PARALLEL=5  # Maximum number of parallel jobs
+MAX_PARALLEL=10  # Maximum number of parallel jobs
 
 # Parse optional suffix argument
 ARGS=()

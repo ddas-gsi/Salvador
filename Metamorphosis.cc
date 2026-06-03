@@ -373,8 +373,8 @@ int main(int argc, char *argv[])
     // branch for DALI
     tr->Branch("dali", &dali, 320000);
   }
-  tr->SetAutoSave(10000);
-  tr->SetAutoFlush(10000);
+  tr->SetAutoSave(100000000); // autosave every 100 MB
+  tr->SetAutoFlush(10000);    // flush every 10k entries
 
   // -----------------------------------------------------------------------------
   //  Plastic Scintillator Cut Evaluation
@@ -990,10 +990,15 @@ int main(int argc, char *argv[])
     {
       double time_end = get_time();
       cout << setw(5) << ctr << " events done " << setiosflags(ios::fixed) << setprecision(1) << (Float_t)ctr / (time_end - time_start) << " events/s \r" << flush;
+    }
+    // write tree every 500k events to prevent data loss in case of crash
+    if (ctr % 500000 == 0)
+    {
       tr->AutoSave();
       tr->FlushBaskets();
       outfile->Flush();
     }
+
     ctr++;
     event++;
 
