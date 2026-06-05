@@ -15,6 +15,14 @@ Reconstruction::Reconstruction(char *settings)
     fbetaAft = fset->GetAvgBetaAfter();
   }
 
+  if (fset->DoRipsBeta13Cuts())
+  {
+    fRipsBeta13CutSlope[0] = fset->GetRipsBeta13CutSlope(0);
+    fRipsBeta13CutIntercept[0] = fset->GetRipsBeta13CutIntercept(0);
+    fRipsBeta13CutSlope[1] = fset->GetRipsBeta13CutSlope(1);
+    fRipsBeta13CutIntercept[1] = fset->GetRipsBeta13CutIntercept(1);
+  }
+
   double pp[3] = {-fset->MINOSlength() / 2, 0, fset->MINOSlength() / 2};
   double bb[3] = {fset->BetaBefore(), fbeta, fset->BetaAfter()};
   TGraph *gbeta = new TGraph(3, pp, bb);

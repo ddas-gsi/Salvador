@@ -54,6 +54,16 @@ void Settings::ReadSettings()
     fbetaAft = set->GetValue("AverageBeta.After", 0.5); // average beta after the target
   }
 
+  fdoRipsBeta13Cuts = false;
+  if (set->GetValue("Do.RIPSBeta13.Cut", 0) > 0)
+  {
+    fdoRipsBeta13Cuts = true;
+    fRipsBeta13CutSlope[0] = set->GetValue("RIPSBeta.Cut.Upper.M", 1.0);
+    fRipsBeta13CutIntercept[0] = set->GetValue("RIPSBeta.Cut.Upper.C", 1.0);
+    fRipsBeta13CutSlope[1] = set->GetValue("RIPSBeta.Cut.Lower.M", 0.0);
+    fRipsBeta13CutIntercept[1] = set->GetValue("RIPSBeta.Cut.Lower.C", 0.0);
+  }
+
   fbetaM[0] = set->GetValue("BeforeBeta", 0.5);
   fbetaM[1] = set->GetValue("AfterBeta", 0.5);
   fminoslength = set->GetValue("LengthMINOS", 5.0);

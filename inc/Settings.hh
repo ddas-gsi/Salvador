@@ -90,6 +90,11 @@ public:
   //! Do event by event beta corrections (at the mid of the target) for Doppler Reconstruction
   bool DoEventBetaCorr() { return fdoEventBetaCorr; }
 
+  //! Get the coefficients for the RIPSBeta1 vs RIPSBeta3 cuts
+  bool DoRipsBeta13Cuts() { return fdoRipsBeta13Cuts; }
+  double GetRipsBeta13CutSlope(int i) { return fRipsBeta13CutSlope[i]; }         // i=0 upper line, i=1 lower line
+  double GetRipsBeta13CutIntercept(int i) { return fRipsBeta13CutIntercept[i]; } // i=0 upper line, i=1 lower line
+
   //! Get the gate on the DALI - beam timing
   double TimingGate(int i) { return ftimegate[i]; }
 
@@ -272,6 +277,10 @@ private:
   double fbetaAft;
   //! Do event by event beta corrections for Doppler Reconstruction
   bool fdoEventBetaCorr;
+  //! Do RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot
+  bool fdoRipsBeta13Cuts;
+  //! RIPSBeta Cut line coefficients: slope and intercept
+  double fRipsBeta13CutSlope[2], fRipsBeta13CutIntercept[2]; // Upper line and lower line
   //! timing gate DALI - beam
   double ftimegate[2];
   //! beta for Doppler correction with MINOS before and after target

@@ -163,6 +163,19 @@ int main(int argc, char *argv[])
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
   }
 
+  bool doRipsBeta13Cuts = rec->DoRipsBeta13Cuts();
+  if (doRipsBeta13Cuts)
+  {
+    cout << "\n✅ ENABLED: Doing RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
+    cout << "RIPSBeta1 vs RIPSBeta3 cut lines:" << endl;
+    cout << "Upper line:\tSlope = " << rec->GetSettings()->GetRipsBeta13CutSlope(0) << ", Intercept = " << rec->GetSettings()->GetRipsBeta13CutIntercept(0) << endl;
+    cout << "Lower line:\tSlope = " << rec->GetSettings()->GetRipsBeta13CutSlope(1) << ", Intercept = " << rec->GetSettings()->GetRipsBeta13CutIntercept(1) << endl;
+  }
+  else
+  {
+    cout << "\n❌ Not Applied RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
+  }
+
   TList *hlist = new TList();
 
   // histograms
@@ -641,6 +654,16 @@ int main(int argc, char *argv[])
       return 6;
     }
     nbytes += status;
+
+    // Gate of RIPSBeta13
+    if (doRipsBeta13Cuts)
+    {
+      if (beam->GetRIPSBeta(1) > rec->GetSettings()->GetRipsBeta13CutSlope(0) * beam->GetRIPSBeta(3) + rec->GetSettings()->GetRipsBeta13CutIntercept(0) ||
+          beam->GetRIPSBeta(1) < rec->GetSettings()->GetRipsBeta13CutSlope(1) * beam->GetRIPSBeta(3) + rec->GetSettings()->GetRipsBeta13CutIntercept(1))
+      {
+        continue;
+      }
+    }
 
     // gate on F5X position
     if (!rec->F5XGate(fp[fpNr(5)]->GetTrack()->GetX()))

@@ -61,6 +61,9 @@ public:
   //! Do event by event beta corrections (at the mid of the target)
   bool DoEventBetaCorr() { return fset->DoEventBetaCorr(); }
 
+  //! Do RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot
+  bool DoRipsBeta13Cuts() { return fset->DoRipsBeta13Cuts(); }
+
   //! apply the Doppler correction with a certain reaction point
   double DopplerCorrect(DALI *dali, double zreac);
   //! check the positions of two hits and decide if they are added back
@@ -93,6 +96,10 @@ private:
   double fbetaAft;
   //! event by event beta corrections for Doppler Reconstruction
   double fEventBeta;
+
+  //! RIPSBeta Cut line coefficients: slope and intercept
+  double fRipsBeta13CutSlope[2], fRipsBeta13CutIntercept[2]; // Upper line and lower line
+
   //! DALI time offsets
   vector<double> fDaliToffsets;
   //! DALI time gains
