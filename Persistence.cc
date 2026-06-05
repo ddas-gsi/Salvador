@@ -203,6 +203,18 @@ int main(int argc, char *argv[])
   hlist->Add(bigrips_corr);
   TH2F *zerodeg_corr = new TH2F("zerodeg_corr", "zerodeg_corr", 1000, 2.2, 2.8, 1000, 0, 40);
   hlist->Add(zerodeg_corr);
+
+  // PID
+  TH2F *z_vs_aoq[6];
+  TH2F *z_vs_aoq_corr[6];
+  for (unsigned short f = 0; f < 6; f++)
+  {
+    z_vs_aoq[f] = new TH2F(Form("z_vs_aoq_%d", f), Form("z_vs_aoq_%d", f), 1000, 2.2, 2.8, 1000, 0, 40);
+    hlist->Add(z_vs_aoq[f]);
+    z_vs_aoq_corr[f] = new TH2F(Form("z_vs_aoq_corr_%d", f), Form("z_vs_aoq_corr_%d", f), 1000, 2.2, 2.8, 1000, 0, 40);
+    hlist->Add(z_vs_aoq_corr[f]);
+  }
+
   TH2F *bigrips_tr[NTRIG];
   TH2F *zerodeg_tr[NTRIG];
   TH1F *f5X_tr[NTRIG];
@@ -782,6 +794,10 @@ int main(int argc, char *argv[])
     zerodeg->Fill(beam->GetAQ(zd), beam->GetZ(zd));
     bigrips_corr->Fill(beam->GetCorrAQ(br), beam->GetCorrZ(br));
     zerodeg_corr->Fill(beam->GetCorrAQ(zd), beam->GetCorrZ(zd));
+    for (unsigned short f = 0; f < 6; f++)
+    {
+      z_vs_aoq[f]->Fill(beam->GetAQ(f), beam->GetZ(f));
+    }
     if (trigbit > -1 && trigbit < NTRIG)
     {
       bigrips_tr[trigbit]->Fill(beam->GetAQ(br), beam->GetZ(br));
