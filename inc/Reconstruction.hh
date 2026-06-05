@@ -64,6 +64,9 @@ public:
   //! Do RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot
   bool DoRipsBeta13Cuts() { return fset->DoRipsBeta13Cuts(); }
 
+  //! Apply Plastic cuts
+  bool ApplyPlasticCuts() { return fset->ApplyPlasticCuts(); }
+
   //! apply the Doppler correction with a certain reaction point
   double DopplerCorrect(DALI *dali, double zreac);
   //! check the positions of two hits and decide if they are added back

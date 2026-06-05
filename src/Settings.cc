@@ -64,6 +64,12 @@ void Settings::ReadSettings()
     fRipsBeta13CutIntercept[1] = set->GetValue("RIPSBeta.Cut.Lower.C", 0.0);
   }
 
+  fapplyPlasticCuts = false;
+  if (set->GetValue("Apply.Plastic.Cuts", 0) > 0)
+  {
+    fapplyPlasticCuts = true;
+  }
+
   fbetaM[0] = set->GetValue("BeforeBeta", 0.5);
   fbetaM[1] = set->GetValue("AfterBeta", 0.5);
   fminoslength = set->GetValue("LengthMINOS", 5.0);
