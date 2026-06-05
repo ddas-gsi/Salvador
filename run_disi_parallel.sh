@@ -29,7 +29,7 @@ fi
 CUT_DIR="./rootfiles/ddas/cuts/disicuts"
 # -----------------------------------
 
-MAX_PARALLEL=10   # CPU 
+MAX_PARALLEL=20   # CPU 
 
 mkdir -p "$DISI_DIR"
 
@@ -76,6 +76,25 @@ run_single() {
 }
 # -----------------------------------
 
+# --------- CLEANUP HANDLER ---------
+# Handle Ctrl+C 
+cleanup() {
+    echo ""
+    echo "❌ Ctrl+C detected. Stopping all running Disintegration jobs..."
+
+    # Kill all child jobs of this script
+    jobs -p | xargs -r kill
+    
+    wait
+    echo "❌ All jobs terminated."
+    exit 1
+}
+
+trap cleanup SIGINT SIGTERM
+# -----------------------------------
+
+SC_START=$(date +%s)
+
 job_count=0
 
 for RUN_Nbr in "$@"; do
@@ -88,5 +107,9 @@ for RUN_Nbr in "$@"; do
     fi
 done
 
+SC_END=$(date +%s)
+SC_RUNTIME=$((SC_END - SC_START))
+
 wait
 echo "✅✅ All Disintegration jobs finished."
+echo "Total runtime: $SC_RUNTIME seconds."
