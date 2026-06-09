@@ -40,7 +40,7 @@
 #             -s ./settings/set_50Ca_C.dat \
 #             -tn tr_in51Caout50Ca 
 
-# Doing it for Time Calibration
+# Doing it for Time Calibration for 1000,2000,3000 series
 # Persistence -i ./rootfiles/ddas/meta/meta_2004.root ./rootfiles/ddas/meta/meta_2005.root ./rootfiles/ddas/meta/meta_2006.root ./rootfiles/ddas/meta/meta_2007.root \
 #             -o ./rootfiles/ddas/pers/pers_tr_all_iso_2000.root \
 #             -s ./settings/set_50Ca_Au.dat \
@@ -64,7 +64,14 @@
 #             -s ./settings/50Ca/set_50Ca_Au_50Ca.dat \
 #             -tn tr_in50Caout50Ca -wt 0 -b 0.517
 
-Persistence -i ./rootfiles/ddas/disi/new/disi_20*_new.root \
-            -o ./rootfiles/ddas/pers/pers_tr_in50Caout50Ca_all_2000_widerTgate_beta5207.root \
-            -s ./settings/50Ca/set_50Ca_Au_50Ca.dat \
-            -tn tr_in50Caout50Ca -wt 0 -b 0.5207
+# Persistence -i ./rootfiles/ddas/disi/new/disi_20*_new.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_in50Caout50Ca_all_2000_widerTgate_beta5207.root \
+#             -s ./settings/50Ca/set_50Ca_Au_50Ca.dat \
+#             -tn tr_in50Caout50Ca -wt 0 -b 0.5207
+
+# Doing it for time calibration for 5000, 6000 series
+Persistence -i ./rootfiles/ddas/meta/meta_6003.root ./rootfiles/ddas/meta/meta_6004.root ./rootfiles/ddas/meta/meta_6005.root \
+            -o ./rootfiles/ddas/pers/pers_tr_all_iso_6000.root \
+            -s ./settings/set_51K_Au.dat \
+            -tn tr -wt 0
+         

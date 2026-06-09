@@ -29,19 +29,23 @@ LandauResult fitLandau(TH1 *h1, double low, double high, double mpv, bool draw);
 
 void timeCalib()
 {
-    ofstream fouttxt("./dali_toffset_all_iso_g1000.txt");
+    // ofstream fouttxt("./dali_toffset_all_iso_g1000.txt");
+    ofstream fouttxt("./dali_toffset_all_iso_g1000_Au6000.txt");
 
-    ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_2000_g1000.csv");
+    ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_6000_g1000.csv");
+    // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_2000_g1000.csv");
     // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets.csv");
     // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_g700.csv");
     // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_le500.csv");
     foutcsv << "DetectorID,MPV/Mean,Sigma,TimeOffset,MeanBinContent,totalBinContent\n";
 
-    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_2000.root");
+    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_6000.root");
+    // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_2000.root");
     // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_in49Kout49K_all_2000.root");
     // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_in49Kout49K_all_2000_widerTimeGate_gain1_no15ns_apart.root");
 
-    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeCalib_all_iso_2000_g1000.root", "RECREATE");
+    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeCalib_all_iso_6000_g1000.root", "RECREATE");
+    // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeCalib_all_iso_2000_g1000.root", "RECREATE");
     // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeCalib_49K_2000_g700.root", "RECREATE");
     // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeCalib_49K_2000_le500.root", "RECREATE");
     // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_2000.root");

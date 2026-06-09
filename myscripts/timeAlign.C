@@ -15,17 +15,23 @@ struct DetectorData
 
 void timeAlign()
 {
+    ifstream finpcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_6000_g1000.csv");
+    ofstream fouttxt("/u/ddas/software/Salvador/dali_toffset_all_iso_g1000_Au6000.txt");
+    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_6000.root");
+
     // ifstream finpcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_fix_by_hand.csv");
-    ifstream finpcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets.csv");
-    ofstream fouttxt("/u/ddas/software/Salvador/dali_toffset.dat");
+    // ifstream finpcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets.csv");
+    // ofstream fouttxt("/u/ddas/software/Salvador/dali_toffset.dat");
     // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_2000.root");
-    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_in49Kout49K_all_2000.root");
+    // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_in49Kout49K_all_2000.root");
     if (!fin || fin->IsZombie())
     {
         Error("timeCalib", "Cannot open ROOT file");
         return;
     }
-    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeAligned_all_2000_fix_check.root", "RECREATE");
+
+    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeAligned_all_6000_fix_check.root", "RECREATE");
+    // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeAligned_all_2000_fix_check.root", "RECREATE");
 
     vector<DetectorData> data;
     map<int, double> mpvMap;
@@ -71,8 +77,8 @@ void timeAlign()
     // cout << "ID=415: " << mpvMap[415] << endl;
 
     TList *hlist = new TList();
-    // TH2F *h2 = (TH2F *)fin->Get("time_id_g1000");
-    TH2F *h2 = (TH2F *)fin->Get("time_id_g700");
+    TH2F *h2 = (TH2F *)fin->Get("time_id_g1000");
+    // TH2F *h2 = (TH2F *)fin->Get("time_id_g700");
     TH2F *h2_le500 = (TH2F *)fin->Get("time_id_le500");
     h2->GetYaxis()->SetRangeUser(-850, -1300);
     TH2F *h2_timeCalib = new TH2F("h2_timeCalib", "Time Calibration (E>500keV) ;Detector ID;Time Offset (ns)", 500, 0, 500, 1000, -200, 200);

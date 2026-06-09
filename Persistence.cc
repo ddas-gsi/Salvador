@@ -453,6 +453,19 @@ int main(int argc, char *argv[])
   // egamABdc vs theta
   TH2F *egamABdc_theta = new TH2F("egamABdc_theta", "egamABdc_theta", 180, 0, 180, bins, 0, bins);
   hlist->Add(egamABdc_theta);
+
+  // egamABdc vs theta
+  TH2F *egamABdctgam = new TH2F("egamABdctgam", "egamABdctgam", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamABdctgam);
+  TH2F *egamABdctgam_fwdAngle90 = new TH2F("egamABdctgam_fwdAngle90", "egamABdctgam_fwdAngle90", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamABdctgam_fwdAngle90);
+  TH2F *egamABdctgam_fwdAngle80 = new TH2F("egamABdctgam_fwdAngle80", "egamABdctgam_fwdAngle80", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamABdctgam_fwdAngle80);
+  TH2F *egamABdctgam_fwdAngle70 = new TH2F("egamABdctgam_fwdAngle70", "egamABdctgam_fwdAngle70", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamABdctgam_fwdAngle70);
+  TH2F *egamABdctgam_fwdAngle60 = new TH2F("egamABdctgam_fwdAngle60", "egamABdctgam_fwdAngle60", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamABdctgam_fwdAngle60);
+
   TH1F *egamABdc_good = new TH1F("egamABdc_good", "egamABdc_good DALI+HYPATIA (ID:0 to 362)", bins, 0, bins); // For good DALI+HYPATIA detectors
   hlist->Add(egamABdc_good);
   TH1F *egamABdc_hyp = new TH1F("egamABdc_hyp", "egamABdc_hypatia HYPATIA (ID: 300 to 362)", bins, 0, bins); // For good HYPATIA detectors
@@ -471,8 +484,6 @@ int main(int argc, char *argv[])
   hlist->Add(egamAB_IDgate);
   TH2F *egamABtgam = new TH2F("egamABtgam", "egamABtgam", 1000, -500, 500, 1000, 0, bins);
   hlist->Add(egamABtgam);
-  TH2F *egamABdctgam = new TH2F("egamABdctgam", "egamABdctgam", 1000, -500, 500, bins, 0, bins);
-  hlist->Add(egamABdctgam);
   TH2F *tgamABID = new TH2F("tgamABID", "tgamABID", DALIIDS, 0, DALIIDS, 1000, -500, 500);
   hlist->Add(tgamABID);
   TH1F *egamABdc_IDgate = new TH1F("egamABdc_IDgate", "egamABdc_IDgate", bins, 0, bins);
@@ -997,15 +1008,22 @@ int main(int argc, char *argv[])
       if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
       {
         egamABdc_fwdAngle90->Fill(dali->GetHitAB(k)->GetDCEnergy());
+        egamABdctgam_fwdAngle90->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
+
         if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
         {
           egamABdc_fwdAngle80->Fill(dali->GetHitAB(k)->GetDCEnergy());
+          egamABdctgam_fwdAngle80->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
+
           if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 70)
           {
             egamABdc_fwdAngle70->Fill(dali->GetHitAB(k)->GetDCEnergy());
+            egamABdctgam_fwdAngle70->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
+
             if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 60)
             {
               egamABdc_fwdAngle60->Fill(dali->GetHitAB(k)->GetDCEnergy());
+              egamABdctgam_fwdAngle60->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
             }
           }
         }
