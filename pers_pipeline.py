@@ -16,7 +16,7 @@ import argparse
 # runNrs = [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013]   # 50Ca_C
 # runNrs = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 ,2016, 2017, 2018, 2019, 2020, 2021]    # 50Ca_Au
 # runNrs = [3001, 3002, 3003, 3004, 3005]  # 50Ca_Be
-runNrs = [5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013, 5014, 5015, 5016, 5017, 5018, 5019, 5020, 5021, 5022, 5023, 5024, 5025, 5026, 5027, 5028, 5029, 5030, 5031, 5032, 5033, 5034, 5035]  # 53Ca_Be
+# runNrs = [5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013, 5014, 5015, 5016, 5017, 5018, 5019, 5020, 5021, 5022, 5023, 5024, 5025, 5026, 5027, 5028, 5029, 5030, 5031, 5032, 5033, 5034, 5035]  # 53Ca_Be
 # runNrs = [
 #     6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011, 6012, 6013, 6014, 6015, 6016, 6017, 6018, 6019, 6020,
 #     6021, 6022, 6023, 6024, 6025, 6026, 6027, 6028, 6029, 6030, 6031, 6032, 6033, 6034, 6035, 6036, 6037, 6038,
@@ -29,7 +29,11 @@ runNrs = [5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013
 # runNrs = [2004, 2005, 2006]
 # runNrs = [5002, 5003, 5004, 5005, 5006, 5007, 5008,]
 
-# --- Config ---
+
+
+# --- Config Default ---
+
+runSeries = 5000
 
 # What isotope you want -----
 ISO = "K"
@@ -40,20 +44,22 @@ DIR = ""
 # FILE_SUFFIX="_new" 
 # DIR = "/new"  
 
-
-inputFiles = [
-    Path.home() / f"Lustre/gamma/ddas/RIBF249/rootfiles/ddas/disi{DIR}/disi_{rn}{FILE_SUFFIX}.root"
-    for rn in runNrs
-]
-
-for f in inputFiles:
-    if not f.exists():
-        raise FileNotFoundError(f"Missing input file: {f}")
-
-outputDir = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers"
-
 max_workers = 40  # Number of parallel processes
 
+RUN_SERIES = {
+    1000: [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013],   
+    2000: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 ,2016, 2017, 2018, 2019, 2020, 2021],
+    3000: [3001, 3002, 3003, 3004, 3005],
+    5000: [5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013, 5014, 5015, 5016, 5017, 5018, 5019, 5020, 5021, 5022, 5023, 5024, 5025, 5026, 5027, 5028, 5029, 5030, 5031, 5032, 5033, 5034, 5035],
+    6000: [
+        6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011, 6012, 6013, 6014, 6015, 6016, 6017, 6018, 6019, 6020,
+        6021, 6022, 6023, 6024, 6025, 6026, 6027, 6028, 6029, 6030, 6031, 6032, 6033, 6034, 6035, 6036, 6037, 6038,
+        6039, 6040, 6041, 6042, 6043, 6044, 6045, 6046, 6047, 6048, 6049, 6050, 6051, 6052, 6053, 6054, 6055, 6056,
+        6057, 6058, 6059, 6060, 6061, 6062, 6063, 6064, 6065, 6066, 6067, 6068, 6069, 6070, 6071, 6072, 6073, 6074,
+        6075, 6076, 6077, 6078, 6079, 6080, 6081, 6082, 6083, 6084, 6085, 6086, 6087, 6088, 6089, 6090, 6091, 6092,
+        6093, 6094, 6095, 6096, 6097, 6098, 6099, 6100, 6101, 6102, 6103, 6104, 6105, 6106, 6107, 6108
+        ]
+}
 
 SETTINGS = {
     "K": {
@@ -74,6 +80,8 @@ SETTINGS = {
 # SETTINGS_MAP = SETTINGS.get(ISO)
 # if SETTINGS_MAP is None:
 #     raise ValueError(f"Unsupported ISO: {ISO}")
+
+
 
 def parse_arguments():
 
@@ -96,15 +104,39 @@ def parse_arguments():
         help=f"Number of parallel workers (default: {max_workers})"
     )
 
+    parser.add_argument(
+        "-r", "--runSeries",
+        type=int,
+        default=runSeries,
+        choices={1000,2000,3000,5000,6000},
+        help=f"Run series to process (default: {runSeries})"
+    )
+
     return parser.parse_args()
 
 args = parse_arguments()
 ISO = args.iso
 max_workers = args.workers
+runSeries = args.runSeries
 SETTINGS_MAP = SETTINGS[ISO]
+runNrs = RUN_SERIES[runSeries]
 
 print(f"Using isotope: {ISO}")
+print(f"Processing run series: {runSeries} with runs: {runNrs}")
 print(f"Using workers : {max_workers}")
+
+
+inputFiles = [
+    Path.home() / f"Lustre/gamma/ddas/RIBF249/rootfiles/ddas/disi{DIR}/disi_{rn}{FILE_SUFFIX}.root"
+    for rn in runNrs
+]
+
+for f in inputFiles:
+    if not f.exists():
+        raise FileNotFoundError(f"Missing input file: {f}")
+
+outputDir = Path.home() / "Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers"
+
 
 def choose_settings_file(runNrs):
     series = { (rn // 1000) * 1000 for rn in runNrs }
