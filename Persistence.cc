@@ -480,6 +480,26 @@ int main(int argc, char *argv[])
   hlist->Add(egamABdcmult);
   TH2F *egamABdcmultAB = new TH2F("egamABdcmultAB", "egamABdcmultAB", 20, 0, 20, bins, 0, bins);
   hlist->Add(egamABdcmultAB);
+
+  TH2F *egamABdcmult_fwdAngle90 = new TH2F("egamABdcmult_fwdAngle90", "egamABdcmult_fwdAngle90", 20, 0, 20, bins, 0, bins); // for forward angles < 90 deg
+  hlist->Add(egamABdcmult_fwdAngle90);
+  TH2F *egamABdcmultAB_fwdAngle90 = new TH2F("egamABdcmultAB_fwdAngle90", "egamABdcmultAB_fwdAngle90", 20, 0, 20, bins, 0, bins); // for forward angles < 90 deg
+  hlist->Add(egamABdcmultAB_fwdAngle90);
+
+  // for multiplicity
+  TH1F *egamABdc_multAB[5];
+  TH1F *egamABdc_multAB_fwdAngle90[5];
+  for (int m = 0; m < 5; m++)
+  {
+    egamABdc_multAB[m] = new TH1F(Form("egamABdc_multAB%d", m), Form("egamABdc_multAB=%d", m), bins, 0, bins);
+    hlist->Add(egamABdc_multAB[m]);
+  }
+  for (int m = 0; m < 5; m++)
+  {
+    egamABdc_multAB_fwdAngle90[m] = new TH1F(Form("egamABdc_multAB_fwdAngle90_%d", m), Form("egamABdc_multAB=%d angle<90", m), bins, 0, bins);
+    hlist->Add(egamABdc_multAB_fwdAngle90[m]);
+  }
+
   TH1F *egamAB_IDgate = new TH1F("egamAB_IDgate", "egamAB_IDgate", bins, 0, bins);
   hlist->Add(egamAB_IDgate);
   TH2F *egamABtgam = new TH2F("egamABtgam", "egamABtgam", 1000, -500, 500, 1000, 0, bins);
@@ -994,21 +1014,25 @@ int main(int argc, char *argv[])
     {
       egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
       egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
-      // For good DALI+HYPATIA detectors
-      if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362)
-      {
-        egamABdc_good->Fill(dali->GetHitAB(k)->GetDCEnergy());
-        // For good HYPATIA detectors
-        if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362)
-        {
-          egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
-        }
-      }
+
+      // // For good DALI+HYPATIA detectors
+      // if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362)
+      // {
+      //   egamABdc_good->Fill(dali->GetHitAB(k)->GetDCEnergy());
+      //   // For good HYPATIA detectors
+      //   if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362)
+      //   {
+      //     egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
+      //   }
+      // }
+
       // EnergyABdc for forward and backward angles
       if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
       {
         egamABdc_fwdAngle90->Fill(dali->GetHitAB(k)->GetDCEnergy());
         egamABdctgam_fwdAngle90->Fill(dali->GetHitAB(k)->GetTOffset(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdcmult_fwdAngle90->Fill(dali->GetMult(), dali->GetHitAB(k)->GetDCEnergy());
+        egamABdcmultAB_fwdAngle90->Fill(dali->GetMultAB(), dali->GetHitAB(k)->GetDCEnergy());
 
         if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
         {
@@ -1041,6 +1065,17 @@ int main(int argc, char *argv[])
         for (float ebeta = 0.4; ebeta < 0.6; ebeta += 0.001)
         {
           egamABdc_beta->Fill(ebeta, dali->GetHitAB(k)->GetDCEnergy(ebeta));
+        }
+      }
+
+      // Multiplicity gates
+      if (dali->GetMultAB() < 5)
+      {
+        egamABdc_multAB[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetDCEnergy());
+
+        if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
+        {
+          egamABdc_multAB_fwdAngle90[dali->GetMultAB()]->Fill(dali->GetHitAB(k)->GetDCEnergy());
         }
       }
 
