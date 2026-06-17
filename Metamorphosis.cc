@@ -447,6 +447,7 @@ int main(int argc, char *argv[])
 
     // trigger bit information
     TArtRawEventObject *rawevent = (TArtRawEventObject *)sman->FindDataContainer("RawEvent");
+
     // for (int i = 0; i < rawevent->GetNumSeg(); i++)
     // {
     //   TArtRawSegmentObject *seg = rawevent->GetSegment(i);
@@ -462,7 +463,7 @@ int main(int argc, char *argv[])
     //   }
     // }
 
-    //////////// From Chen's MakeOnlineBigRIPSTree.cc ////////////
+    // //////////// From Chen's MakeOnlineBigRIPSTree.cc ////////////
     for (int i = 0; i < rawevent->GetNumSeg(); i++)
     {
       TArtRawSegmentObject *seg = rawevent->GetSegment(i);
@@ -479,7 +480,25 @@ int main(int argc, char *argv[])
         }
       }
     }
-    //--------- From Chen's MakeOnlineBigRIPSTree.cc ------------
+    // //------------------------
+
+    // //////////// From Chen's MakeAllTree.cc ////////////
+    // for (int i = 0; i < rawevent->GetNumSeg(); i++)
+    // {
+    //   TArtRawSegmentObject *seg = rawevent->GetSegment(i);
+    //   Int_t fpl = seg->GetFP();
+    //   Int_t detector = seg->GetDetector();
+    //   if (fpl == 63 && detector == 10)
+    //   {
+    //     for (int j = 0; j < seg->GetNumData(); j++)
+    //     {
+    //       TArtRawDataObject *d = seg->GetData(j);
+    //       trigbit = d->GetVal();
+    //       // cout<<"triggerbit: "<<triggerbit<<endl;
+    //     }
+    //   }
+    // }
+    //------------------------
 
     // if(!set->WithDALI()){
     // timestamp information

@@ -1,0 +1,6 @@
+RUN	STATUS	RUNTIME(s)	OUTPUT
+3001	OK	371	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_3001.root
+3003	OK	3587	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_3003.root
+3004	OK	3665	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_3004.root
+3005	OK	3672	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_3005.root
+3002	OK	3811	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_3002.root

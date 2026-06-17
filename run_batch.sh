@@ -3,11 +3,19 @@
 ##### USAGE:
 # MAX_PARALLEL=8 ./run_batch.sh --runs runs.txt
 # ./run_batch.sh --runs runs.txt --suffix "_v3.root" --force
-# ./run_batch.sh --runs runFiles/runs_5000_p1.csv --summary summaryFiles/summary_5000_p1.tsv --force --dry-run
 
 # ./run_batch.sh --runs runFiles/runs_6000_p1.csv --summary summaryFiles/summary_6000_p1.tsv --force
 # ./run_batch.sh --runs runFiles/runs_6000_p2.csv --summary summaryFiles/summary_6000_p2.tsv --force
 # ./run_batch.sh --runs runFiles/runs_6000_p3.csv --summary summaryFiles/summary_6000_p3.tsv --force
+# ./run_batch.sh --runs runFiles/runs_1000_p1.csv --summary summaryFiles/summary_1000_p1.tsv --force
+# ./run_batch.sh --runs runFiles/runs_1000_p2.csv --summary summaryFiles/summary_1000_p2.tsv --force
+# ./run_batch.sh --runs runFiles/runs_2000_p1.csv --summary summaryFiles/summary_2000_p1.tsv --force
+# ./run_batch.sh --runs runFiles/runs_2000_p2.csv --summary summaryFiles/summary_2000_p2.tsv --force
+# ./run_batch.sh --runs runFiles/runs_3000_p1.csv --summary summaryFiles/summary_3000_p1.tsv --force
+# ./run_batch.sh --runs runFiles/runs_5000_p1.csv --summary summaryFiles/summary_5000_p1.tsv --force
+# ./run_batch.sh --runs runFiles/runs_5000_p2.csv --summary summaryFiles/summary_5000_p2.tsv --force
+# ./run_batch.sh --runs runFiles/runs_5000_p3.csv --summary summaryFiles/summary_5000_p3.tsv --force
+
 
 # While running check:
 # tail -f logs/run_6003.log

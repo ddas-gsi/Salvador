@@ -114,6 +114,34 @@
 # Fixing 51K AoQC for 6000 series
 # Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_minus2.root -s ./settings/bkp/set_51K_Au_minus2.dat -n 500000
 # Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_plus2.root -s ./settings/bkp/set_51K_Au_plus2.dat -n 500000
-Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030.root -s ./settings/set_51K_Au.dat -n 500000
+# Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030.root -s ./settings/set_51K_Au.dat -n 500000
 
+# # Checking and testing for time Calibration for 1000 series
+# Metamorphosis -i ./ridf/Gamma25_1010.ridf.gz -o ./rootfiles/ddas/meta/meta_1010_tgamTest.root -s ./settings/test/set_49K_C.dat -n 1000000
 
+# Persistence -i ./rootfiles/ddas/meta/meta_1010_tgamTest.root \
+#             -o ./rootfiles/ddas/meta/pers_tr_1010_tgamTest.root \
+#             -s ./settings/test/set_49K_C.dat \
+#             -tn tr  -le 1000000
+
+# Persistence -i ./rootfiles/ddas/meta/meta_1010_tgamTest_online_db2.root \
+#             -o ./rootfiles/ddas/meta/pers_tr_1010_tgamTest_newAnaroot.root \
+#             -s ./settings/test/set_49K_C.dat \
+#             -tn tr  
+
+# Persistence -i ./rootfiles/ddas/meta/meta_1010.root \
+#             -o ./rootfiles/ddas/meta/pers_tr_1010_previous.root \
+#             -s ./settings/test/set_49K_C.dat \
+#             -tn tr  -le 1000000
+
+# To fix timeCalibration finally for 1000,2000,3000 series 
+# (after I compared the ANAROOT for my version and During_Experiment version, 
+# and after I fixed the VME and other stuffs applied in TArtCalibDALI.hh, TArtDALINaI.hh, TArtBeam.hh)
+
+# ./run_meta_parallel.sh 2008 2009 2010 2011 2012
+
+# Persistence -i ./rootfiles/ddas/meta/meta_2008.root ./rootfiles/ddas/meta/meta_2009.root ./rootfiles/ddas/meta/meta_2010.root ./rootfiles/ddas/meta/meta_2011.root ./rootfiles/ddas/meta/meta_2012.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_all_iso_2000.root \
+#             -s ./settings/set_49K_Au.dat \
+#             -tn tr wt 0
+            

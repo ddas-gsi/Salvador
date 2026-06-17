@@ -142,24 +142,24 @@ int main(int argc, char *argv[])
   bool recalDALIToffsets = rec->DoReCalDALIToffsets();
   if (recalDALIToffsets)
   {
-    cout << "✅ ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
+    cout << "\n✅⏰ ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
     cout << "DALI time offsets will be read from file: " << rec->GetSettings()->DALIToffsetFile() << endl;
   }
   else
   {
-    cout << "DALI time offsets done at Anaroot level" << endl;
+    cout << "\n❌⏰ DALI time offsets done at Anaroot level" << endl;
   }
 
   bool doEventBetaCorr = rec->DoEventBetaCorr();
   if (doEventBetaCorr)
   {
-    cout << "\n✅ ENABLED: Doing Event by Event beta corrections for Doppler Reconstruction..." << endl;
+    cout << "\n✅🐎 ENABLED: Doing Event by Event beta corrections for Doppler Reconstruction..." << endl;
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
     cout << "Average beta after the target:\t" << rec->GetSettings()->GetAvgBetaAfter() << endl;
   }
   else
   {
-    cout << "\nDoing Average Beta corrections for Doppler Reconstruction..." << endl;
+    cout << "\n❌🐎Doing Average Beta corrections for Doppler Reconstruction..." << endl;
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
   }
 
@@ -179,11 +179,11 @@ int main(int argc, char *argv[])
   bool applyPlasticCuts = rec->ApplyPlasticCuts();
   if (applyPlasticCuts)
   {
-    cout << "\n✅ ENABLED: Applying Plastic Cuts >> fpCutMask..." << endl;
+    cout << "\n✅🐞 ENABLED: Applying Plastic Cuts >> fpCutMask..." << endl;
   }
   else
   {
-    cout << "\n❌ No Plastic Cuts Applied..." << endl;
+    cout << "\n❌🐞 No Plastic Cuts Applied..." << endl;
   }
 
   TList *hlist = new TList();
