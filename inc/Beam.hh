@@ -41,6 +41,7 @@ public:
     for (unsigned short j = 0; j < 4; j++)
     {
       fdelta[j] = sqrt(-1.);
+      fbrho[j] = sqrt(-1.);
     }
     ftargetpos.SetXYZ(0, 0, -99999);
     fincdir.SetXYZ(0, 0, -99999);
@@ -108,6 +109,13 @@ public:
     if (j < 0 || j > 3)
       return;
     fdelta[j] = delta;
+  }
+  //! Set the brho
+  void SetBrho(unsigned short j, double brho)
+  {
+    if (j < 0 || j > 3)
+      return;
+    fbrho[j] = brho;
   }
 
   //! Set the target position
@@ -221,6 +229,13 @@ public:
       return sqrt(-1.);
     return fdelta[j];
   }
+  //! Get brho
+  double GetBrho(unsigned short j)
+  {
+    if (j < 0 || j > 3)
+      return sqrt(-1.);
+    return fbrho[j];
+  }
   //! Get the direction of the incoming beam in lab system
   TVector3 GetIncomingDirection()
   {
@@ -286,6 +301,8 @@ protected:
 
   //! delta momentum 3-5, 5-7, 8-9, 9-11
   double fdelta[4];
+  //! brho 3-5, 5-7, 8-9, 9-11
+  double fbrho[4];
 
   //! target position
   TVector3 ftargetpos;

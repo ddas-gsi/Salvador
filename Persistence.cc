@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    cout << "\n⚠⏰ DALI time offsets done at Anaroot level" << endl;
+    cout << "\n⚠ ⏰ DALI time offsets done at Anaroot level" << endl;
   }
 
   bool doEventBetaCorr = rec->DoEventBetaCorr();
@@ -159,21 +159,21 @@ int main(int argc, char *argv[])
   }
   else
   {
-    cout << "\n⚠🚀Doing Average Beta corrections for Doppler Reconstruction..." << endl;
+    cout << "\n⚠ 🚀Doing Average Beta corrections for Doppler Reconstruction..." << endl;
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
   }
 
   bool doRipsBeta13Cuts = rec->DoRipsBeta13Cuts();
   if (doRipsBeta13Cuts)
   {
-    cout << "\n✅ ENABLED: Doing RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
+    cout << "\n✅ ENABLED: Doing RIPSBeta cuts in RIPSBeta13 plot..." << endl;
     cout << "RIPSBeta1 vs RIPSBeta3 cut lines:" << endl;
     cout << "Upper line:\tSlope = " << rec->GetSettings()->GetRipsBeta13CutSlope(0) << ", Intercept = " << rec->GetSettings()->GetRipsBeta13CutIntercept(0) << endl;
     cout << "Lower line:\tSlope = " << rec->GetSettings()->GetRipsBeta13CutSlope(1) << ", Intercept = " << rec->GetSettings()->GetRipsBeta13CutIntercept(1) << endl;
   }
   else
   {
-    cout << "\n❌ DISABLED: RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
+    cout << "\n❌  DISABLED: RIPSBeta cuts in RIPSBeta13 plot..." << endl;
   }
 
   bool applyPlasticCuts = rec->ApplyPlasticCuts();

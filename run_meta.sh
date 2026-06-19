@@ -145,3 +145,5 @@
 #             -s ./settings/set_49K_Au.dat \
 #             -tn tr wt 0
             
+# Brho calculation added in Meta
+Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_brho_test.root -s ./settings/set_51K_Au.dat -n 500000

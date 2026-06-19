@@ -969,7 +969,10 @@ int main(int argc, char *argv[])
     }
 
     for (unsigned short b = 0; b < 4; b++)
+    {
       beam->SetDelta(b, recorips[b]->GetDelta());
+      beam->SetBrho(b, recorips[b]->GetBrho());
+    }
 
     if (set->WithDALI() && dalicalib != NULL)
     {
