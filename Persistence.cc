@@ -326,6 +326,16 @@ int main(int argc, char *argv[])
     deltadiff[b] = new TH1F(Form("deltadiff_%d", b), Form("deltadiff_%d", b), 1000, -10, 10);
     hlist->Add(deltadiff[b]);
   }
+  // Brho
+  TH1F *brho[4];
+  for (unsigned short b = 0; b < 4; b++)
+  {
+    brho[b] = new TH1F(Form("brho_%d", b), Form("brho_%d", b), 1000, 0, 10);
+    hlist->Add(brho[b]);
+  }
+  TH2F *brhoBR = new TH2F("brhoBR", "brho_0 vs brho_0/brho_1; brho_0/brho_1; brho_0", 1000, 0.5, 1.5, 1000, 0, 10);
+  TH2F *brhoZD = new TH2F("brhoZD", "brho_2 vs brho_2/brho_3; brho_2/brho_3; brho_2", 1000, 0.5, 1.5, 1000, 0, 10);
+
   // background inspection
   TH2F *PL3PPAC3 = new TH2F("PL3PPAC3", "PL3PPAC3", 1000, -5, 5, 1000, -150, 150);
   hlist->Add(PL3PPAC3);
@@ -895,9 +905,14 @@ int main(int argc, char *argv[])
     }
 
     for (unsigned short b = 0; b < 4; b++)
+    {
       delta[b]->Fill(beam->GetDelta(b));
+      brho[b]->Fill(beam->GetBrho(b));
+    }
     deltadiff[0]->Fill(beam->GetDelta(1) - beam->GetDelta(0));
     deltadiff[1]->Fill(beam->GetDelta(3) - beam->GetDelta(2));
+    brhoBR->Fill(beam->GetBrho(0) / beam->GetBrho(1), beam->GetBrho(0));
+    brhoZD->Fill(beam->GetBrho(2) / beam->GetBrho(3), beam->GetBrho(2));
 
     double a = inc.X() / inc.Z();
     double b = inc.Y() / inc.Z();

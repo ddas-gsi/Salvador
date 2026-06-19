@@ -143,7 +143,10 @@
 # Persistence -i ./rootfiles/ddas/meta/meta_2008.root ./rootfiles/ddas/meta/meta_2009.root ./rootfiles/ddas/meta/meta_2010.root ./rootfiles/ddas/meta/meta_2011.root ./rootfiles/ddas/meta/meta_2012.root \
 #             -o ./rootfiles/ddas/pers/pers_tr_all_iso_2000.root \
 #             -s ./settings/set_49K_Au.dat \
-#             -tn tr wt 0
+#             -tn tr -wt 0
             
 # Brho calculation added in Meta
-Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_brho_test.root -s ./settings/set_51K_Au.dat -n 500000
+# Metamorphosis -i ./ridf/Gamma25_6030.ridf.gz -o ./rootfiles/ddas/meta/meta_6030_brho_test.root -s ./settings/set_51K_Au.dat -n 500000
+
+Persistence -i ./rootfiles/ddas/meta/meta_6030_brho_test.root -o ./rootfiles/ddas/pers/pers_tr_all_6030_brho_test.root -s ./settings/set_51K_Au.dat -tn tr -wt 0
+            
