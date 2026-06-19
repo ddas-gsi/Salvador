@@ -57,13 +57,22 @@ void timeCalib()
     // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Au2000.root", "RECREATE");
     // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_2000.root");
 
-    ofstream fouttxt("/u/ddas/software/Salvador/toffset/dali_toffset_all_iso_g700_Be3000.txt");
-    ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be3000.csv");
-    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be3000.root", "RECREATE");
-    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_3000.root");
+    // ofstream fouttxt("/u/ddas/software/Salvador/toffset/dali_toffset_all_iso_g700_Be3000.txt");
+    // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be3000.csv");
+    // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be3000.root", "RECREATE");
+    // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_3000.root");
+
+    // ofstream fouttxt("/u/ddas/software/Salvador/toffset/dali_toffset_all_iso_g700_Be5000.txt");
+    // ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be5000.csv");
+    // TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Be5000.root", "RECREATE");
+    // TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_5000.root");
+
+    ofstream fouttxt("/u/ddas/software/Salvador/toffset/dali_toffset_all_iso_g700_Au6000.txt");
+    ofstream foutcsv("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Au6000.csv");
+    TFile *fout = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/timeOffsets_all_iso_g700_Au6000.root", "RECREATE");
+    TFile *fin = TFile::Open("/u/ddas/Lustre/gamma/ddas/RIBF249/rootfiles/ddas/pers/pers_tr_all_iso_6000.root");
 
     foutcsv << "DetectorID,MPV/Mean,Sigma,TimeOffset,MaxBin,MaxMPVDiff,FitStatus,ReFitStatus\n";
-
     TCanvas *c1 = new TCanvas("c1", "Time", 1200, 800);
 
     // TH2F *h2 = (TH2F *)fin->Get("time_id_g1000");
@@ -114,7 +123,7 @@ void timeCalib()
 
         if (abs(xmax - landauFit->GetParameter(1)) > 5)
         {
-            cout << "  Fit MPV " << landauFit->GetParameter(1) << " is too far from max " << xmax << endl;
+            cout << "  🚩 Fit MPV " << landauFit->GetParameter(1) << " is too far from max " << xmax << endl;
 
             delete landauFit; // Clean up the failed fit function
             landauFit = nullptr;
@@ -128,7 +137,7 @@ void timeCalib()
             if (abs(xmax - landauFit->GetParameter(1)) > 5)
             {
                 // If the fitted MPV is too far from the initial max, consider it a failure
-                cout << "  Fit MPV " << landauFit->GetParameter(1) << " is too far from max " << xmax << ", marking as failure." << endl;
+                cout << "  ❌ Fit MPV " << landauFit->GetParameter(1) << " is too far from max " << xmax << ", marking as failure." << endl;
                 refitStatus = -5; // Mark as failure
             }
         }
@@ -177,7 +186,7 @@ void timeCalib()
     c2->Write("c_time_calib");
 
     c2->Update();
-    gApplication->Run();
+    // gApplication->Run();
 
     fout->Close();
 }

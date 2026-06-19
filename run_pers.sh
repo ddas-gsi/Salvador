@@ -86,8 +86,29 @@
 #             -tn tr wt 0
 
 # To calculate toffset for 3000 series, since the 2000 series dosen't work on 3000, except 1000 & 2000 series
+# Persistence -i ./rootfiles/ddas/meta/meta_3002.root ./rootfiles/ddas/meta/meta_3003.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_all_iso_3000.root \
+#             -s ./settings/set_49K_Be.dat \
+#             -tn tr -wt 0
 
-Persistence -i ./rootfiles/ddas/meta/meta_3002.root ./rootfiles/ddas/meta/meta_3003.root \
-            -o ./rootfiles/ddas/pers/pers_tr_all_iso_3000.root \
-            -s ./settings/set_49K_Be.dat \
+# To calculate toffset for 5000 series
+# Persistence -i ./rootfiles/ddas/meta/meta_5020.root ./rootfiles/ddas/meta/meta_5021.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_all_iso_5000.root \
+#             -s ./settings/set_51K_Be.dat \
+#             -tn tr -wt 0
+
+Persistence -i ./rootfiles/ddas/meta/meta_5020.root ./rootfiles/ddas/meta/meta_5021.root \
+            -o ./rootfiles/ddas/pers/pers_tr_all_iso_5000_wDoRecalDaliToff.root \
+            -s ./settings/set_51K_Be.dat \
             -tn tr -wt 0
+
+# # To calculate toffset for 6000 series
+# Persistence -i ./rootfiles/ddas/meta/meta_6030.root ./rootfiles/ddas/meta/meta_6031.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_all_iso_6000.root \
+#             -s ./settings/set_51K_Au.dat \
+#             -tn tr -wt 0
+
+# Persistence -i ./rootfiles/ddas/meta/meta_6030.root ./rootfiles/ddas/meta/meta_6031.root \
+#             -o ./rootfiles/ddas/pers/pers_tr_all_iso_6000_wDoRecalDaliToff.root \
+#             -s ./settings/set_51K_Au.dat \
+#             -tn tr -wt 0

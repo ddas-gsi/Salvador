@@ -142,24 +142,24 @@ int main(int argc, char *argv[])
   bool recalDALIToffsets = rec->DoReCalDALIToffsets();
   if (recalDALIToffsets)
   {
-    cout << "\n✅⏰ ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
+    cout << "\n🏁⏰ ENABLED: Recalibration of DALI time offsets from the settings file..." << endl;
     cout << "DALI time offsets will be read from file: " << rec->GetSettings()->DALIToffsetFile() << endl;
   }
   else
   {
-    cout << "\n❌⏰ DALI time offsets done at Anaroot level" << endl;
+    cout << "\n⚠⏰ DALI time offsets done at Anaroot level" << endl;
   }
 
   bool doEventBetaCorr = rec->DoEventBetaCorr();
   if (doEventBetaCorr)
   {
-    cout << "\n✅🐎 ENABLED: Doing Event by Event beta corrections for Doppler Reconstruction..." << endl;
+    cout << "\n🚩🚀 ENABLED: Doing Event by Event beta corrections for Doppler Reconstruction..." << endl;
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
     cout << "Average beta after the target:\t" << rec->GetSettings()->GetAvgBetaAfter() << endl;
   }
   else
   {
-    cout << "\n❌🐎Doing Average Beta corrections for Doppler Reconstruction..." << endl;
+    cout << "\n⚠🚀Doing Average Beta corrections for Doppler Reconstruction..." << endl;
     cout << "Average beta at mid of the target:\t" << rec->GetSettings()->GetAvgBeta() << endl;
   }
 
@@ -173,17 +173,17 @@ int main(int argc, char *argv[])
   }
   else
   {
-    cout << "\n❌ Not Applied RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
+    cout << "\n❌ DISABLED: RIPSBeta cuts in RIPSBeta1 vs RIPSBeta3 plot..." << endl;
   }
 
   bool applyPlasticCuts = rec->ApplyPlasticCuts();
   if (applyPlasticCuts)
   {
-    cout << "\n✅🐞 ENABLED: Applying Plastic Cuts >> fpCutMask..." << endl;
+    cout << "\n✅💡 ENABLED: Applying Plastic Cuts >> fpCutMask..." << endl;
   }
   else
   {
-    cout << "\n❌🐞 No Plastic Cuts Applied..." << endl;
+    cout << "\n❌💡 No Plastic Cuts Applied..." << endl;
   }
 
   TList *hlist = new TList();
@@ -368,24 +368,43 @@ int main(int argc, char *argv[])
   hlist->Add(mult);
   TH2F *multtrig = new TH2F("multtrig", "multtrig", NTRIG, 0, NTRIG, 50, 0, 50);
   hlist->Add(multtrig);
+
+  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamtgam);
+  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamdctgam);
+
+  TH2F *egamdctgam_fwdAngle90 = new TH2F("egamdctgam_fwdAngle90", "egamdctgam_fwdAngle90", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamdctgam_fwdAngle90);
+  TH2F *egamdctgam_fwdAngle80 = new TH2F("egamdctgam_fwdAngle80", "egamdctgam_fwdAngle80", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamdctgam_fwdAngle80);
+  TH2F *egamdctgam_fwdAngle70 = new TH2F("egamdctgam_fwdAngle70", "egamdctgam_fwdAngle70", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamdctgam_fwdAngle70);
+  TH2F *egamdctgam_fwdAngle60 = new TH2F("egamdctgam_fwdAngle60", "egamdctgam_fwdAngle60", 1000, -500, 500, bins, 0, bins);
+  hlist->Add(egamdctgam_fwdAngle60);
+
   TH1F *egam = new TH1F("egam", "egam", bins, 0, bins);
   hlist->Add(egam);
   TH1F *egamdc = new TH1F("egamdc", "egamdc", bins, 0, bins);
   hlist->Add(egamdc);
   // EnergyDC at Forward angles
-  TH1F *egamdc_fwdAngle = new TH1F("egamdc_fwdAngle", "egamdc_fwdAngle", bins, 0, bins); // theta < 70 deg
-  hlist->Add(egamdc_fwdAngle);
+  TH1F *egamdc_fwdAngle90 = new TH1F("egamdc_fwdAngle90", "egamdc_fwdAngle90", bins, 0, bins);
+  hlist->Add(egamdc_fwdAngle90);
+  TH1F *egamdc_fwdAngle80 = new TH1F("egamdc_fwdAngle80", "egamdc_fwdAngle80", bins, 0, bins);
+  hlist->Add(egamdc_fwdAngle80);
+  TH1F *egamdc_fwdAngle70 = new TH1F("egamdc_fwdAngle70", "egamdc_fwdAngle70", bins, 0, bins);
+  hlist->Add(egamdc_fwdAngle70);
+  TH1F *egamdc_fwdAngle60 = new TH1F("egamdc_fwdAngle60", "egamdc_fwdAngle60", bins, 0, bins);
+  hlist->Add(egamdc_fwdAngle60);
   // EnergyDC at Backward angles
-  TH1F *egamdc_bkwAngle = new TH1F("egamdc_bkwAngle", "egamdc_bkwAngle", bins, 0, bins); // theta > 70 deg
+  TH1F *egamdc_bkwAngle = new TH1F("egamdc_bkwAngle", "egamdc_bkwAngle", bins, 0, bins); // theta > 90 deg
   hlist->Add(egamdc_bkwAngle);
+
   TH1F *egam_IDgate = new TH1F("egam_IDgate", "egam_IDgate", bins, 0, bins);
   hlist->Add(egam_IDgate);
   TH1F *egamdc_IDgate = new TH1F("egamdc_IDgate", "egamdc_IDgate", bins, 0, bins);
   hlist->Add(egamdc_IDgate);
-  TH2F *egamtgam = new TH2F("egamtgam", "egamtgam", 1000, -500, 500, bins, 0, bins);
-  hlist->Add(egamtgam);
-  TH2F *egamdctgam = new TH2F("egamdctgam", "egamdctgam", 1000, -500, 500, bins, 0, bins);
-  hlist->Add(egamdctgam);
+
   TH2F *time_id = new TH2F("time_id", "time_id", DALIIDS, 0, DALIIDS, 2000, -2000, 0);
   hlist->Add(time_id);
   TH2F *time_id_g1000 = new TH2F("time_id_g1000", "time_id_g1000", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
@@ -396,6 +415,7 @@ int main(int argc, char *argv[])
   hlist->Add(time_id_g500);
   TH2F *time_id_le500 = new TH2F("time_id_le500", "time_id_le500", DALIIDS, 0, DALIIDS, 1000, -2000, 0);
   hlist->Add(time_id_le500);
+
   TH2F *tgamID = new TH2F("tgamID", "tgamID", DALIIDS, 0, DALIIDS, 1000, -500, 500);
   hlist->Add(tgamID);
   TH2F *tgamID_g1000 = new TH2F("tgamID_g1000", "tgamID_g1000", DALIIDS, 0, DALIIDS, 500, -500, 500);
@@ -406,6 +426,10 @@ int main(int argc, char *argv[])
   hlist->Add(tgamID_g500);
   TH2F *tgamID_le500 = new TH2F("tgamID_le500", "tgamID_le500", DALIIDS, 0, DALIIDS, 500, -500, 500);
   hlist->Add(tgamID_le500);
+
+  // TH2F *tgamtgamAB = new TH2F("tgamtgamAB", "tgamtgamAB; tgam; tgamAB", 1000, -500, 500, 1000, -500, 500);
+  // hlist->Add(tgamtgamAB);
+
   TH2F *egammult = new TH2F("egammult", "egammult", 20, 0, 20, bins, 0, bins);
   hlist->Add(egammult);
   TH2F *egamdcmult = new TH2F("egamdcmult", "egamdcmult", 20, 0, 20, bins, 0, bins);
@@ -930,9 +954,25 @@ int main(int argc, char *argv[])
       egamdc->Fill(dali->GetHit(k)->GetDCEnergy());
 
       // EnergyDC for forward and backward angles
-      if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 70)
+      if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
       {
-        egamdc_fwdAngle->Fill(dali->GetHit(k)->GetDCEnergy());
+        egamdc_fwdAngle90->Fill(dali->GetHit(k)->GetDCEnergy());
+        egamdctgam_fwdAngle90->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
+        if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 80)
+        {
+          egamdc_fwdAngle80->Fill(dali->GetHit(k)->GetDCEnergy());
+          // egamdctgam_fwdAngle80->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
+          if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 70)
+          {
+            egamdc_fwdAngle70->Fill(dali->GetHit(k)->GetDCEnergy());
+            // egamdctgam_fwdAngle70->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
+            if (dali->GetHit(k)->GetPos().Theta() * 180 / TMath::Pi() < 60)
+            {
+              egamdc_fwdAngle60->Fill(dali->GetHit(k)->GetDCEnergy());
+              // egamdctgam_fwdAngle60->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
+            }
+          }
+        }
       }
       else
       {
@@ -945,7 +985,6 @@ int main(int argc, char *argv[])
       egamdctgam->Fill(dali->GetHit(k)->GetTOffset(), dali->GetHit(k)->GetDCEnergy());
       time_id->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
       tgamID->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
-
       if (dali->GetHit(k)->GetEnergy() > 500)
       {
         tgamID_g500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
@@ -966,6 +1005,12 @@ int main(int argc, char *argv[])
         tgamID_le500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTOffset());
         time_id_le500->Fill(dali->GetHit(k)->GetID(), dali->GetHit(k)->GetTime());
       }
+
+      // if (dali->GetHit(k)->GetID() == 2)
+      // {
+      //   tgamtgamAB->Fill(dali->GetHits()->GetTOffset(), dali->GetHitsAB()->GetTOffset());
+      // }
+
       egamtrig->Fill(trigbit, dali->GetHit(k)->GetEnergy());
       // egamdctrig->Fill(trigbit,dali->GetHit(k)->GetDCEnergy());
       egammult->Fill(dali->GetMult(), dali->GetHit(k)->GetEnergy());
@@ -1014,17 +1059,6 @@ int main(int argc, char *argv[])
     {
       egamAB->Fill(dali->GetHitAB(k)->GetEnergy());
       egamABdc->Fill(dali->GetHitAB(k)->GetDCEnergy());
-
-      // // For good DALI+HYPATIA detectors
-      // if (dali->GetHitAB(k)->GetID() >= 0 && dali->GetHitAB(k)->GetID() <= 362)
-      // {
-      //   egamABdc_good->Fill(dali->GetHitAB(k)->GetDCEnergy());
-      //   // For good HYPATIA detectors
-      //   if (dali->GetHitAB(k)->GetID() >= 300 && dali->GetHitAB(k)->GetID() <= 362)
-      //   {
-      //     egamABdc_hyp->Fill(dali->GetHitAB(k)->GetDCEnergy());
-      //   }
-      // }
 
       // EnergyABdc for forward and backward angles
       if (dali->GetHitAB(k)->GetPos().Theta() * 180 / TMath::Pi() < 90)
