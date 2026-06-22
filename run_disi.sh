@@ -37,7 +37,7 @@
 # 2000 Series
 # Disintegration -i ./rootfiles/ddas/meta/meta_2010.root -o ./rootfiles/ddas/disi/disi_2010.root -c ./rootfiles/ddas/cuts/disicuts/disi_Cuts_50Ca_Au_2000.root
 
-for r in {2004..2021}; do Disintegration -i ./rootfiles/ddas/meta/meta_${r}.root -o ./rootfiles/ddas/disi/disi_${r}.root -c ./rootfiles/ddas/cuts/disicuts/disi_Cuts_50Ca_Au_2000.root; done
+# for r in {2004..2021}; do Disintegration -i ./rootfiles/ddas/meta/meta_${r}.root -o ./rootfiles/ddas/disi/disi_${r}.root -c ./rootfiles/ddas/cuts/disicuts/disi_Cuts_50Ca_Au_2000.root; done
 
 
 # 3000 Series
@@ -48,3 +48,5 @@ for r in {2004..2021}; do Disintegration -i ./rootfiles/ddas/meta/meta_${r}.root
 
 # # 6000 Series
 # Disintegration -i ./rootfiles/ddas/meta/meta_6030.root -o ./rootfiles/ddas/disi/disi_6030.root -c ./rootfiles/ddas/cuts/disicuts/disi_Cuts_53Ca_Au_6000.root
+
+Disintegration -i ./rootfiles/ddas/meta/meta_2010.root -o ./rootfiles/ddas/disi/disi_2010.root -c ./rootfiles/ddas/cuts/disicuts/disi_Cuts_49K_Au_2000.root

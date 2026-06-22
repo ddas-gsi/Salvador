@@ -1,12 +1,2 @@
-RUN	STATUS	RUNTIME(s)	OUTPUT
-2016	OK	56861	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2016.root
-2017	OK	56403	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2017.root
-2018	OK	56207	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2018.root
-2019	OK	55727	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2019.root
-2019	OK	9750	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2019.root
-2018	OK	9764	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2018.root
-2017	OK	9924	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2017.root
-2016	OK	10071	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2016.root
-2020	OK	10746	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2020.root
-2021	OK	5854	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2021.root
-2020	FAILED	395607	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_2020.root
+RUN	STATUS	RUNTIME(s)	OUTPUT	DATETIME
+5002	DRY_RUN	0	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5002.root	-

@@ -334,7 +334,9 @@ int main(int argc, char *argv[])
     hlist->Add(brho[b]);
   }
   TH2F *brhoBR = new TH2F("brhoBR", "brho_0 vs brho_0/brho_1; brho_0/brho_1; brho_0", 1000, 0.5, 1.5, 1000, 0, 10);
+  hlist->Add(brhoBR);
   TH2F *brhoZD = new TH2F("brhoZD", "brho_2 vs brho_2/brho_3; brho_2/brho_3; brho_2", 1000, 0.5, 1.5, 1000, 0, 10);
+  hlist->Add(brhoZD);
 
   // background inspection
   TH2F *PL3PPAC3 = new TH2F("PL3PPAC3", "PL3PPAC3", 1000, -5, 5, 1000, -150, 150);
