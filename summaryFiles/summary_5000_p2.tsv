@@ -1,12 +1,11 @@
-RUN	STATUS	RUNTIME(s)	OUTPUT
-5013	OK	2648	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5013.root
-5017	OK	2782	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5017.root
-5019	OK	2827	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5019.root
-5018	OK	2876	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5018.root
-5016	OK	2879	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5016.root
-5014	OK	2901	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5014.root
-5021	OK	2944	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5021.root
-5020	OK	2993	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5020.root
-5022	OK	3103	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5022.root
-5015	OK	3219	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5015.root
-5023	OK	2825	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5023.root
+RUN	STATUS	RUNTIME(s)	OUTPUT	DATETIME
+5013	OK	2624	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5013.root	Di 23. Jun 09:39:38 CEST 2026
+5014	OK	2788	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5014.root	Di 23. Jun 09:42:22 CEST 2026
+5015	OK	2816	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5015.root	Di 23. Jun 09:42:50 CEST 2026
+5018	OK	2824	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5018.root	Di 23. Jun 09:42:58 CEST 2026
+5017	OK	2826	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5017.root	Di 23. Jun 09:43:00 CEST 2026
+5020	OK	2842	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5020.root	Di 23. Jun 09:43:16 CEST 2026
+5016	OK	2869	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5016.root	Di 23. Jun 09:43:43 CEST 2026
+5019	OK	2920	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5019.root	Di 23. Jun 09:44:34 CEST 2026
+5021	OK	2971	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5021.root	Di 23. Jun 09:45:25 CEST 2026
+5022	OK	3122	/u/ddas/software/Salvador/rootfiles/ddas/meta/meta_5022.root	Di 23. Jun 09:47:56 CEST 2026

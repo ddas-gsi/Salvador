@@ -6,15 +6,16 @@
 
 # ./run_batch.sh --runs runFiles/runs_1000_p1.csv --summary summaryFiles/summary_1000_p1.tsv --force
 # ./run_batch.sh --runs runFiles/runs_1000_p2.csv --summary summaryFiles/summary_1000_p2.tsv --force
-# ./run_batch.sh --runs runFiles/runs_2000_p1.csv --summary summaryFiles/summary_2000_p1.tsv --force
-# ./run_batch.sh --runs runFiles/runs_2000_p2.csv --summary summaryFiles/summary_2000_p2.tsv --force
+# ./run_batch.sh --runs runFiles/runs_2000_p1.csv --summary summaryFiles/summary_2000_p1.tsv --force --disi --dsum summaryFiles/disi_summary_2000_p1.tsv
+# ./run_batch.sh --runs runFiles/runs_2000_p2.csv --summary summaryFiles/summary_2000_p2.tsv --force --disi --dsum summaryFiles/disi_summary_2000_p2.tsv
 # ./run_batch.sh --runs runFiles/runs_3000_p1.csv --summary summaryFiles/summary_3000_p1.tsv --force
-# ./run_batch.sh --runs runFiles/runs_5000_p1.csv --summary summaryFiles/summary_5000_p1.tsv --force
-# ./run_batch.sh --runs runFiles/runs_5000_p2.csv --summary summaryFiles/summary_5000_p2.tsv --force
-# ./run_batch.sh --runs runFiles/runs_5000_p3.csv --summary summaryFiles/summary_5000_p3.tsv --force
+# ./run_batch.sh --runs runFiles/runs_5000_p1.csv --summary summaryFiles/summary_5000_p1.tsv --force --disi --dsum summaryFiles/disi_summary_5000_p1.tsv
+# ./run_batch.sh --runs runFiles/runs_5000_p2.csv --summary summaryFiles/summary_5000_p2.tsv --force --disi --dsum summaryFiles/disi_summary_5000_p2.tsv
+# ./run_batch.sh --runs runFiles/runs_5000_p3.csv --summary summaryFiles/summary_5000_p3.tsv --force --disi --dsum summaryFiles/disi_summary_5000_p3.tsv
 # ./run_batch.sh --runs runFiles/runs_6000_p1.csv --summary summaryFiles/summary_6000_p1.tsv --force
 # ./run_batch.sh --runs runFiles/runs_6000_p2.csv --summary summaryFiles/summary_6000_p2.tsv --force
 # ./run_batch.sh --runs runFiles/runs_6000_p3.csv --summary summaryFiles/summary_6000_p3.tsv --force
+
 
 # While running check:
 # tail -f logs/run_6003.log
@@ -262,7 +263,7 @@ run_single() {
 # Handle Ctrl+C 
 cleanup() {
     echo ""
-    echo "❌ Ctrl+C detected. Stopping all running Disintegration jobs..."
+    echo "❌ Ctrl+C detected. Stopping all running Batch jobs..."
 
     # Kill all child jobs of this script
     jobs -p | xargs -r kill

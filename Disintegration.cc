@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
   cFile->Close();
 
   cout << "output file: " << OutFile << endl;
-  TFile *ofile = new TFile(OutFile, "UPDATE");
+  TFile *ofile = new TFile(OutFile, "RECREATE");
   ofile->cd();
 
   splittree.resize(InPartCut.size());
